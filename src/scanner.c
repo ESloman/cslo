@@ -83,17 +83,18 @@ static Token string() {
 
 
 static Token number() {
-  while (isDigit(peek())) advance();
-
-  // Look for a fractional part.
-  if (peek() == '.' && isDigit(peekNext())) {
-    // Consume the ".".
-    advance();
-
     while (isDigit(peek())) advance();
-  }
 
-  return makeToken(TOKEN_NUMBER);
+    // Look for a fractional part.
+    if (peek() == '.' && isDigit(peekNext())) {
+        // Consume the ".".
+        advance();
+
+        while (isDigit(peek())) advance();
+    }
+
+    printf("Found number!");
+    return makeToken(TOKEN_NUMBER);
 }
 
 

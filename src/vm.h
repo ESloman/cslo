@@ -27,6 +27,7 @@ void initVM();
 void freeVM();
 
 static InterpretResult run();
+static Value peek(int distance);
 
 InterpretResult interpret(const char* source);
 void push(Value value);
