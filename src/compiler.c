@@ -201,7 +201,6 @@ static void grouping() {
 
 static void number() {
     double value = strtod(parser.previous.start, NULL);
-    printf("emitting number constant: %g", value);
     emitConstant(NUMBER_VAL(value));
 }
 
@@ -272,7 +271,6 @@ static ParseRule* getRule(TokenType type) {
 
 static void expression() {
     parsePrecedence(PREC_ASSIGNMENT);
-
 }
 
 

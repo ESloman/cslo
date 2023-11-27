@@ -13,7 +13,7 @@ VM vm;
 
 
 static void resetStack() {
-    vm.stackCount = 0;
+    vm.stackTop = vm.stack;
 }
 
 
@@ -36,8 +36,6 @@ static InterpretResult run() {
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
 #define BINARY_OP(valueType, op) \
     do { \
-        printf("first type: %s %i %g\n", ValueTypeNames[peek(0).type], peek(0).type, peek(0).as.number); \
-        printf("second type: %s %i %g\n", ValueTypeNames[peek(1).type], peek(0).type, peek(0).as.number); \
         if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
             runtimeError("Operands must be numbers."); \
             return INTERPRET_RUNTIME_ERROR; \
@@ -51,12 +49,12 @@ static InterpretResult run() {
     for (;;) {
         #ifdef DEBUG_TRACE_EXECUTION
             printf("          ");
-            for (Value *slot = vm.stack; slot < vm.stack + vm.stackCount; slot++) {
+            for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
                 printf("[ ");
                 printValue(*slot);
                 printf(" ]");
             }
-            printf("\n");
+                printf("\n");
             disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
         #endif
         uint8_t instruction;
@@ -87,7 +85,6 @@ static InterpretResult run() {
             }
             case OP_NEGATE:
                 if (!IS_NUMBER(peek(0))) {
-                    printf("enum value: %i\n", peek(0).type);
                     runtimeError("Operand must be a number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
@@ -108,8 +105,6 @@ static InterpretResult run() {
 
 
 void initVM() {
-    vm.stack = NULL;
-    vm.stackCapacity = 0;
     resetStack();
 }
 
@@ -119,25 +114,19 @@ void freeVM() {
 
 
 void push(Value value) {
-    if (vm.stackCapacity < vm.stackCount + 1) {
-        int oldCapacity = vm.stackCapacity;
-        vm.stackCapacity = GROW_CAPACITY(oldCapacity);
-        vm.stack = GROW_ARRAY(Value, vm.stack, oldCapacity, vm.stackCapacity);
-    }
-
-    vm.stack[vm.stackCount] = value;
-    vm.stackCount++;
+    *vm.stackTop = value;
+    vm.stackTop++;
 }
 
 
 Value pop() {
-  vm.stackCount--;
-  return vm.stack[vm.stackCount];
+    vm.stackTop--;
+    return *vm.stackTop;
 }
 
 
 static Value peek(int distance) {
-    return vm.stack[-1 - distance];
+    return vm.stackTop[-1 - distance];
 }
 
 

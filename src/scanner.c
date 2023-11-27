@@ -93,7 +93,6 @@ static Token number() {
         while (isDigit(peek())) advance();
     }
 
-    printf("Found number!");
     return makeToken(TOKEN_NUMBER);
 }
 
