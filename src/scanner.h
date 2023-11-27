@@ -76,10 +76,4 @@ typedef struct {
 void initScanner(const char* source);
 Token scanToken();
 
-static Token errorToken(const char* message);
-static Token makeToken(TokenType token);
-
-static bool isDigit(char c);
-
-
 #endif

@@ -15,6 +15,11 @@ typedef struct {
 Scanner scanner;
 
 
+static Token errorToken(const char* message);
+static Token makeToken(TokenType token);
+static bool isDigit(char c);
+
+
 static bool isAtEnd() {
     return *scanner.current == '\0';
 }

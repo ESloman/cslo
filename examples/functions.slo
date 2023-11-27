@@ -1,0 +1,7 @@
+fun echo(x) {
+    print x;
+}
+
+for (var i = 0; i < 25; i = i + 1) {
+    echo(i);
+}
