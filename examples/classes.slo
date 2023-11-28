@@ -1,0 +1,19 @@
+
+class TestClass {}
+print TestClass;
+
+var test = TestClass();
+print test;
+
+var test2 = TestClass();
+print test2;
+
+print test == test2;
+
+test.testVar = "test class 1";
+test2.testVar = "test class 2";
+
+print test.testVar;
+print test2.testVar;
+
+print test.testVar == test2.testVar;

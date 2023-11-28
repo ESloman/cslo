@@ -1,6 +1,6 @@
 
 var reach = 100;
-var someString = "Hello World!"
+var someString = "Hello World!";
 
 print someString;
 
