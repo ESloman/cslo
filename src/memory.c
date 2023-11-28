@@ -83,6 +83,7 @@ static void blackenObject(Obj* object) {
         case OBJ_CLASS: {
             ObjClass* klass = (ObjClass*)object;
             markObject((Obj*)klass->name);
+            markTable(&klass->methods);
             break;
         }
         case OBJ_CLOSURE: {
@@ -97,6 +98,12 @@ static void blackenObject(Obj* object) {
             ObjFunction* function = (ObjFunction*)object;
             markObject((Obj*)function->name);
             markArray(&function->chunk.constants);
+            break;
+        }
+        case OBJ_BOUND_METHOD: {
+            ObjBoundMethod* bound = (ObjBoundMethod*)object;
+            markValue(bound->receiver);
+            markObject((Obj*)bound->method);
             break;
         }
         case OBJ_UPVALUE:
@@ -129,6 +136,8 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_CLASS: {
+            ObjClass* klass = (ObjClass*)object;
+            freeTable(&klass->methods);
             FREE(ObjClass, object);
             break;
         }
@@ -144,6 +153,9 @@ static void freeObject(Obj* object) {
             FREE(ObjFunction, object);
             break;
         }
+        case OBJ_BOUND_METHOD:
+            FREE(ObjBoundMethod, object);
+            break;
         case OBJ_NATIVE:
             FREE(ObjNative, object);
             break;
@@ -187,6 +199,7 @@ static void markRoots() {
 
     markTable(&vm.globals);
     markCompilerRoots();
+    markObject((Obj*)vm.initString);
 }
 
 

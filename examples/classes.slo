@@ -1,19 +1,19 @@
 
-class TestClass {}
-print TestClass;
+class TestClass {
+    __init__(name, age) {
+        this.name = name;
+        this.age = age;
+    }
 
-var test = TestClass();
-print test;
+    hello() {
+        print "My name is: " + this.name;
+    }
+}
 
-var test2 = TestClass();
-print test2;
+var test = TestClass("elliot", 29);
+test.hello();
+print test.age;
 
-print test == test2;
-
-test.testVar = "test class 1";
-test2.testVar = "test class 2";
-
-print test.testVar;
-print test2.testVar;
-
-print test.testVar == test2.testVar;
+var test2 = TestClass("bob", 43);
+test2.hello();
+print test2.age;
