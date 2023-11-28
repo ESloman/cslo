@@ -5,11 +5,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define DEBUG_PRINT_CODE
-#define DEBUG_TRACE_EXECUTION
+#define DEBUG_PRINT_CODE 0
+#define DEBUG_TRACE_EXECUTION 0
 
-#undef DEBUG_TRACE_EXECUTION
-#undef DEBUG_PRINT_CODE
+#define DEBUG_STRESS_GC 1
+#define DEBUG_LOG_GC 1
 
 #define UINT8_COUNT (UINT8_MAX + 1)
 

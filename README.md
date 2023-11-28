@@ -3,6 +3,7 @@ C implemention of Slo
 
 
 Some goals of things to add/change:
+- caching files by writing compiled bytecode to a file
 - complete all (most) of the challenges in the book
 - statically typed
 - lists + dictionaries
@@ -17,3 +18,4 @@ Some goals of things to add/change:
     - math
     - json
     - io
+    - some kind of http library
