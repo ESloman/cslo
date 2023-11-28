@@ -5,5 +5,8 @@ fun fibonacci(n) {
 }
 
 for (var i = 0; i < 35; i = i + 1) {
+  var start = clock();
   print fibonacci(i);
+  var end = clock();
+  print end - start;
 }
