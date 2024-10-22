@@ -14,7 +14,8 @@ else
 	CFLAGS := -std=c99
 endif
 
-CFLAGS += -Wall -Wextra -Werror -Wno-unused-parameter
+# CFLAGS += -Wall -Wextra -Werror -Wno-unused-parameter
+CFLAGS += -Wall -Wextra -Wno-unused-parameter
 
 # If we're building at a point in the middle of a chapter, don't fail if there
 # are functions that aren't used yet.

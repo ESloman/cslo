@@ -14,5 +14,5 @@ debug:
 cslo:
 	@ $(MAKE) -f util/c.make NAME=cslo MODE=release SOURCE_DIR=src
 
-cpplox:
+cppslo:
 	@ $(MAKE) -f util/c.make NAME=cppslo MODE=debug CPP=true SOURCE_DIR=src
