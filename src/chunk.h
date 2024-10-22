@@ -16,8 +16,17 @@
  */
 typedef enum {
     OP_CONSTANT,
+    OP_CONSTANT_LONG,
     OP_RETURN,
 } OpCode;
+
+/**
+ * @struct LineStart
+ */
+typedef struct {
+  int offset;
+  int line;
+} LineStart;
 
 /** @struct Chunk
  *  This defines a chunk of code.
@@ -31,8 +40,10 @@ typedef struct {
     int count;
     int capacity;
     uint8_t* code;
-    int* lines;
     ValueArray constants;
+    int lineCount;
+    int lineCapacity;
+    LineStart* lines;
 } Chunk;
 
 
@@ -55,5 +66,12 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line);
  * Method for adding a new constant value to a given chunk.
  */
 int addConstant(Chunk* chunk, Value value);
+
+/**
+ * Method for writing a new constant value to a given chunk.
+ */
+void writeConstant(Chunk* chunk, Value value, int line);
+
+int getLine(Chunk* chunk, int instruction);
 
 #endif
