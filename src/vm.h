@@ -40,9 +40,9 @@ void initVM();
 void freeVM();
 
 /**
- * Method for executing a given chunk.
+ * Method for executing a string of slo code.
  */
-InterpretResult interpret(Chunk* chunk);
+InterpretResult interpret(const char* source);
 
 /**
  * Method for pushing a value onto the stack.

@@ -2,8 +2,8 @@
  * 
  */
 
-#ifndef clox_memory_h
-#define clox_memory_h
+#ifndef cslo_memory_h
+#define cslo_memory_h
 
 #include "common.h"
 

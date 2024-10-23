@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "common.h"
+#include "compiler.h"
 #include "debug.h"
 #include "vm.h"
 
@@ -52,16 +53,11 @@ Value pop() {
 }
 
 /**
- * Implementation of method to execute a chunk.
- * 
- * Sets the VM's chunk to the given one,
- * sets the instruction pointer to the first byte of code in the chunk.
- * 
+ * Method for executing a string of slo code.
  */
-InterpretResult interpret(Chunk* chunk) {
-    vm.chunk = chunk;
-    vm.ip = vm.chunk->code;
-    return run();
+InterpretResult interpret(const char* source) {
+    compile(source);
+    return INTERPRET_OK;
 }
 
 /**
