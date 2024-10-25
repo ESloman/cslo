@@ -22,6 +22,47 @@ void disassembleChunk(Chunk* chunk, const char* name) {
     }
 }
 
+/**
+ * Method for printing a simple instruction.
+ * 
+ * This just prints the given name and inrements the offset.
+ */
+static int simpleInstruction(const char* name, int offset) {
+    printf("%s\n", name);
+    return offset + 1;
+}
+
+/**
+ * Method for printing a constant instruction.
+ * 
+ * Prints the name, the constant, and the value and then increments the offest.
+ */
+static int constantInstruction(const char* name, Chunk* chunk, int offset) {
+    uint8_t constant = chunk->code[offset + 1];
+    printf("%-16s %4d '", name, constant);
+    printValue(chunk->constants.values[constant]);
+    printf("'\n");
+    return offset + 2;
+}
+
+/**
+ * Method for printing a long constant instruction.
+ * 
+ * Prints the name, the constant, and the value and then increments the offest.
+ */
+static int longConstantInstruction(const char* name, Chunk* chunk, int offset) {
+  uint32_t constant = chunk->code[offset + 1] | (chunk->code[offset + 2] << 8) | (chunk->code[offset + 3] << 16);
+  printf("%-16s %4d '", name, constant);
+  printValue(chunk->constants.values[constant]);
+  printf("'\n");
+  return offset + 4;
+}
+
+/**
+ * Disassembles an instruction in a chunk with the given offset.
+ * 
+ * This will call the necessary method for handling that instruction.
+ */
 int disassembleInstruction(Chunk* chunk, int offset) {
     printf("%04d ", offset);
     int line = getLine(chunk, offset);
@@ -54,25 +95,4 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;
     }
-}
-
-static int simpleInstruction(const char* name, int offset) {
-    printf("%s\n", name);
-    return offset + 1;
-}
-
-static int constantInstruction(const char* name, Chunk* chunk, int offset) {
-    uint8_t constant = chunk->code[offset + 1];
-    printf("%-16s %4d '", name, constant);
-    printValue(chunk->constants.values[constant]);
-    printf("'\n");
-    return offset + 2;
-}
-
-static int longConstantInstruction(const char* name, Chunk* chunk, int offset) {
-  uint32_t constant = chunk->code[offset + 1] | (chunk->code[offset + 2] << 8) | (chunk->code[offset + 3] << 16);
-  printf("%-16s %4d '", name, constant);
-  printValue(chunk->constants.values[constant]);
-  printf("'\n");
-  return offset + 4;
 }

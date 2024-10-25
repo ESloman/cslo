@@ -10,7 +10,7 @@
  * 
  * Defines all of the available token types.
  */
-typedef enum {
+typedef enum TokenType {
     // Single-character tokens.
     TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
     TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
@@ -45,7 +45,7 @@ typedef enum {
  *  - the length of the token
  *  - the line the token appears on
  */
-typedef struct {
+typedef struct Token {
     TokenType type;
     const char* start;
     int length;

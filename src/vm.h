@@ -13,7 +13,7 @@
 /**
  * @struct VM
  */
-typedef struct {
+typedef struct VM {
     Chunk* chunk;
     uint8_t* ip;
     Value stack[STACK_MAX];
@@ -23,7 +23,7 @@ typedef struct {
 /**
  * @struct Interpretresult
  */
-typedef enum {
+typedef enum InterpretResult {
     INTERPRET_OK,
     INTERPRET_COMPILE_ERROR,
     INTERPRET_RUNTIME_ERROR

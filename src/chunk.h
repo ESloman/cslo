@@ -14,7 +14,7 @@
  *  This defines all of the valid OpCode for our program.
  *
  */
-typedef enum {
+typedef enum OpCode {
     OP_CONSTANT,
     OP_CONSTANT_LONG,
     OP_NEGATE,
@@ -28,7 +28,7 @@ typedef enum {
 /**
  * @struct LineStart
  */
-typedef struct {
+typedef struct LineStart {
   int offset;
   int line;
 } LineStart;
@@ -41,7 +41,7 @@ typedef struct {
  * code is the code bytes
  *
  */
-typedef struct {
+typedef struct Chunk {
     int count;
     int capacity;
     uint8_t* code;

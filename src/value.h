@@ -7,6 +7,15 @@
 
 #include "common.h"
 
+/**
+ * @enum ValueType
+ */
+typedef enum ValueType {
+    VAL_BOOL,
+    VAL_NIL,
+    VAL_NUMBER
+} ValueType;
+
 typedef double Value;
 
 /**
@@ -14,7 +23,7 @@ typedef double Value;
  * 
  * Constant pool for values.
  */
-typedef struct {
+typedef struct ValueArray {
     int capacity;
     int count;
     Value* values;

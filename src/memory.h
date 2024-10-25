@@ -7,10 +7,12 @@
 
 #include "common.h"
 
+/**
+ * Macro for growing the capacity.
+ * If less than 8 - return 8, otherwise double it.
+ */
 #define GROW_CAPACITY(capacity) \
     ((capacity) < 8 ? 8 : (capacity) * 2)
-
-#endif
 
 /**
  * This macros abstracts calls to reallocate when creating/growing an array.
@@ -37,3 +39,5 @@
  * Method for dynamic memory management in cslo.
  */
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
+
+#endif

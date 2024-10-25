@@ -16,7 +16,7 @@
  * Parser struct keeps track of current and
  * previous tokens.
  */
-typedef struct {
+typedef struct Parser {
     Token current;
     Token previous;
     bool hadError;
@@ -26,7 +26,7 @@ typedef struct {
 /**
  * @enum Precedence
  */
-typedef enum {
+typedef enum Precedence {
     PREC_NONE,
     PREC_ASSIGNMENT,  // =
     PREC_OR,          // or
@@ -48,7 +48,7 @@ typedef void (*ParseFn)();
 /**
  * @struct ParseRule
  */
-typedef struct {
+typedef struct ParseRule {
     ParseFn prefix;
     ParseFn infix;
     Precedence precedence;
