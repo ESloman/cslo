@@ -53,14 +53,6 @@ Value pop() {
 }
 
 /**
- * Method for executing a string of slo code.
- */
-InterpretResult interpret(const char* source) {
-    compile(source);
-    return INTERPRET_OK;
-}
-
-/**
  * Method for actually running byte code.
  */
 static InterpretResult run() {
@@ -133,4 +125,29 @@ static InterpretResult run() {
 #undef READ_LONG_CONSTANT
 #undef BINARY_OP
 
+}
+
+/**
+ * Method for executing a string of slo code.
+ * 
+ * Creates and initialises a chunk that the compiler method
+ * will fill up with bytecode. The chunk is passed to the VM
+ * and then it's executed in 'run()'.
+ */
+InterpretResult interpret(const char* source) {
+    Chunk chunk;
+    initChunk(&chunk);
+
+    if (!compile(source, &chunk)) {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk->code;
+
+    InterpretResult result = run();
+
+    freeChunk(&chunk);
+    return result;
 }

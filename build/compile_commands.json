@@ -1,0 +1,164 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/chunk.o",
+      "src/chunk.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/chunk.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/chunk.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/compiler.o",
+      "src/compiler.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/compiler.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/compiler.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/debug.o",
+      "src/debug.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/debug.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/debug.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/main.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/memory.o",
+      "src/memory.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/memory.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/memory.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/repl.o",
+      "src/repl.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/repl.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/repl.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/scanner.o",
+      "src/scanner.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/scanner.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/scanner.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/value.o",
+      "src/value.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/value.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/value.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/vm.o",
+      "src/vm.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/vm.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/vm.o"
+  }
+]

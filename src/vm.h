@@ -54,6 +54,4 @@ void push(Value value);
  */
 Value pop();
 
-static InterpretResult run();
-
 #endif
