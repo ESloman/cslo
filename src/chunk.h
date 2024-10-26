@@ -15,7 +15,6 @@
  */
 typedef enum OpCode {
     OP_CONSTANT,
-    OP_CONSTANT_LONG,
     OP_NIL,
     OP_TRUE,
     OP_FALSE,
@@ -85,11 +84,6 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line);
  * Method for adding a new constant value to a given chunk.
  */
 int addConstant(Chunk* chunk, Value value);
-
-/**
- * Method for writing a new constant value to a given chunk.
- */
-int writeConstant(Chunk* chunk, Value value, int line);
 
 int getLine(Chunk* chunk, int instruction);
 

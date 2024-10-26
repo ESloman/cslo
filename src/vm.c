@@ -140,7 +140,6 @@ static InterpretResult run() {
 
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
-#define READ_LONG_CONSTANT() (vm.chunk->constants.values[vm.chunk->code[READ_BYTE()] | (vm.chunk->code[READ_BYTE()] << 8) | (vm.chunk->code[READ_BYTE()] << 16)])
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(valueType, op) \
     do { \
@@ -170,11 +169,6 @@ static InterpretResult run() {
         switch (instruction = READ_BYTE()) {
             case OP_CONSTANT: {
                 Value constant = READ_CONSTANT();
-                push(constant);
-                break;
-            }
-            case OP_CONSTANT_LONG: {
-                Value constant = READ_LONG_CONSTANT();
                 push(constant);
                 break;
             }
@@ -305,7 +299,6 @@ static InterpretResult run() {
 
 #undef READ_BYTE
 #undef READ_CONSTANT
-#undef READ_LONG_CONSTANT
 #undef READ_STRING
 #undef BINARY_OP
 

@@ -260,10 +260,23 @@ static void emitReturn() {
 }
 
 /**
+ * makeConstant
+ */
+static uint8_t makeConstant(Value value) {
+    int constant = addConstant(currentChunk(), value);
+    if (constant > UINT8_MAX) {
+        error("Too many constants in one chunk.");
+        return 0;
+    }
+
+    return (uint8_t)constant;
+}
+
+/**
  * Method for writing a constant to the chunk.
  */
 static void emitConstant(Value value) {
-    writeConstant(currentChunk(), value, parser.previous.line);
+    emitBytes(OP_CONSTANT, makeConstant(value));
 }
 
 /**
@@ -307,10 +320,8 @@ static void parsePrecedence(Precedence precedence) {
  * Method for identifying a constant.
  */
 static uint8_t identifierConstant(Token* name) {
-    return (uint8_t) writeConstant(
-        currentChunk(),
-        OBJ_VAL(copyString(name->start, name->length)),
-        parser.previous.line
+    return makeConstant(
+        OBJ_VAL(copyString(name->start, name->length))
     );
 }
 
