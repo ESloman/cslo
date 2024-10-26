@@ -46,6 +46,7 @@ static void runtimeError(const char* format, ...) {
 void initVM() {
     resetStack();
     vm.objects = NULL;
+    initTable(&vm.globals);
     initTable(&vm.strings);
 }
 
@@ -53,6 +54,7 @@ void initVM() {
  * Implementation of method to free the virtual machine.
  */
 void freeVM() {
+    freeTable(&vm.globals);
     freeTable(&vm.strings);
     freeObjects();
 }
@@ -139,6 +141,7 @@ static InterpretResult run() {
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
 #define READ_LONG_CONSTANT() (vm.chunk->constants.values[vm.chunk->code[READ_BYTE()] | (vm.chunk->code[READ_BYTE()] << 8) | (vm.chunk->code[READ_BYTE()] << 16)])
+#define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(valueType, op) \
     do { \
         if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
@@ -185,6 +188,35 @@ static InterpretResult run() {
             }
             case OP_FALSE: {
                 push(BOOL_VAL(false));
+                break;
+            }
+            case OP_POP: {
+                pop();
+                break;
+            }
+            case OP_GET_GLOBAL: {
+                ObjString* name = READ_STRING();
+                Value value;
+                if (!tableGet(&vm.globals, OBJ_VAL(name), &value)) {
+                    runtimeError("Undefined variable '%s'", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(value);
+                break;
+            }
+            case OP_SET_GLOBAL: {
+                ObjString* name = READ_STRING();
+                if (tableSet(&vm.globals, OBJ_VAL(name), peek(0))) {
+                    tableDelete(&vm.globals, OBJ_VAL(name));
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+            case OP_DEFINE_GLOBAL: {
+                ObjString* name = READ_STRING();
+                tableSet(&vm.globals, OBJ_VAL(name), peek(0));
+                pop();
                 break;
             }
             case OP_EQUAL: {
@@ -260,9 +292,12 @@ static InterpretResult run() {
                 push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
             }
-            case OP_RETURN: {
+            case OP_PRINT: {
                 printValue(pop());
                 printf("\n");
+                break;
+            }
+            case OP_RETURN: {
                 return INTERPRET_OK;
             }
         }
@@ -271,6 +306,7 @@ static InterpretResult run() {
 #undef READ_BYTE
 #undef READ_CONSTANT
 #undef READ_LONG_CONSTANT
+#undef READ_STRING
 #undef BINARY_OP
 
 }

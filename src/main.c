@@ -12,7 +12,6 @@
 #include "repl.h"
 #include "vm.h"
 
-
 /**
  * Method for reading a slo file.
  */

@@ -19,6 +19,10 @@ typedef enum OpCode {
     OP_NIL,
     OP_TRUE,
     OP_FALSE,
+    OP_POP,
+    OP_DEFINE_GLOBAL,
+    OP_GET_GLOBAL,
+    OP_SET_GLOBAL,
     OP_EQUAL,
     OP_NOT_EQUAL,
     OP_GREATER,
@@ -26,6 +30,7 @@ typedef enum OpCode {
     OP_LESS,
     OP_LESS_EQUAL,
     OP_NEGATE,
+    OP_PRINT,
     OP_ADD,
     OP_SUBTRACT,
     OP_MULTIPLY,
@@ -84,7 +89,7 @@ int addConstant(Chunk* chunk, Value value);
 /**
  * Method for writing a new constant value to a given chunk.
  */
-void writeConstant(Chunk* chunk, Value value, int line);
+int writeConstant(Chunk* chunk, Value value, int line);
 
 int getLine(Chunk* chunk, int instruction);
 
