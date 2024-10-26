@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 #include "memory.h"
+#include "object.h"
+#include "vm.h"
 
 /**
  * Implementation of reallocate function.
@@ -18,4 +20,36 @@ void *reallocate(void *pointer, size_t oldSize, size_t newSize) {
     void* result = realloc(pointer, newSize);
     if (result == NULL) exit(1);
     return result;
+}
+
+/**
+ * Method for freeing an object.
+ * 
+ * Switches based on type and ensures we free all aspects of the Obj.
+ */
+static void freeObject(Obj* object) {
+    switch (object->type) {
+        case OBJ_STRING: {
+            ObjString* string = (ObjString*)object;
+            FREE_ARRAY(char, string->chars, string->length + 1);
+            FREE(ObjString, object);
+            break;
+        }
+        default:
+            return;
+    }
+}
+
+/**
+ * Method for freeing all the objects.
+ * 
+ * This walks the linked list of Objs and calls freeObject for each.
+ */
+void freeObjects() {
+    Obj* object = vm.objects;
+    while (object != NULL) {
+        Obj* next = object->next;
+        freeObject(object);
+        object = next;
+  }
 }

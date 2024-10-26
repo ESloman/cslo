@@ -6,6 +6,7 @@
 #define cslo_vm_h
 
 #include "chunk.h"
+#include "object.h"
 #include "value.h"
 
 #define STACK_MAX 256
@@ -18,6 +19,7 @@ typedef struct VM {
     uint8_t* ip;
     Value stack[STACK_MAX];
     Value* stackTop;
+    Obj* objects;
 } VM;
 
 /**
@@ -28,6 +30,8 @@ typedef enum InterpretResult {
     INTERPRET_COMPILE_ERROR,
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
+
+extern VM vm;
 
 /**
  * Method for initialising the virtual machine on startup.

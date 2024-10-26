@@ -61,6 +61,7 @@ static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 static void grouping();
 static void number();
+static void string();
 static void unary();
 static void binary();
 static void literal();
@@ -104,7 +105,7 @@ ParseRule rules[] = {
   [TOKEN_LESS]          = {NULL,     binary, PREC_EQUALITY},
   [TOKEN_LESS_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
   [TOKEN_IDENTIFIER]    = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_STRING]        = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_STRING]        = {string,   NULL,   PREC_NONE},
   [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
   [TOKEN_AND]           = {NULL,     NULL,   PREC_NONE},
   [TOKEN_CLASS]         = {NULL,     NULL,   PREC_NONE},
@@ -176,7 +177,10 @@ static void errorAtCurrent(const char* message) {
 }
 
 /**
+ * Method for advancing the parser's token.
  * 
+ * Sets the previous token to the current and retrieves the next
+ * token. Will report any errors if it encoutners an error token.
  */
 static void advance() {
     parser.previous = parser.current;
@@ -210,13 +214,17 @@ static void consume(TokenType type, const char* message) {
  * Method for 'emitting' a byte.
  * 
  * This writes a given bit of bytecode to the current chunk.
+ * 
+ * This takes a line number as a parameter because it's plausible
+ * that some bytes being emitted aren't necessarily always going to be
+ * from 'parser.previous.line'.
  */
 static void emitByte(uint8_t byte, int line) {
     writeChunk(currentChunk(), byte, line);
 }
 
 /**
- * 
+ * Method for emitting two bytes in sequence for convenience.
  */
 static void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte1, parser.previous.line);
@@ -231,7 +239,7 @@ static void emitReturn() {
 }
 
 /**
- * 
+ * Method for writing a constant to the chunk.
  */
 static void emitConstant(Value value) {
     writeConstant(currentChunk(), value, parser.previous.line);
@@ -365,6 +373,13 @@ static void grouping() {
 static void number() {
     double value = strtod(parser.previous.start, NULL);
     emitConstant(NUMBER_VAL(value));
+}
+
+/**
+ * 
+ */
+static void string() {
+    emitConstant(OBJ_VAL(copyString(parser.previous.start +1, parser.previous.length - 2)));
 }
 
 /**

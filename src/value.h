@@ -8,12 +8,23 @@
 #include "common.h"
 
 /**
+ * @struct Obj
+ */
+typedef struct Obj Obj;
+
+/**
+ * @struct ObjString
+ */
+typedef struct ObjString ObjString;
+
+/**
  * @enum ValueType
  */
 typedef enum ValueType {
     VAL_BOOL,
     VAL_NIL,
-    VAL_NUMBER
+    VAL_NUMBER,
+    VAL_OBJ
 } ValueType;
 
 /**
@@ -27,6 +38,7 @@ typedef struct Value {
     union {
         bool boolean;
         double number;
+        Obj* obj;
     } as;
 } Value;
 
@@ -43,17 +55,21 @@ typedef struct Value {
 /** Macro for checking if the given value is a VAL_NUMBER. */
 #define IS_NUMBER(value)  ((value).type == VAL_NUMBER)
 
-
+/** Macro for checking if the given value is a VAL_OBJ. */
+#define IS_OBJ(value)     ((value).type == VAL_OBJ)
 
 /**
- * Macros for convering slo Values into C values.
+ * Macros for converting slo Values into C values.
  */
 
-/** Macro for convering a boolean Value into a bool. */
+/** Macro for converting a boolean Value into a bool. */
 #define AS_BOOL(value)    ((value).as.boolean)
 
-/** Macro for convering a number Value into a double. */
+/** Macro for converting a number Value into a double. */
 #define AS_NUMBER(value)  ((value).as.number)
+
+/** Macro for converting a value to an object. */
+#define AS_OBJ(value)     ((value).as.obj)
 
 /**
  * Macros for converting C values into slo Values.
@@ -67,6 +83,9 @@ typedef struct Value {
 
 /**Macro for creating a number Value from the given number. */
 #define NUMBER_VAL(value) ((Value){VAL_NUMBER, {.number = value}})
+
+/** Macro for creating a Obj Value from the given value. */
+#define OBJ_VAL(object)   ((Value){VAL_OBJ, {.obj = (Obj*)object}})
 
 /**
  * @struct ValueArray
