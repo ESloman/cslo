@@ -12,7 +12,7 @@
  * @struct Entry
  */
 typedef struct Entry {
-    ObjString* key;
+    Value key;
     Value value;
 } Entry;
 
@@ -38,12 +38,12 @@ void freeTable(Table* table);
 /**
  * Method for inserting an entry into the table.
  */
-bool tableSet(Table* table, ObjString* key, Value value);
+bool tableSet(Table* table, Value key, Value value);
 
 /**
  * Method for deleting an entry from a table.
  */
-bool tableDelete(Table* table, ObjString* key);
+bool tableDelete(Table* table, Value key);
 
 /**
  * Method for copying all of one table's entries into another.
@@ -58,6 +58,6 @@ ObjString* tableFindString(Table* table, const char* chars, int length, uint32_t
 /**
  * Method for retrieving a value from a table for a given key.
  */
-bool tableGet(Table* table, ObjString* key, Value* value);
+bool tableGet(Table* table, Value key, Value* value);
 
 #endif

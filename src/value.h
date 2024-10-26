@@ -24,7 +24,8 @@ typedef enum ValueType {
     VAL_BOOL,
     VAL_NIL,
     VAL_NUMBER,
-    VAL_OBJ
+    VAL_OBJ,
+    VAL_EMPTY // used for tombstoning
 } ValueType;
 
 /**
@@ -58,6 +59,9 @@ typedef struct Value {
 /** Macro for checking if the given value is a VAL_OBJ. */
 #define IS_OBJ(value)     ((value).type == VAL_OBJ)
 
+/** Macro for checking if the given value is a VAL_EMPTY. */
+#define IS_EMPTY(value)   ((value).type == VAL_EMPTY)
+
 /**
  * Macros for converting slo Values into C values.
  */
@@ -86,6 +90,9 @@ typedef struct Value {
 
 /** Macro for creating a Obj Value from the given value. */
 #define OBJ_VAL(object)   ((Value){VAL_OBJ, {.obj = (Obj*)object}})
+
+/** Macro for creating an Empty value. */
+#define EMPTY_VAL         ((Value){VAL_EMPTY, { .number = 0 } })
 
 /**
  * @struct ValueArray
@@ -122,5 +129,10 @@ void freeValueArray(ValueArray* array);
  * Method for printing a cslo value.
  */
 void printValue(Value value);
+
+/**
+ * Method for hashing a Value.
+ */
+uint32_t hashValue(Value value);
 
 #endif
