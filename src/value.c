@@ -127,5 +127,8 @@ uint32_t hashValue(Value value) {
             return AS_STRING(value)->hash;
         case VAL_EMPTY:
             return 0;
+        default:
+            printf("Unknown hash type: '%d'", value.type);
+            return 1;
     }
 }

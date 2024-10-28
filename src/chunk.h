@@ -22,6 +22,8 @@ typedef enum OpCode {
     OP_DEFINE_GLOBAL,
     OP_GET_GLOBAL,
     OP_SET_GLOBAL,
+    OP_GET_LOCAL,
+    OP_SET_LOCAL,
     OP_EQUAL,
     OP_NOT_EQUAL,
     OP_GREATER,
