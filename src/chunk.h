@@ -37,6 +37,8 @@ typedef enum OpCode {
     OP_MULTIPLY,
     OP_DIVIDE,
     OP_NOT,
+    OP_JUMP,
+    OP_JUMP_IF_FALSE,
     OP_RETURN,
 } OpCode;
 
