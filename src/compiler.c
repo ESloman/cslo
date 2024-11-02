@@ -86,6 +86,8 @@ static void variable(bool canAssign);
 static void unary(bool canAssign);
 static void binary(bool canAssign);
 static void literal(bool canAssign);
+static void and_(bool canAssign);
+static void or_(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
@@ -128,7 +130,7 @@ ParseRule rules[] = {
   [TOKEN_IDENTIFIER]    = {variable, NULL,   PREC_NONE},
   [TOKEN_STRING]        = {string,   NULL,   PREC_NONE},
   [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
-  [TOKEN_AND]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_AND]           = {NULL,     and_,   PREC_AND},
   [TOKEN_CLASS]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_ELSE]          = {NULL,     NULL,   PREC_NONE},
   [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
@@ -136,7 +138,7 @@ ParseRule rules[] = {
   [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
   [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
   [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
-  [TOKEN_OR]            = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
   [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
   [TOKEN_SUPER]         = {NULL,     NULL,   PREC_NONE},
@@ -269,6 +271,21 @@ static void emitByte(uint8_t byte, int line) {
 static void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte1, parser.previous.line);
     emitByte(byte2, parser.previous.line);
+}
+
+/**
+ * Method for emitting a loop instruction.
+ */
+static void emitLoop(int loopStart) {
+    emitByte(OP_LOOP, parser.previous.line);
+
+    int offset = currentChunk()->count - loopStart + 2;
+    if (offset > UINT16_MAX) {
+        error("Loop body too large.");
+    }
+
+    emitByte((offset >> 8) & 0xff, parser.previous.line);
+    emitByte(offset & 0xff, parser.previous.line);
 }
 
 /**
@@ -494,6 +511,40 @@ static void defineVariable(uint8_t global) {
 }
 
 /**
+ * Method for compiling AND statements.
+ * Effectively, works like control flow.
+ * By this point, the left-hand side has been compiled
+ * already so if it evaluates to 'False', we want to skip
+ * the right-hand statement.
+ */
+static void and_(bool canAssign) {
+    int endJump = emitJump(OP_JUMP_IF_FALSE);
+
+    emitByte(OP_POP, parser.previous.line);
+    parsePrecedence(PREC_AND);
+
+    patchJump(endJump);
+}
+
+/**
+ * Method for compiling OR statements.
+ * Effectively, works like control flow.
+ * By this point, the left-hand side has been compiled
+ * already so if it evaluates to 'True', we want to skip
+ * the right-hand statement.
+ */
+static void or_(bool canAssign) {
+    int elseJump = emitJump(OP_JUMP_IF_FALSE);
+    int endJump = emitJump(OP_JUMP);
+
+    patchJump(elseJump);
+    emitByte(OP_POP, parser.previous.line);
+    
+    parsePrecedence(PREC_OR);
+    patchJump(endJump);
+}
+
+/**
  * Method for returning the rules for a given token.
  */
 static ParseRule* getRule(TokenType type) {
@@ -612,6 +663,52 @@ static void expressionStatement() {
 }
 
 /**
+ * Method for compiling for statements.
+ */
+static void forStatement() {
+    beginScope();
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+    if (match(TOKEN_SEMICOLON)) {
+        // NOTHING
+    } else if (match(TOKEN_VAR)) {
+        varDeclaration();
+    } else {
+        expressionStatement();
+    }
+
+    int loopStart = currentChunk()->count;
+    int exitJump = -1;
+    if(!match(TOKEN_SEMICOLON)) {
+        expression();
+        consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
+
+        exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP, parser.previous.line);
+    }
+
+    if (!match(TOKEN_RIGHT_PAREN)) {
+        int bodyJump = emitJump(OP_JUMP);
+        int incrementStart = currentChunk()->count;
+        expression();
+        emitByte(OP_POP, parser.previous.line);
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        emitLoop(loopStart);
+        loopStart = incrementStart;
+        patchJump(bodyJump);
+    }
+
+    statement();
+    emitLoop(loopStart);
+
+    if (exitJump != -1) {
+        patchJump(exitJump);
+        emitByte(OP_POP, parser.previous.line);
+    }
+    endScope();
+}
+
+/**
  * Method for compiling if statements.
  */
 static void ifStatement() {
@@ -632,6 +729,24 @@ static void ifStatement() {
         statement();
     }
     patchJump(elseJump);
+}
+
+/**
+ * Method for compiling while statements.
+ */
+static void whileStatement() {
+    int loopStart = currentChunk()->count;
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP, parser.previous.line);
+    statement();
+    emitLoop(loopStart);
+
+    patchJump(exitJump);
+    emitByte(OP_POP, parser.previous.line);
 }
 
 /**
@@ -693,8 +808,12 @@ static void declaration() {
 static void statement() {
     if (match(TOKEN_PRINT)) {
         printStatement();
+    } else if (match(TOKEN_FOR)) {
+        forStatement();
     } else if (match(TOKEN_IF)) {
         ifStatement();
+    } else if (match(TOKEN_WHILE)) {
+        whileStatement();
     } else if (match(TOKEN_LEFT_BRACE)) {
         beginScope();
         block();
