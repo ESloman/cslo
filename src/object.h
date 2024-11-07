@@ -5,6 +5,7 @@
 #ifndef cslo_object_h
 #define cslo_object_h
 
+#include "chunk.h"
 #include "common.h"
 #include "value.h"
 
@@ -17,12 +18,18 @@
  * Macros for checking object types.
  */
 
+/** Macro for checking the given object is a ObjFunction. */
+#define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION) 
+
 /** Macro for checking the given object is a ObjString. */
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 
 /**
  * Macros for converting values to objects.
  */
+
+/** Method for convering the Value to an ObjFunction. */
+#define AS_FUNCTION(value)     ((ObjFunction*)AS_OBJ(value))
 
 /** Macro for converting a Value to an ObjString. */
 #define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
@@ -34,6 +41,7 @@
  * @enum ObjType
  */
 typedef enum ObjType {
+    OBJ_FUNCTION,
     OBJ_STRING,
 } ObjType;
 
@@ -51,6 +59,16 @@ struct Obj {
 };
 
 /**
+ * @struct ObjFunction
+ */
+typedef struct ObjFunction {
+    Obj obj;
+    int arity;
+    Chunk chunk;
+    ObjString* name;
+} ObjFunction;
+
+/**
  * Struct for ObjString.
  * 
  * As well as the base Obj, contains the length of the string
@@ -62,6 +80,11 @@ struct ObjString {
     char* chars;
     uint32_t hash;
 };
+
+/**
+ * Method for creating a ObjFunction.
+ */
+ObjFunction* newFunction();
 
 /**
  * Method for creating an ObjString an taking ownership of the given string.

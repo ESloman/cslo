@@ -70,16 +70,16 @@ int addConstant(Chunk* chunk, Value value) {
     return chunk->constants.count - 1;
 }
 
-int getLine(Chunk* chunk, int instruction) {
+int getLine(Chunk chunk, size_t instruction) {
     int start = 0;
-    int end = chunk->lineCount - 1;
+    int end = chunk.lineCount;
 
     for (;;) {
         int mid = (start + end) / 2;
-        LineStart* line = &chunk->lines[mid];
+        LineStart* line = &chunk.lines[mid];
         if (instruction < line->offset) {
             end = mid - 1;
-        } else if (mid == chunk->lineCount - 1 || instruction < chunk->lines[mid + 1].offset) {
+        } else if (mid == chunk.lineCount - 1 || instruction < chunk.lines[mid + 1].offset) {
             return line->line;
         } else {
         start = mid + 1;

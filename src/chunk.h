@@ -8,7 +8,6 @@
 #include "common.h"
 #include "value.h"
 
-
 /** @enum OpCode
  *  This defines all of the valid OpCode for our program.
  *
@@ -40,6 +39,7 @@ typedef enum OpCode {
     OP_JUMP,
     OP_JUMP_IF_FALSE,
     OP_LOOP,
+    OP_CALL,
     OP_RETURN,
 } OpCode;
 
@@ -90,6 +90,6 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line);
  */
 int addConstant(Chunk* chunk, Value value);
 
-int getLine(Chunk* chunk, int instruction);
+int getLine(Chunk chunk, size_t instruction);
 
 #endif

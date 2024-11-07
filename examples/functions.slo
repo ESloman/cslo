@@ -1,7 +1,13 @@
-fun echo(x) {
+func echo(x) {
     print x;
+    print x + 10;
 }
 
+print "Start";
 for (var i = 0; i < 25; i = i + 1) {
-    echo(i);
+    print i;
 }
+
+print "End";
+
+echo(59);

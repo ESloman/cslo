@@ -28,6 +28,18 @@ static Obj* allocateObject(size_t size, ObjType type) {
 }
 
 /**
+ * Method for creating a ObjFunction.
+ */
+ObjFunction* newFunction() {
+    ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
+    function->arity = 0;
+    function->name = NULL;
+    initChunk(&function->chunk);
+    return function;
+}
+
+
+/**
  * Method for creating an ObjString.
  * 
  * This creates the ObjString and 
@@ -85,10 +97,24 @@ ObjString* copyString(const char* chars, int length) {
 }
 
 /**
+ * Method for prining a function.
+ */
+static void printFunction(ObjFunction* function) {
+    if (function->name == NULL) {
+        printf("<script>");
+        return;
+    }
+    printf("<fn %s>", function->name->chars);
+}
+
+/**
  * Method for printing an object.
  */
 void printObject(Value value) {
     switch (OBJ_TYPE(value)) {
+        case OBJ_FUNCTION:
+            printFunction(AS_FUNCTION(value));
+            break;
         case OBJ_STRING:
             printf("%s", AS_CSTRING(value));
             break;
