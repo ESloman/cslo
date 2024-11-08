@@ -27,6 +27,18 @@ static Obj* allocateObject(size_t size, ObjType type) {
     return object;
 }
 
+ObjClosure* newClosure(ObjFunction* function) {
+    ObjUpvalue** upvalues = ALLOCATE(ObjUpvalue*, function->upvalueCount);
+    for (int i = 0; i < function->upvalueCount; i++) {
+        upvalues[i] = NULL;
+    }
+    ObjClosure* closure = ALLOCATE_OBJ(ObjClosure, OBJ_CLOSURE);
+    closure->function = function;
+    closure->upvalues = upvalues;
+    closure->upvalueCount = function->upvalueCount;
+    return closure;
+}
+
 /**
  * Method for creating a ObjFunction.
  */
@@ -34,6 +46,7 @@ ObjFunction* newFunction() {
     ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
     function->arity = 0;
     function->name = NULL;
+    function->upvalueCount = 0;
     initChunk(&function->chunk);
     return function;
 }
@@ -47,6 +60,16 @@ ObjNative* newNative(NativeFn function) {
     return native;
 }
 
+/**
+ * Method for creating a new upvalue.
+ */
+ObjUpvalue* newUpvalue(Value* slot) {
+    ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
+    upvalue->closed = NIL_VAL;
+    upvalue->location = slot;
+    upvalue->next = NULL;
+    return upvalue;
+}
 
 /**
  * Method for creating an ObjString.
@@ -121,15 +144,26 @@ static void printFunction(ObjFunction* function) {
  */
 void printObject(Value value) {
     switch (OBJ_TYPE(value)) {
-        case OBJ_FUNCTION:
+        case OBJ_CLOSURE: {
+            printFunction(AS_CLOSURE(value)->function);
+            break;
+        }
+        case OBJ_FUNCTION: {
             printFunction(AS_FUNCTION(value));
             break;
-        case OBJ_NATIVE:
+        }
+        case OBJ_NATIVE: {
             printf("<native fn>");
             break;
-        case OBJ_STRING:
+        }
+        case OBJ_STRING: {
             printf("%s", AS_CSTRING(value));
             break;
+        }
+        case OBJ_UPVALUE: {
+            printf("upvalue");
+            break;
+        }
         default:
             return;
     }

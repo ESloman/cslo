@@ -1,6 +1,7 @@
-fun outer() {
-  var x = "outside";
-  fun inner() {
+var x = "global";
+func outer() {
+  var x = "outer";
+  func inner() {
     print(x);
   }
   inner();
@@ -8,14 +9,14 @@ fun outer() {
 outer();
 
 
-fun outer() {
-  var x = "outside";
-  fun inner() {
-    print(x);
+func outer2() {
+  var y = "outside";
+  func inner2() {
+    print(y);
   }
 
-  return inner;
+  return inner2;
 }
 
-var closure = outer();
-closure();
+var closure2 = outer2();
+closure2();

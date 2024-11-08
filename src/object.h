@@ -18,6 +18,9 @@
  * Macros for checking object types.
  */
 
+/** Macro for checking if the given object is a ObjClosure. */
+#define IS_CLOSURE(value)      isObjType(value, OBJ_CLOSURE);
+
 /** Macro for checking the given object is a ObjFunction. */
 #define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION) 
 
@@ -31,10 +34,13 @@
  * Macros for converting values to objects.
  */
 
-/** Method for converting the Value to an ObjFunction. */
+/** Macro for converting the Value to an ObjClosure. */
+#define AS_CLOSURE(value)      ((ObjClosure*)AS_OBJ(value))
+
+/** Macro for converting the Value to an ObjFunction. */
 #define AS_FUNCTION(value)     ((ObjFunction*)AS_OBJ(value))
 
-/** Method for converting the Value to an ObjNative. */
+/** Macro for converting the Value to an ObjNative. */
 #define AS_NATIVE(value)       (((ObjNative*)AS_OBJ(value))->function)
 
 /** Macro for converting a Value to an ObjString. */
@@ -47,9 +53,11 @@
  * @enum ObjType
  */
 typedef enum ObjType {
+    OBJ_CLOSURE,
     OBJ_FUNCTION,
     OBJ_NATIVE,
     OBJ_STRING,
+    OBJ_UPVALUE,
 } ObjType;
 
 /**
@@ -71,6 +79,7 @@ struct Obj {
 typedef struct ObjFunction {
     Obj obj;
     int arity;
+    int upvalueCount;
     Chunk chunk;
     ObjString* name;
 } ObjFunction;
@@ -87,7 +96,7 @@ typedef struct ObjNative {
 } ObjNative;
 
 /**
- * Struct for ObjString.
+ * @struct ObjString.
  * 
  * As well as the base Obj, contains the length of the string
  * and a pointer to the actual string. 
@@ -98,6 +107,33 @@ struct ObjString {
     char* chars;
     uint32_t hash;
 };
+
+/**
+ * @struct ObjUpvalue
+ */
+typedef struct ObjUpvalue {
+    Obj obj;
+    Value* location;
+    Value closed;
+    struct ObjUpvalue* next;
+} ObjUpvalue;
+
+/**
+ * @struct ObjClosure
+ * 
+ * Contains the Obj header and a pointer to the actual function.
+ */
+typedef struct ObjClosure {
+    Obj obj;
+    ObjFunction* function;
+    ObjUpvalue** upvalues;
+    int upvalueCount;
+} ObjClosure;
+
+/**
+ * Method for creating a ObjClosure.
+ */
+ObjClosure* newClosure(ObjFunction* function);
 
 /**
  * Method for creating a ObjFunction.
@@ -118,6 +154,11 @@ ObjString* takeString(char* chars, int length);
  * Method for creating an ObjString and copying the given string onto the heap.
  */
 ObjString* copyString(const char* chars, int length);
+
+/**
+ * Method for creating a new upvalue.
+ */
+ObjUpvalue* newUpvalue(Value* slot);
 
 /**
  * Method for printing an object.
