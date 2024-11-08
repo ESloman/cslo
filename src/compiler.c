@@ -35,7 +35,7 @@ typedef enum Precedence {
     PREC_EQUALITY,    // == !=
     PREC_COMPARISON,  // < > <= >=
     PREC_TERM,        // + -
-    PREC_FACTOR,      // * /
+    PREC_FACTOR,      // * / % **
     PREC_UNARY,       // ! -
     PREC_CALL,        // . ()
     PREC_PRIMARY
@@ -133,6 +133,7 @@ ParseRule rules[] = {
   [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
   [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
   [TOKEN_MODULO]        = {NULL,     binary, PREC_FACTOR},
+  [TOKEN_EXPO]          = {NULL,     binary, PREC_FACTOR},
   [TOKEN_BANG]          = {unary,    NULL,   PREC_NONE},
   [TOKEN_BANG_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
   [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
@@ -637,6 +638,9 @@ static void binary(bool canAssign) {
             break;
         case TOKEN_MODULO:
             emitByte(OP_MODULO, tLine);
+            break;
+        case TOKEN_EXPO:
+            emitByte(OP_POW, tLine);
             break;
         case TOKEN_MINUS:
             emitByte(OP_SUBTRACT, tLine);

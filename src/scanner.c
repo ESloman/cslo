@@ -310,7 +310,6 @@ Token scanToken() {
         case '-': return makeToken(TOKEN_MINUS);
         case '+': return makeToken(TOKEN_PLUS);
         case '/': return makeToken(TOKEN_SLASH);
-        case '*': return makeToken(TOKEN_STAR);
         case '%': return makeToken(TOKEN_MODULO);
 
         // these tokens can either be single or two char tokens
@@ -318,23 +317,24 @@ Token scanToken() {
         // simply match on the possible second token
         // if true, return the valid two char token, if not the
         // single char token
-        case '!':
-            return makeToken(
-                match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG
-            );
-        case '=':
-            return makeToken(
-                match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL
-            );
-        case '<':
-            return makeToken(
-                match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS
-            );
+        case '*': {
+            return makeToken(match('*') ? TOKEN_EXPO : TOKEN_STAR);
+        }
+        case '!': {
+            return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+        }
+        case '=': {
+            return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+        }
+        case '<': {
+            return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+        }
         case '>':
+        {
             return makeToken(
                 match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER
             );
-        
+        }
         // literal matching
         case '"': return string();
     }

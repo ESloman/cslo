@@ -361,6 +361,16 @@ static InterpretResult run() {
                 push(NUMBER_VAL(remainder(a, b)));
                 break;
             }
+            case OP_POW: {
+                if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
+                    runtimeError("Operands must be numbers.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                double b = AS_NUMBER(pop());
+                double a = AS_NUMBER(pop());
+                push(NUMBER_VAL(pow(a, b)));
+                break;
+            }
             case OP_NOT: {
                 push(BOOL_VAL(isFalsey(pop())));
                 break;
