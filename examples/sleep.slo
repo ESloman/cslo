@@ -1,0 +1,8 @@
+var start = time();
+
+print("Sleeping for 5 seconds");
+sleep(5);
+
+var end = time();
+print("Took: ");
+print(end - start);

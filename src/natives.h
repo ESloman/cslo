@@ -1,0 +1,37 @@
+/**
+ * @file natives.h
+ */
+
+#include "object.h"
+#include "value.h"
+
+/**
+ * Method for defining a native function.
+ */
+void defineNative(const char* name, NativeFn function);
+
+/**
+ * Method for defining all the natives.
+ */
+void defineNatives();
+
+/**
+ * Clock native function.
+ */
+Value clockNative(int argCount, Value* args);
+
+/**
+ * Print native function.
+ */
+void printNative(int argCount, Value* args);
+
+/**
+ * Sleep native function.
+ */
+void sleepNative(int argCount, Value* args);
+
+/**
+ * Time native function.
+ * Returns the number of seconds since epoch.
+ */
+Value timeNative(int argCount, Value* args);

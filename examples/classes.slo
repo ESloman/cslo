@@ -6,14 +6,14 @@ class TestClass {
     }
 
     hello() {
-        print "My name is: " + this.name;
+        print("My name is: " + this.name);
     }
 }
 
 var test = TestClass("elliot", 29);
 test.hello();
-print test.age;
+print(test.age);
 
 var test2 = TestClass("bob", 43);
 test2.hello();
-print test2.age;
+print(test2.age);

@@ -1,0 +1,2 @@
+var t = time();
+print(t);

@@ -6,8 +6,8 @@ func sloman2(x, y, z) {
     return x + y + z;
 }
 
-print sloman;
-print sloman2;
+print(sloman);
+print(sloman2);
 
-print sloman();
-print sloman2(1, 5, 9);
+print(sloman());
+print(sloman2(1, 5, 9));

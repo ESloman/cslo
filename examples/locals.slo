@@ -1,9 +1,9 @@
 var x = 10;
 {
-    print x;
+    print(x);
     var y = 6;
-    print y;
-    print x * y;
+    print(y);
+    print(x * y);
 }
 
-print y;
+print(y);
