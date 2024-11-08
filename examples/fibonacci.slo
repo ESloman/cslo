@@ -1,4 +1,8 @@
 
+# the number to work the fibonacci value of
+var number = 20;
+
+# define our fibonacci function
 func fibonacci(n) {
   if (n <= 1) {
     return n;
@@ -6,6 +10,4 @@ func fibonacci(n) {
   return fibonacci(n - 2) + fibonacci(n - 1);
 }
 
-for (var i = 0; i < 20; i = i + 1) {
-  print fibonacci(i);
-}
+print(fibonacci(number));

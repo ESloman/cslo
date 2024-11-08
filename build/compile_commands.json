@@ -100,6 +100,42 @@
       "-O3",
       "-flto",
       "-o",
+      "build/release/cslo/natives.o",
+      "src/natives.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/natives.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/natives.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/object.o",
+      "src/object.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/object.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/object.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
       "build/release/cslo/repl.o",
       "src/repl.c"
     ],
@@ -124,6 +160,24 @@
     "directory": "/home/esloman/gitwork/cslo",
     "file": "/home/esloman/gitwork/cslo/src/scanner.c",
     "output": "/home/esloman/gitwork/cslo/build/release/cslo/scanner.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/table.o",
+      "src/table.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/table.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/table.o"
   },
   {
     "arguments": [

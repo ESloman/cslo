@@ -179,7 +179,7 @@ static Token errorToken(const char* message) {
  * Method for skipping whitespace.
  * 
  * Whilst there are whitespace characters, consume them.
- * This also handles comments that start with '//' by also just skipping them.
+ * This also handles comments that start with '//' and '#' by also just skipping them.
  */
 static void skipWhitespace() {
     for (;;) {
@@ -201,6 +201,11 @@ static void skipWhitespace() {
                 }
             } else {
                 return;
+            }
+            break;
+        case '#':
+            while (peek() != '\n' && !isAtEnd()) {
+                advance();
             }
             break;
         default:
@@ -306,6 +311,7 @@ Token scanToken() {
         case '+': return makeToken(TOKEN_PLUS);
         case '/': return makeToken(TOKEN_SLASH);
         case '*': return makeToken(TOKEN_STAR);
+        case '%': return makeToken(TOKEN_MODULO);
 
         // these tokens can either be single or two char tokens
         // aka ! or !=

@@ -2,4 +2,4 @@
 
 make clean
 mkdir -vp build
-bear --output build/compile_commands.json make
+bear --output build/compile_commands.json -- make

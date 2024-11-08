@@ -132,6 +132,7 @@ ParseRule rules[] = {
   [TOKEN_SEMICOLON]     = {NULL,     NULL,   PREC_NONE},
   [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
   [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
+  [TOKEN_MODULO]        = {NULL,     binary, PREC_FACTOR},
   [TOKEN_BANG]          = {unary,    NULL,   PREC_NONE},
   [TOKEN_BANG_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
   [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
@@ -633,6 +634,9 @@ static void binary(bool canAssign) {
             break;
         case TOKEN_PLUS:
             emitByte(OP_ADD, tLine);
+            break;
+        case TOKEN_MODULO:
+            emitByte(OP_MODULO, tLine);
             break;
         case TOKEN_MINUS:
             emitByte(OP_SUBTRACT, tLine);
