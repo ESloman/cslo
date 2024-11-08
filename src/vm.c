@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -14,6 +15,13 @@
 #include "vm.h"
 
 VM vm;
+
+/**
+ * Native implemention of 'clock'.
+ */
+static Value clockNative(int argCount, Value* args) {
+    return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+}
 
 /**
  * Method for resetting the stack.
@@ -48,7 +56,27 @@ static void runtimeError(const char* format, ...) {
     resetStack();
 }
 
+/**
+ * Method for defining a native function.
+ * We wrap the C function pointer as an ObjNative and adds it to the globals
+ * table with the gven name.
+ * 
+ * Pushes the name and native values onto the stack to prevent GC.
+ */
+static void defineNative(const char* name, NativeFn function) {
+    push(OBJ_VAL(copyString(name, (int)strlen(name))));
+    push(OBJ_VAL(newNative(function)));
+    tableSet(&vm.globals, OBJ_VAL(AS_STRING(vm.stack[0])), vm.stack[1]);
+    pop();
+    pop();
+}
 
+/**
+ * Method for defining all our natives.
+ */
+static void defineNatives() {
+    defineNative("clock", clockNative);
+}
 
 /**
  * Implementation of method to initialise the virtual machine.
@@ -58,6 +86,7 @@ void initVM() {
     vm.objects = NULL;
     initTable(&vm.globals);
     initTable(&vm.strings);
+    defineNatives();
 }
 
 /**
@@ -128,6 +157,13 @@ static bool callValue(Value callee, int argCount) {
         switch (OBJ_TYPE(callee)) {
             case OBJ_FUNCTION: {
                 return call(AS_FUNCTION(callee), argCount);
+            }
+            case OBJ_NATIVE: {
+                NativeFn native = AS_NATIVE(callee);
+                Value result = native(argCount, vm.stackTop - argCount);
+                vm.stackTop -= argCount + 1;
+                push(result);
+                return true;
             }
             default:
                 break;

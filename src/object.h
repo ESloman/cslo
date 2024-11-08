@@ -21,6 +21,9 @@
 /** Macro for checking the given object is a ObjFunction. */
 #define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION) 
 
+/** Macro for checking the given object is a ObjNative. */
+#define IS_NATIVE(value)       isObjType(value, OBJ_NATIVE)
+
 /** Macro for checking the given object is a ObjString. */
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 
@@ -28,8 +31,11 @@
  * Macros for converting values to objects.
  */
 
-/** Method for convering the Value to an ObjFunction. */
+/** Method for converting the Value to an ObjFunction. */
 #define AS_FUNCTION(value)     ((ObjFunction*)AS_OBJ(value))
+
+/** Method for converting the Value to an ObjNative. */
+#define AS_NATIVE(value)       (((ObjNative*)AS_OBJ(value))->function)
 
 /** Macro for converting a Value to an ObjString. */
 #define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
@@ -42,6 +48,7 @@
  */
 typedef enum ObjType {
     OBJ_FUNCTION,
+    OBJ_NATIVE,
     OBJ_STRING,
 } ObjType;
 
@@ -68,6 +75,17 @@ typedef struct ObjFunction {
     ObjString* name;
 } ObjFunction;
 
+
+typedef Value (*NativeFn)(int argCount, Value* args);
+
+/**
+ * @struct ObjNative defintion
+ */
+typedef struct ObjNative {
+    Obj obj;
+    NativeFn function;
+} ObjNative;
+
 /**
  * Struct for ObjString.
  * 
@@ -85,6 +103,11 @@ struct ObjString {
  * Method for creating a ObjFunction.
  */
 ObjFunction* newFunction();
+
+/**
+ * Method for creating a new ObjNative.
+ */
+ObjNative* newNative(NativeFn function);
 
 /**
  * Method for creating an ObjString an taking ownership of the given string.
