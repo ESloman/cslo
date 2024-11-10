@@ -5,6 +5,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "vm.h"
 
@@ -13,12 +15,23 @@
  */
 void repl() {
     char line[1024];
+
+    /** TODO: print out environment, version, etc here. */
+
     for (;;) {
         printf("> ");
 
         if (!fgets(line, sizeof(line), stdin)) {
             printf("\n");
             break;
+        }
+
+        /**
+         * Special exit handling for REPL.
+         * Prevents having to write out fully 'exit();'.
+         */
+        if (strcmp(line, "exit")) {
+            exit(0);
         }
 
         interpret(line);

@@ -2,6 +2,8 @@
  * @file natives.c
  */
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -16,6 +18,7 @@
  */
 void defineNatives() {
     defineNative("clock", clockNative);
+    defineNative("exit", exitNative);
     defineNative("sleep", sleepNative);
     defineNative("time", timeNative);
     defineNative("print", printNative);
@@ -66,4 +69,14 @@ void printNative(int argCount, Value* args) {
     // TODO: make this more robust. Will segfault on no args.
     printValue(args[0]);
     printf("\n");
+}
+
+/**
+ * Exit native function. 
+ * 
+ * Exits the program.
+ * TODO: add optional status
+ */
+void exitNative(int argCount, Value* args) {
+    exit(0);
 }

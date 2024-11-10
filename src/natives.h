@@ -35,3 +35,9 @@ void sleepNative(int argCount, Value* args);
  * Returns the number of seconds since epoch.
  */
 Value timeNative(int argCount, Value* args);
+
+/**
+ * Exit native function.
+ * Exits the current running script or REPL.
+ */
+void exitNative(int argCount, Value* args);
