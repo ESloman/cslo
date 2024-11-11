@@ -30,7 +30,7 @@ void repl() {
          * Special exit handling for REPL.
          * Prevents having to write out fully 'exit();'.
          */
-        if (strcmp(line, "exit")) {
+        if (strcmp(line, "exit\n") == 0) {
             exit(0);
         }
 
