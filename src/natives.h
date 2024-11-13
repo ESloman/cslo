@@ -23,12 +23,12 @@ Value clockNative(int argCount, Value* args);
 /**
  * Print native function.
  */
-void printNative(int argCount, Value* args);
+Value printNative(int argCount, Value* args);
 
 /**
  * Sleep native function.
  */
-void sleepNative(int argCount, Value* args);
+Value sleepNative(int argCount, Value* args);
 
 /**
  * Time native function.
@@ -40,4 +40,4 @@ Value timeNative(int argCount, Value* args);
  * Exit native function.
  * Exits the current running script or REPL.
  */
-void exitNative(int argCount, Value* args);
+Value exitNative(int argCount, Value* args);

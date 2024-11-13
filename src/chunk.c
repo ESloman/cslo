@@ -6,6 +6,7 @@
 
 #include "chunk.h"
 #include "memory.h"
+#include "vm.h"
 
 /**
  * Implemention of method to initialise a new chunk.
@@ -66,20 +67,23 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
  * Implementation of method to write a constant value to a chunk.
  */
 int addConstant(Chunk* chunk, Value value) {
+    push(value);
     writeValueArray(&chunk->constants, value);
+    pop();
     return chunk->constants.count - 1;
 }
 
 int getLine(Chunk chunk, size_t instruction) {
     int start = 0;
     int end = chunk.lineCount;
+    int _instruction = (int) instruction;
 
     for (;;) {
         int mid = (start + end) / 2;
         LineStart* line = &chunk.lines[mid];
-        if (instruction < line->offset) {
+        if (_instruction < line->offset) {
             end = mid - 1;
-        } else if (mid == chunk.lineCount - 1 || instruction < chunk.lines[mid + 1].offset) {
+        } else if (mid == chunk.lineCount - 1 || _instruction < chunk.lines[mid + 1].offset) {
             return line->line;
         } else {
         start = mid + 1;

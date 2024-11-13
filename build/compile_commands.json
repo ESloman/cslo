@@ -64,6 +64,24 @@
       "-O3",
       "-flto",
       "-o",
+      "build/release/cslo/gc.o",
+      "src/gc.c"
+    ],
+    "directory": "/home/esloman/gitwork/cslo",
+    "file": "/home/esloman/gitwork/cslo/src/gc.c",
+    "output": "/home/esloman/gitwork/cslo/build/release/cslo/gc.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-O3",
+      "-flto",
+      "-o",
       "build/release/cslo/main.o",
       "src/main.c"
     ],

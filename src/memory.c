@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 
+#include "gc.h"
 #include "memory.h"
 #include "object.h"
 #include "vm.h"
@@ -12,6 +13,14 @@
  * Implementation of reallocate function.
  */
 void *reallocate(void *pointer, size_t oldSize, size_t newSize) {
+    vm.bytesAllocated += newSize - oldSize;
+
+    if (newSize > oldSize) {
+        if (vm.bytesAllocated > vm.nextGC) {
+            collectGarbage();
+        }
+    }
+
     if (newSize == 0) {
         free(pointer);
         return NULL;
@@ -27,7 +36,7 @@ void *reallocate(void *pointer, size_t oldSize, size_t newSize) {
  * 
  * Switches based on type and ensures we free all aspects of the Obj.
  */
-static void freeObject(Obj* object) {
+void freeObject(Obj* object) {
     switch (object->type) {
         case OBJ_CLOSURE: {
             ObjClosure* closure = (ObjClosure*)object;

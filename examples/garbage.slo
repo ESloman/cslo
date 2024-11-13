@@ -1,0 +1,25 @@
+var a = "123456789";
+var b = "123456789";
+var c = "123456789";
+var d = "123456789";
+var e = "123456789";
+var f = "123456789";
+
+func g() {
+    print(a + b + c + d + e + f);
+}
+
+func h() {
+    print(a + b + c + d + e + f);
+}
+
+g();
+h();
+print(g);
+print(h);
+
+func i() {
+    return a + b + c + d + e + f;
+}
+
+print(i() + i() + i() + i());

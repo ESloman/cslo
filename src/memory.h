@@ -6,6 +6,7 @@
 #define cslo_memory_h
 
 #include "common.h"
+#include "object.h"
 
 /**
  * Macro for allocating an array with given type and count.
@@ -50,6 +51,13 @@
  * Method for dynamic memory management in cslo.
  */
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
+
+/**
+ * Method for freeing an object.
+ * 
+ * Switches based on type and ensures we free all aspects of the Obj.
+ */
+void freeObject(Obj* object);
 
 /**
  * Method for freeing objects we defined.

@@ -57,18 +57,20 @@ Value timeNative(int argCount, Value* args) {
 /**
  * Sleep native function.
  */
-void sleepNative(int argCount, Value* args) {
+Value sleepNative(int argCount, Value* args) {
     double t = AS_NUMBER(args[0]);
     sleep(t);
+    return NIL_VAL;
 }
 
 /**
  * Print native function.
  */
-void printNative(int argCount, Value* args) {
+Value printNative(int argCount, Value* args) {
     // TODO: make this more robust. Will segfault on no args.
     printValue(args[0]);
     printf("\n");
+    return NIL_VAL;
 }
 
 /**
@@ -77,6 +79,8 @@ void printNative(int argCount, Value* args) {
  * Exits the program.
  * TODO: add optional status
  */
-void exitNative(int argCount, Value* args) {
+Value exitNative(int argCount, Value* args) {
     exit(0);
+    // not reachable
+    return NIL_VAL;
 }

@@ -66,10 +66,11 @@ typedef enum ObjType {
  * Struct for defining an Obj.
  * Stores the type enum a reference to the next object.
  * 
- * All Objs will 'inhereit' from this struct.
+ * All Objs will 'inherit' from this struct.
  */
 struct Obj {
     ObjType type;
+    bool mark;
     struct Obj* next;
 };
 
