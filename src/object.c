@@ -79,8 +79,8 @@ ObjUpvalue* newUpvalue(Value* slot) {
 
 /**
  * Method for creating an ObjString.
- * 
- * This creates the ObjString and 
+ *
+ * This creates the ObjString and
  * allocates enough memory for it.
  * Initialises the other struct values too.
  */

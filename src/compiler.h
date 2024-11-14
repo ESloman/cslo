@@ -11,7 +11,7 @@
 
 /**
  * @struct Parser
- * 
+ *
  * Parser struct keeps track of current and
  * previous tokens.
  */
@@ -40,7 +40,7 @@ typedef enum Precedence {
 } Precedence;
 
 /**
- * 
+ *
  */
 typedef void (*ParseFn)(bool canAssign);
 

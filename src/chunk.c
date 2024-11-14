@@ -1,5 +1,5 @@
 /** @file chunk.c
- * 
+ *
  */
 
 #include <stdlib.h>
@@ -34,7 +34,7 @@ void freeChunk(Chunk* chunk) {
 
 /**
  * Implementation of a method to write a new chunk.
- * 
+ *
  * If the byte will take the count over capacity,
  * we grow the Chunk so we can fit the new byte in.
  */

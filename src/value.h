@@ -30,7 +30,7 @@ typedef enum ValueType {
 
 /**
  * @struct Value
- * 
+ *
  * Defines a Value in slo.
  * Uses a union for the actual type values.
  */
@@ -96,7 +96,7 @@ typedef struct Value {
 
 /**
  * @struct ValueArray
- * 
+ *
  * Constant pool for values.
  */
 typedef struct ValueArray {

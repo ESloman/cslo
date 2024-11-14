@@ -23,7 +23,7 @@ void initTable(Table* table) {
 
 /**
  * Method for freeing a table.
- * 
+ *
  * Frees the array and then re-initialises the table.
  */
 void freeTable(Table* table) {
@@ -35,7 +35,7 @@ void freeTable(Table* table) {
  * Method for finding an entry in the table for a given key.
  */
 static Entry* findEntry(Entry* entries, int capacity, Value key) {
-    
+
     uint32_t index = hashValue(key) % capacity;
     Entry* tombstone = NULL;
 
@@ -81,7 +81,7 @@ bool tableGet(Table* table, Value key, Value* value) {
  */
 static void adjustCapacity(Table* table, int capacity) {
     Entry* entries = ALLOCATE(Entry, capacity);
-    
+
     // initialise everything to null/nil
     for (int i = 0; i < capacity; i++) {
         entries[i].key = EMPTY_VAL;
@@ -130,7 +130,7 @@ bool tableSet(Table* table, Value key, Value value) {
 
 /**
  * Method for deleting an entry from a table.
- * 
+ *
  * To delete an entry, and maintain any linking, we replace the
  * entry with a 'tombstone' value. This indicates to findEntry that there
  * used to be value there - so when searching for a key we keep going if

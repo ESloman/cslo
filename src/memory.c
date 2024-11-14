@@ -33,7 +33,7 @@ void *reallocate(void *pointer, size_t oldSize, size_t newSize) {
 
 /**
  * Method for freeing an object.
- * 
+ *
  * Switches based on type and ensures we free all aspects of the Obj.
  */
 void freeObject(Obj* object) {
@@ -71,7 +71,7 @@ void freeObject(Obj* object) {
 
 /**
  * Method for freeing all the objects.
- * 
+ *
  * This walks the linked list of Objs and calls freeObject for each.
  */
 void freeObjects() {

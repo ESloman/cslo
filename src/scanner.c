@@ -1,6 +1,6 @@
 /**
  * @file scanner.c
- * 
+ *
  * The scanner is responsible for turning source code into tokens.
  */
 
@@ -64,7 +64,7 @@ static TokenType checkKeyword(int start, int length, const char* rest, TokenType
 
 /**
  * Method for working out the identifier type.
- * 
+ *
  * We check the first letter of the identifier to see if it matches a keyword;
  *  - if it does, we parse the rest of it to see if it matches anything.
  * Otherwise, we just assume we have an identifier and return.
@@ -135,7 +135,7 @@ static TokenType identifierType() {
 
 /**
  * Method for advancing the scanner.
- * 
+ *
  * This advances the pointer and returns the character we just consumed.
  */
 static char advance() {
@@ -145,7 +145,7 @@ static char advance() {
 
 /**
  * Method for peeking at the current character.
- * 
+ *
  * Returns the character at the scanner's 'current' position.
  */
 static char peek() {
@@ -154,7 +154,7 @@ static char peek() {
 
 /**
  * Method for peeking at the next character.
- * 
+ *
  * Returns the next character we're about to consume.
  */
 static char peekNext() {
@@ -166,7 +166,7 @@ static char peekNext() {
 
 /**
  * Method for matching and consuming a character.
- * 
+ *
  * If we match the given character, we advance the scanner to consume it
  * and return true.
  */
@@ -183,10 +183,10 @@ static bool match(char expected) {
 
 /**
  * Method for making a token.
- * 
+ *
  * Given the token type, initialise a Token and set
  * all the fields to the expected values.
- * 
+ *
  * The lexeme for the token is captured with the start + length
  * values.
  */
@@ -201,7 +201,7 @@ static Token makeToken(TokenType type) {
 
 /**
  * Method for making an error token.
- * 
+ *
  * Similarly to makeToken, creates a token with the type TOKEN_ERROR.
  * The 'lexeme' is set to the error message provided.
  */
@@ -216,7 +216,7 @@ static Token errorToken(const char* message) {
 
 /**
  * Method for skipping whitespace.
- * 
+ *
  * Whilst there are whitespace characters, consume them.
  * This also handles comments that start with double slashes and '#' by also just skipping them.
  */
@@ -259,7 +259,7 @@ static void skipWhitespace() {
 
 /**
  * Method for scanning and creating a string token.
- * 
+ *
  * Will consume characters until we reach the closing quote.
  */
 static Token string() {
@@ -292,7 +292,7 @@ static Token number() {
         // consume the '.'
         advance();
     }
-    
+
     while (isDigit(peek())) {
         advance();
     }
@@ -312,14 +312,14 @@ static Token identifier() {
 
 /**
  * Method for scanning a token.
- * 
+ *
  * Set scanner.start to the current token so know where
  * the lexeme we're about to scan starts.
- * 
+ *
  * The actual token scanning is a big switch statement to handle
  * different possible token types.
- * 
- * 
+ *
+ *
  * If we get to the end and haven't successfully scanned a token;
  * we must therefore have encountered an unexpected character and
  * we indicate as such.

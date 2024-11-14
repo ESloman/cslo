@@ -22,7 +22,7 @@
 #define IS_CLOSURE(value)      isObjType(value, OBJ_CLOSURE);
 
 /** Macro for checking the given object is a ObjFunction. */
-#define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION) 
+#define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION)
 
 /** Macro for checking the given object is a ObjNative. */
 #define IS_NATIVE(value)       isObjType(value, OBJ_NATIVE)
@@ -62,10 +62,10 @@ typedef enum ObjType {
 
 /**
  * @struct Obj
- * 
+ *
  * Struct for defining an Obj.
  * Stores the type enum a reference to the next object.
- * 
+ *
  * All Objs will 'inherit' from this struct.
  */
 struct Obj {
@@ -98,9 +98,9 @@ typedef struct ObjNative {
 
 /**
  * @struct ObjString.
- * 
+ *
  * As well as the base Obj, contains the length of the string
- * and a pointer to the actual string. 
+ * and a pointer to the actual string.
  */
 struct ObjString {
     Obj obj;
@@ -121,7 +121,7 @@ typedef struct ObjUpvalue {
 
 /**
  * @struct ObjClosure
- * 
+ *
  * Contains the Obj header and a pointer to the actual function.
  */
 typedef struct ObjClosure {

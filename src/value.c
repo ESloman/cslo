@@ -11,7 +11,7 @@
 
 /**
  * Implemention of method to initialise a value array.
- * 
+ *
  * Sets values to NULL and capacity/count to 0.
  */
 void initValueArray(ValueArray* array) {
@@ -22,7 +22,7 @@ void initValueArray(ValueArray* array) {
 
 /**
  * Implementation of method to write a value to an array.
- * 
+ *
  * If the array is out of capacity, grow the array to fit the new element.
  */
 void writeValueArray(ValueArray* array, Value value) {
@@ -71,7 +71,7 @@ void printValue(Value value) {
 
 /**
  * Method for comparing two values for equality.
- * 
+ *
  * First checks the types - if they're not the same then easy false.
  * Otherwise, get the raw values and compare.
  */
@@ -98,7 +98,7 @@ bool valuesEqual(Value a, Value b) {
 
 /**
  * Method for hashing a double.
- * 
+ *
  * Taken from LUA's implementation for hashing a double.
  */
 static uint32_t hashDouble(double value) {

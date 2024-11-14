@@ -58,7 +58,7 @@ typedef struct LineStart {
 
 /** @struct Chunk
  *  This defines a chunk of code.
- * 
+ *
  * count is the number of elements in the array
  * capacity is the maxinum number of elements in the array
  * code is the code bytes

@@ -1,5 +1,5 @@
 /** @file memory.h
- * 
+ *
  */
 
 #ifndef cslo_memory_h
@@ -28,7 +28,7 @@
 
 /**
  * This macros abstracts calls to reallocate when creating/growing an array.
- * 
+ *
  * It gets the size of the type and gets the actual
  * old/new size based on type size. It'll cast the returned
  * pointer to the right type too.
@@ -39,7 +39,7 @@
 
 /**
  * This macro abstracts calls to reallocate when freeing an array.
- * 
+ *
  * It calculates the actual oldSize using the size of the type
  * and calls reallocate with a newSize of 0.
  */
@@ -54,7 +54,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize);
 
 /**
  * Method for freeing an object.
- * 
+ *
  * Switches based on type and ensures we free all aspects of the Obj.
  */
 void freeObject(Obj* object);

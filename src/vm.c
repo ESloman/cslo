@@ -80,7 +80,7 @@ void freeVM() {
 
 /**
  * Pushes the given value onto the stack.
- * 
+ *
  * Stores the value in the top unused value of the array.
  * stackTop is a pointer to that position.
  * Increments the pointer to point to the next unused element in the array.
@@ -92,7 +92,7 @@ void push(Value value) {
 
 /**
  * Grabs the value on top of the stack.
- * 
+ *
  * Decremenents the top of the stack pointer to the last used element in the array.
  * Returns the value stored at that position.
  */
@@ -191,7 +191,7 @@ static void closeUpvalues(Value* last) {
 
 /**
  * Works out if a given value is falsey.
- * 
+ *
  * A value is false if:
  *   - it is nil
  *   - it's a boolean 'false'
@@ -213,10 +213,10 @@ static bool isFalsey(Value value) {
 
 /**
  *  Method for concatenating two strings.
- * 
+ *
  * Simply adds the lengths, allocates enough memory,
  * and copies the string arrays into the new location.
- * 
+ *
  * Then it creates a new ObjString using the new string.
  */
 static void concatenate() {
@@ -522,7 +522,7 @@ static InterpretResult run() {
 
 /**
  * Method for executing a string of slo code.
- * 
+ *
  * Creates and initialises a chunk that the compiler method
  * will fill up with bytecode. The chunk is passed to the VM
  * and then it's executed in 'run()'.

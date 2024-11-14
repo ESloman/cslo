@@ -10,7 +10,7 @@
 
 /**
  * Implementation of method to disassemble a chunk.
- * 
+ *
  * Prints out the given name and then loops over each of the instructions
  * in the chunk and calls 'disassembleInstruction'.
  * We let 'disassembleInstruction' increment offset as chunks can have different sizes.
@@ -25,7 +25,7 @@ void disassembleChunk(Chunk* chunk, const char* name) {
 
 /**
  * Method for printing a simple instruction.
- * 
+ *
  * This just prints the given name and inrements the offset.
  */
 static int simpleInstruction(const char* name, int offset) {
@@ -39,7 +39,7 @@ static int simpleInstruction(const char* name, int offset) {
 static int byteInstruction(const char* name, Chunk* chunk, int offset) {
     uint8_t slot = chunk->code[offset + 1];
     printf("%-16s %4d\n", name, slot);
-    return offset + 2; 
+    return offset + 2;
 }
 
 /**
@@ -54,7 +54,7 @@ static int jumpInstruction(const char* name, int sign, Chunk* chunk, int offset)
 
 /**
  * Method for printing a constant instruction.
- * 
+ *
  * Prints the name, the constant, and the value and then increments the offest.
  */
 static int constantInstruction(const char* name, Chunk* chunk, int offset) {
@@ -67,7 +67,7 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
 
 /**
  * Disassembles an instruction in a chunk with the given offset.
- * 
+ *
  * This will call the necessary method for handling that instruction.
  */
 int disassembleInstruction(Chunk* chunk, int offset) {

@@ -28,7 +28,7 @@ void defineNatives() {
  * Method for defining a native function.
  * We wrap the C function pointer as an ObjNative and adds it to the globals
  * table with the gven name.
- * 
+ *
  * Pushes the name and native values onto the stack to prevent GC.
  */
 void defineNative(const char* name, NativeFn function) {
@@ -74,8 +74,8 @@ Value printNative(int argCount, Value* args) {
 }
 
 /**
- * Exit native function. 
- * 
+ * Exit native function.
+ *
  * Exits the program.
  * TODO: add optional status
  */

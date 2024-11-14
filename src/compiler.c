@@ -33,26 +33,26 @@ static void call(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
- * 
+ *
  * The keys to the table are the token types.
- * 
+ *
  * The columns are:
  *   - the function for prefix expressions for that token type
  *   - the function for infix expressions for that token type
  *   - the precedence of an infix expression for that token type
- * 
+ *
  * AKA:
  *   - an expression starting with a '(' will call the 'grouping' expression function
  *   - a '-' token will call 'unary' if it's a prefix \
  *      and 'binary' if it's an infix expression with it's precendence set to TERM
- * 
+ *
  * The precendence tells us how much of remaining code to consume before returning.
  * AKA, how much code belongs to this expression we're compiling.
  */
 ParseRule rules[] = {
   [TOKEN_LEFT_PAREN]    = {grouping, call,   PREC_CALL},
   [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_LEFT_BRACE]    = {NULL,     NULL,   PREC_NONE}, 
+  [TOKEN_LEFT_BRACE]    = {NULL,     NULL,   PREC_NONE},
   [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,   PREC_NONE},
   [TOKEN_COMMA]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_DOT]           = {NULL,     NULL,   PREC_NONE},
@@ -146,7 +146,7 @@ static void errorAtCurrent(const char* message) {
 
 /**
  * Method for advancing the parser's token.
- * 
+ *
  * Sets the previous token to the current and retrieves the next
  * token. Will report any errors if it encoutners an error token.
  */
@@ -165,7 +165,7 @@ static void advance() {
 
 /**
  * Method for consuming a given token type.
- * 
+ *
  * Will advance over the current token if it matches,
  * otherwise will throw an error with the given message.
  */
@@ -198,9 +198,9 @@ static bool match(TokenType type) {
 
 /**
  * Method for 'emitting' a byte.
- * 
+ *
  * This writes a given bit of bytecode to the current chunk.
- * 
+ *
  * This takes a line number as a parameter because it's plausible
  * that some bytes being emitted aren't necessarily always going to be
  * from 'parser.previous.line'.
@@ -349,7 +349,7 @@ static void endScope() {
 }
 
 /**
- * 
+ *
  */
 static void parsePrecedence(Precedence precedence) {
     advance();
@@ -573,7 +573,7 @@ static void or_(bool canAssign) {
 
     patchJump(elseJump);
     emitByte(OP_POP, parser.previous.line);
-    
+
     parsePrecedence(PREC_OR);
     patchJump(endJump);
 }
@@ -586,7 +586,7 @@ static ParseRule* getRule(TokenType type) {
 }
 
 /**
- * 
+ *
  */
 static void binary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
@@ -631,7 +631,7 @@ static void binary(bool canAssign) {
             break;
         case TOKEN_SLASH:
             emitByte(OP_DIVIDE, tLine);
-            break; 
+            break;
         default:
             return;
         }
@@ -646,7 +646,7 @@ static void call(bool canAssign) {
 }
 
 /**
- * 
+ *
  */
 static void literal(bool canAssign) {
 
@@ -728,7 +728,7 @@ static void funDeclaration() {
 }
 
 /**
- * 
+ *
  */
 static void varDeclaration() {
     uint8_t global = parseVariable("Expected a variable name.");
@@ -800,7 +800,7 @@ static void forStatement() {
 
 /**
  * Method for compiling if statements.
- * 
+ *
  * This includes compiling the accompanying elif and else statements.
  * We use jumping and patching here for flow so our VM knows where to jump to and from.
  */
@@ -841,7 +841,7 @@ static void ifStatement() {
     // continuously loop if we keep finding ELIF tokens
     // each one is compiled similarly to an if
     // if false; we patch jump to the next elif, else, or end of branching
-    // at the end of our block, we emit a jump to jump to the end of branching 
+    // at the end of our block, we emit a jump to jump to the end of branching
     while(match(TOKEN_ELIF)) {
         if (jumps == MAX_IF_BRANCHES) {
             error("Too many elif branches!");
@@ -967,7 +967,7 @@ static void declaration() {
 }
 
 /**
- * 
+ *
  */
 static void statement() {
     if (match(TOKEN_FOR)) {
@@ -988,7 +988,7 @@ static void statement() {
 }
 
 /**
- * 
+ *
  */
 static void grouping(bool canAssign) {
     expression();
@@ -996,7 +996,7 @@ static void grouping(bool canAssign) {
 }
 
 /**
- * 
+ *
  */
 static void number(bool canAssign) {
     double value = strtod(parser.previous.start, NULL);
@@ -1004,7 +1004,7 @@ static void number(bool canAssign) {
 }
 
 /**
- * 
+ *
  */
 static void string(bool canAssign) {
     emitConstant(OBJ_VAL(copyString(parser.previous.start +1, parser.previous.length - 2)));
@@ -1028,7 +1028,7 @@ static void namedVariable(Token name, bool canAssign) {
         getOp = OP_GET_GLOBAL;
         setOp = OP_SET_GLOBAL;
     }
-    
+
     if (canAssign && match(TOKEN_EQUAL)) {
         expression();
         emitBytes(setOp, (uint8_t)arg);
@@ -1045,7 +1045,7 @@ static void variable(bool canAssign) {
 }
 
 /**
- * 
+ *
  */
 static void unary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
@@ -1072,7 +1072,7 @@ static void unary(bool canAssign) {
 
 /**
  * Method for compiling given slo code into bytecode.
- * 
+ *
  * Will fill up the given chunk with the bytecode.
  */
 ObjFunction* compile(const char* source) {
@@ -1085,7 +1085,7 @@ ObjFunction* compile(const char* source) {
     parser.panicMode = false;
 
     advance();
-    
+
     while (!match(TOKEN_EOF)) {
         declaration();
     }
