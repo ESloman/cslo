@@ -32,6 +32,18 @@ static Obj* allocateObject(size_t size, ObjType type) {
     return object;
 }
 
+/**
+ * Method for creating a new ObjClass.
+ */
+ObjClass* newClass(ObjString* name) {
+    ObjClass* sClass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
+    sClass->name = name;
+    return sClass;
+}
+
+/**
+ * Method for creating a new closure.
+ */
 ObjClosure* newClosure(ObjFunction* function) {
     ObjUpvalue** upvalues = ALLOCATE(ObjUpvalue*, function->upvalueCount);
     for (int i = 0; i < function->upvalueCount; i++) {
@@ -43,6 +55,16 @@ ObjClosure* newClosure(ObjFunction* function) {
     closure->upvalues = upvalues;
     closure->upvalueCount = function->upvalueCount;
     return closure;
+}
+
+/**
+ * Method for creating a new ObjInstance.
+ */
+ObjInstance* newInstance(ObjClass* sClass) {
+    ObjInstance* instance = ALLOCATE_OBJ(ObjInstance, OBJ_INSTANCE);
+    instance->sClass = sClass;
+    initTable(&instance->fields);
+    return instance;
 }
 
 /**
@@ -152,10 +174,17 @@ static void printFunction(ObjFunction* function) {
  */
 void printObject(Value value) {
     switch (OBJ_TYPE(value)) {
+        case OBJ_CLASS: {
+            printf("%s", AS_CLASS(value)->name->chars);
+            break;
+        }
         case OBJ_CLOSURE: {
             printFunction(AS_CLOSURE(value)->function);
             break;
         }
+        case OBJ_INSTANCE:
+        printf("%s instance", AS_INSTANCE(value)->sClass->name->chars);
+        break;
         case OBJ_FUNCTION: {
             printFunction(AS_FUNCTION(value));
             break;

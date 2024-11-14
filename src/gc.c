@@ -212,12 +212,23 @@ void blackenObject(Obj* object) {
 #endif
 
     switch (object->type) {
+        case OBJ_CLASS: {
+            ObjClass* sClass = (ObjClass*)object;
+            markObject((Obj*)sClass->name);
+            break;
+        }
         case OBJ_CLOSURE: {
             ObjClosure* closure = (ObjClosure*)object;
             markObject((Obj*)closure->function);
             for (int c = 0; c < closure->upvalueCount; c++) {
                 markObject((Obj*)closure->upvalues[c]);
             }
+            break;
+        }
+        case OBJ_INSTANCE: {
+            ObjInstance* instance = (ObjInstance*)object;
+            markObject((Obj*)instance->sClass);
+            markTable(&instance->fields);
             break;
         }
         case OBJ_FUNCTION: {
@@ -233,6 +244,8 @@ void blackenObject(Obj* object) {
         case OBJ_NATIVE:
             break;
         case OBJ_STRING:
+            break;
+        default:
             break;
     }
 }

@@ -1,0 +1,9 @@
+class SomeClass {}
+
+print(SomeClass);
+
+var someInstance = SomeClass();
+print(someInstance);
+
+someInstance.value = 1;
+print(someInstance.value);

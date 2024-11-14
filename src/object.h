@@ -7,6 +7,7 @@
 
 #include "chunk.h"
 #include "common.h"
+#include "table.h"
 #include "value.h"
 
 /**
@@ -18,21 +19,33 @@
  * Macros for checking object types.
  */
 
-/** Macro for checking if the given object is a ObjClosure. */
+/** Macro for checking if the given object is an ObjClass. */
+#define IS_CLASS(value)        isObjType(value, OBJ_CLASS)
+
+/** Macro for checking if the given object is an ObjInstance. */
+#define IS_INSTANCE(value)     isObjType(value, OBJ_INSTANCE)
+
+/** Macro for checking if the given object is an ObjClosure. */
 #define IS_CLOSURE(value)      isObjType(value, OBJ_CLOSURE);
 
-/** Macro for checking the given object is a ObjFunction. */
+/** Macro for checking the given object is an ObjFunction. */
 #define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION)
 
-/** Macro for checking the given object is a ObjNative. */
+/** Macro for checking the given object is an ObjNative. */
 #define IS_NATIVE(value)       isObjType(value, OBJ_NATIVE)
 
-/** Macro for checking the given object is a ObjString. */
+/** Macro for checking the given object is an ObjString. */
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 
 /**
  * Macros for converting values to objects.
  */
+
+/** Macro for converting the Value to an ObjClass. */
+#define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
+
+/** Macro for converting the Value to an ObjInstance. */
+#define AS_INSTANCE(value)        ((ObjInstance*)AS_OBJ(value))
 
 /** Macro for converting the Value to an ObjClosure. */
 #define AS_CLOSURE(value)      ((ObjClosure*)AS_OBJ(value))
@@ -53,9 +66,11 @@
  * @enum ObjType
  */
 typedef enum ObjType {
+    OBJ_CLASS,
     OBJ_CLOSURE,
     OBJ_FUNCTION,
     OBJ_NATIVE,
+    OBJ_INSTANCE,
     OBJ_STRING,
     OBJ_UPVALUE,
 } ObjType;
@@ -132,9 +147,38 @@ typedef struct ObjClosure {
 } ObjClosure;
 
 /**
+ * @struct ObjClass.
+ *
+ * Contains the usual Obj header and other class properties.
+ */
+typedef struct ObjClass{
+    Obj obj;
+    ObjString* name;
+} ObjClass;
+
+/**
+ * @struct ObjInstance
+ */
+typedef struct ObjInstance {
+    Obj obj;
+    ObjClass* sClass;
+    Table fields;
+} ObjInstance;
+
+/**
+ * Method for creating a new ObjClass.
+ */
+ObjClass* newClass(ObjString* name);
+
+/**
  * Method for creating a ObjClosure.
  */
 ObjClosure* newClosure(ObjFunction* function);
+
+/**
+ * Method for creating a new ObjInstance.
+ */
+ObjInstance* newInstance(ObjClass* sClass);
 
 /**
  * Method for creating a ObjFunction.
