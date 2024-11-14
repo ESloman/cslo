@@ -11,6 +11,8 @@
 #include "debug.h"
 #include "scanner.h"
 
+#define MAX_IF_BRANCHES 56
+
 // forward defining these here so they can be reference earlier than
 // they are implemented
 static void expression();
@@ -78,6 +80,7 @@ ParseRule rules[] = {
   [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
   [TOKEN_FOR]           = {NULL,     NULL,   PREC_NONE},
   [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_ELIF]          = {NULL,     NULL,   PREC_NONE},
   [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
   [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
   [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
@@ -797,25 +800,89 @@ static void forStatement() {
 
 /**
  * Method for compiling if statements.
+ * 
+ * This includes compiling the accompanying elif and else statements.
+ * We use jumping and patching here for flow so our VM knows where to jump to and from.
  */
 static void ifStatement() {
+    // compile the bit within the '()'
+    // should evaluate to true/false
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 
+    // create an array of jumps
+    // this is the jumps that'll be emitted at the end of each if/elif's block of code
+    // we'll patch this later to tell the VM where the code continues after all the if/elif/else blocks
+    // they'll all be patched to the same value
+    int elseJumps[MAX_IF_BRANCHES];
+    // initialise array elements to -1
+    // MAX_IF_BRANCHES is max elif branches we'll support
+    for (int x = 0; x < MAX_IF_BRANCHES; x++) {
+        elseJumps[x] = -1;
+    }
+
+    // emit the OP_JUMP_IF_FALSE which we'll patch later
+    // this signals where to jump to if our expression evaluates to false
     int thenJump = emitJump(OP_JUMP_IF_FALSE);
     emitByte(OP_POP, parser.previous.line);
+
+    // compile the actual code within the if block
     statement();
 
-    int elseJump = emitJump(OP_JUMP);
+    // create our jump point to patch later
+    elseJumps[0] = emitJump(OP_JUMP);
 
+    // patch the "if false" jump so we know where to skip to
     patchJump(thenJump);
     emitByte(OP_POP, parser.previous.line);
 
+    int jumps = 1;
+    // continuously loop if we keep finding ELIF tokens
+    // each one is compiled similarly to an if
+    // if false; we patch jump to the next elif, else, or end of branching
+    // at the end of our block, we emit a jump to jump to the end of branching 
+    while(match(TOKEN_ELIF)) {
+        if (jumps == MAX_IF_BRANCHES) {
+            error("Too many elif branches!");
+        }
+        // compile the bit within the '()'
+        // should evaluate to true/false
+        consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+        expression();
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+        // create patch jump position for next branch
+        // this signals where to jump to if our expression evaluates to false
+        int thenJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP, parser.previous.line);
+
+        // the code in the elif block
+        statement();
+
+        // create our jump point to patch later
+        elseJumps[jumps] = emitJump(OP_JUMP);
+
+        // patch the "if false" jump so we know where to skip to
+        patchJump(thenJump);
+        emitByte(OP_POP, parser.previous.line);
+
+        jumps++;
+    }
+
+    // else is optional
+    // no need for any more patching in here, we just fall out of the 'else' block naturally
     if (match(TOKEN_ELSE)) {
         statement();
     }
-    patchJump(elseJump);
+
+    for (int j = 0; j < MAX_IF_BRANCHES; j++) {
+        if (elseJumps[j] == -1) {
+            // patched all the jumps
+            break;
+        }
+        patchJump(elseJumps[j]);
+    }
 }
 
 /**
@@ -870,6 +937,7 @@ static void synchronize() {
             case TOKEN_VAR:
             case TOKEN_FOR:
             case TOKEN_IF:
+            case TOKEN_ELIF:
             case TOKEN_WHILE:
             case TOKEN_RETURN:
                 return;

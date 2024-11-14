@@ -1,5 +1,7 @@
 /**
  * @file scanner.c
+ * 
+ * The scanner is responsible for turning source code into tokens.
  */
 
 #include <stdio.h>
@@ -18,6 +20,8 @@ Scanner scanner;
 
 /**
  * Method for initialising our scanner.
+ *
+ * Sets the start and 'current' to the start of our code and sets the line to 1.
  */
 void initScanner(const char* source) {
     scanner.start = source;
@@ -60,36 +64,71 @@ static TokenType checkKeyword(int start, int length, const char* rest, TokenType
 
 /**
  * Method for working out the identifier type.
+ * 
+ * We check the first letter of the identifier to see if it matches a keyword;
+ *  - if it does, we parse the rest of it to see if it matches anything.
+ * Otherwise, we just assume we have an identifier and return.
  */
 static TokenType identifierType() {
     switch (scanner.start[0]) {
-        case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);
-        case 'c': return checkKeyword(1, 4, "lass", TOKEN_CLASS);
-        case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
+        case 'a':
+            return checkKeyword(1, 2, "nd", TOKEN_AND);
+        case 'c':
+            return checkKeyword(1, 4, "lass", TOKEN_CLASS);
+        case 'e': {
+            if (scanner.current - scanner.start > 1 && scanner.start[1] == 'l') {
+                switch (scanner.start[2]) {
+                    case 's': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
+                    case 'i': return checkKeyword(1, 3, "lif", TOKEN_ELIF);
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
         case 'f':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
-                case 'a': return checkKeyword(2, 3, "lse", TOKEN_FALSE);
-                case 'o': return checkKeyword(2, 1, "r", TOKEN_FOR);
-                case 'u': return checkKeyword(2, 2, "nc", TOKEN_FUN);
+                    case 'a':
+                        return checkKeyword(2, 3, "lse", TOKEN_FALSE);
+                    case 'o':
+                        return checkKeyword(2, 1, "r", TOKEN_FOR);
+                    case 'u':
+                        return checkKeyword(2, 2, "nc", TOKEN_FUN);
+                    default:
+                        break;
                 }
             }
             break;
-        case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
-        case 'n': return checkKeyword(1, 2, "il", TOKEN_NIL);
-        case 'o': return checkKeyword(1, 1, "r", TOKEN_OR);
-        case 'r': return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
-        case 's': return checkKeyword(1, 4, "uper", TOKEN_SUPER);
-        case 't':
+        case 'i':
+            return checkKeyword(1, 1, "f", TOKEN_IF);
+        case 'n':
+            return checkKeyword(1, 2, "il", TOKEN_NIL);
+        case 'o':
+            return checkKeyword(1, 1, "r", TOKEN_OR);
+        case 'r':
+            return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
+        case 's':
+            return checkKeyword(1, 4, "uper", TOKEN_SUPER);
+        case 't': {
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
-                    case 'h': return checkKeyword(2, 2, "is", TOKEN_THIS);
-                    case 'r': return checkKeyword(2, 2, "ue", TOKEN_TRUE);
+                    case 'h':
+                        return checkKeyword(2, 2, "is", TOKEN_THIS);
+                    case 'r':
+                        return checkKeyword(2, 2, "ue", TOKEN_TRUE);
+                    default:
+                        break;
                 }
             }
             break;
-        case 'v': return checkKeyword(1, 2, "ar", TOKEN_VAR);
-        case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
+        }
+        case 'v':
+            return checkKeyword(1, 2, "ar", TOKEN_VAR);
+        case 'w':
+            return checkKeyword(1, 4, "hile", TOKEN_WHILE);
+        default:
+            return TOKEN_IDENTIFIER;
     }
     return TOKEN_IDENTIFIER;
 }
@@ -179,7 +218,7 @@ static Token errorToken(const char* message) {
  * Method for skipping whitespace.
  * 
  * Whilst there are whitespace characters, consume them.
- * This also handles comments that start with '//' and '#' by also just skipping them.
+ * This also handles comments that start with double slashes and '#' by also just skipping them.
  */
 static void skipWhitespace() {
     for (;;) {
@@ -187,14 +226,16 @@ static void skipWhitespace() {
         switch (c) {
         case ' ':
         case '\r':
-        case '\t':
+        case '\t': {
             advance();
             break;
-        case '\n':
+        }
+        case '\n': {
             scanner.line++;
             advance();
             break;
-        case '/':
+        }
+        case '/': {
             if (peekNext() == '/') {
                 while (peek() != '\n' && !isAtEnd()) {
                     advance();
@@ -203,11 +244,13 @@ static void skipWhitespace() {
                 return;
             }
             break;
-        case '#':
+        }
+        case '#': {
             while (peek() != '\n' && !isAtEnd()) {
                 advance();
             }
             break;
+        }
         default:
             return;
         }
@@ -337,6 +380,10 @@ Token scanToken() {
         }
         // literal matching
         case '"': return string();
+
+        default:
+            // break into the error token
+            break;
     }
 
     return errorToken("Unexpected character.");
