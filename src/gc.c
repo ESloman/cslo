@@ -70,6 +70,7 @@ void markRoots() {
     }
 
     markCompilerRoots();
+    markObject((Obj*)vm.initString);
 
 #ifdef DEBUG_LOG_GC
     printf("--> finished marking roots\n");
@@ -212,9 +213,16 @@ void blackenObject(Obj* object) {
 #endif
 
     switch (object->type) {
+        case OBJ_BOUND_METHOD: {
+            ObjBoundMethod* bound = (ObjBoundMethod*)object;
+            markValue(bound->receiver);
+            markObject((Obj*)bound->method);
+            break;
+        }
         case OBJ_CLASS: {
             ObjClass* sClass = (ObjClass*)object;
             markObject((Obj*)sClass->name);
+            markTable(&sClass->methods);
             break;
         }
         case OBJ_CLOSURE: {

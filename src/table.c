@@ -68,7 +68,7 @@ bool tableGet(Table* table, Value key, Value* value) {
     }
 
     Entry* entry = findEntry(table->entries, table->capacity, key);
-    if (IS_NIL(entry->key)) {
+    if (IS_EMPTY(entry->key) || IS_NIL(entry->key)) {
         return false;
     }
 

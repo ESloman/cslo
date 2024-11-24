@@ -31,6 +31,8 @@ static void and_(bool canAssign);
 static void or_(bool canAssign);
 static void call(bool canAssign);
 static void dot(bool canAssign);
+static void namedVariable(Token name, bool canAssign);
+static void self(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
@@ -87,7 +89,7 @@ ParseRule rules[] = {
   [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
   [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
   [TOKEN_SUPER]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_THIS]          = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_SELF]          = {self,    NULL,   PREC_NONE},
   [TOKEN_TRUE]          = {literal,  NULL,   PREC_NONE},
   [TOKEN_VAR]           = {NULL,     NULL,   PREC_NONE},
   [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
@@ -97,7 +99,7 @@ ParseRule rules[] = {
 
 Parser parser;
 Compiler* current = NULL;
-Chunk* compilingChunk;
+ClassCompiler* currentClass = NULL;
 
 /**
  * Method for returning the current compiling chunk.
@@ -248,7 +250,11 @@ static int emitJump(uint8_t instruction) {
  * Emits an OP_RETURN to the chunk.
  */
 static void emitReturn() {
-    emitByte(OP_NIL, parser.previous.line);
+    if (current->type == TYPE_INITIALISER) {
+        emitBytes(OP_GET_LOCAL, 0);
+    } else {
+        emitByte(OP_NIL, parser.previous.line);
+    }
     emitByte(OP_RETURN, parser.previous.line);
 }
 
@@ -306,8 +312,13 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
     Local* local = &current->locals[current->localCount++];
     local->depth = 0;
     local->isCaptured = false;
-    local->name.start = "";
-    local->name.length = 0;
+    if (type != TYPE_FUNCTION) {
+        local->name.start = "self";
+        local->name.length = 4;
+    } else {
+        local->name.start = "";
+        local->name.length = 0;
+    }
 }
 
 /**
@@ -656,6 +667,10 @@ static void dot(bool canAssign) {
     if (canAssign && match(TOKEN_EQUAL)) {
         expression();
         emitBytes(OP_SET_PROPERTY, name);
+    } else if (match(TOKEN_LEFT_PAREN)) {
+        uint8_t argCount = argumentList();
+        emitBytes(OP_INVOKE, name);
+        emitByte(argCount, parser.previous.line);
     } else {
         emitBytes(OP_GET_PROPERTY, name);
     }
@@ -734,18 +749,46 @@ static void function(FunctionType type) {
 }
 
 /**
+ * Method for compiling class methods.
+ */
+static void method() {
+    consume(TOKEN_FUN, "Expected 'func' to define method.");
+    consume(TOKEN_IDENTIFIER, "Expected method name.");
+    uint8_t constant = identifierConstant(&parser.previous);
+
+    FunctionType type = TYPE_METHOD;
+    if (parser.previous.length == 8 && memcmp(parser.previous.start, "__init__", 8) == 0) {
+        type = TYPE_INITIALISER;
+    }
+    function(type);
+    emitBytes(OP_METHOD, constant);
+}
+
+/**
  * Method for compiling classes.
  */
 static void classDeclaration() {
     consume(TOKEN_IDENTIFIER, "Expected class name.");
+    Token className = parser.previous;
     uint8_t nameConstant = identifierConstant(&parser.previous);
     declareVariable();
 
     emitBytes(OP_CLASS, nameConstant);
     defineVariable(nameConstant);
 
+    ClassCompiler classCompiler;
+    classCompiler.enclosing = currentClass;
+    currentClass = &classCompiler;
+
+    namedVariable(className, false);
     consume(TOKEN_LEFT_BRACE, "Expected '{' before class body.");
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
+        method();
+    }
+
     consume(TOKEN_RIGHT_BRACE, "Expected '}' after class body.");
+    emitByte(OP_POP, parser.previous.line);
+    currentClass = currentClass->enclosing;
 }
 
 /**
@@ -945,6 +988,9 @@ static void returnStatement() {
     if (match(TOKEN_SEMICOLON)) {
         emitReturn();
     } else {
+        if (current->type == TYPE_INITIALISER) {
+            error("Can't return a value from an initialiser.");
+        }
         expression();
         consume(TOKEN_SEMICOLON, "Expected ';' after return value.");
         emitByte(OP_RETURN, parser.previous.line);
@@ -1075,6 +1121,17 @@ static void namedVariable(Token name, bool canAssign) {
  */
 static void variable(bool canAssign) {
     namedVariable(parser.previous, canAssign);
+}
+
+/**
+ * Method for binding 'self'.
+ */
+static void self(bool canAssign) {
+    if (currentClass == NULL) {
+        error("Can't use 'self' outside of a class.");
+        return;
+    }
+    variable(false);
 }
 
 /**

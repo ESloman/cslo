@@ -66,6 +66,18 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
 }
 
 /**
+ * Method for printing an invoke instruction.
+ */
+static int invokeInstruction(const char* name, Chunk* chunk, int offset) {
+    uint8_t constant = chunk->code[offset + 1];
+    uint8_t argCount = chunk->code[offset + 2];
+    printf("%-16s (%d args) %4d '", name, argCount, constant);
+    printValue(chunk->constants.values[constant]);
+    printf("'\n");
+    return offset + 3;
+}
+
+/**
  * Disassembles an instruction in a chunk with the given offset.
  *
  * This will call the necessary method for handling that instruction.
@@ -161,11 +173,16 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             }
             return offset;
         }
+        case OP_INVOKE: {
+            return invokeInstruction("OP_INVOKE", chunk, offset);
+        }
         case OP_CLOSE_UPVALUE: {
             return simpleInstruction("OP_CLOSE_UPVALUE", offset);
         }
         case OP_CLASS:
             return constantInstruction("OP_CLASS", chunk, offset);
+        case OP_METHOD:
+            return constantInstruction("OP_METHOD", chunk, offset);
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:

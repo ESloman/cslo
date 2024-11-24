@@ -44,9 +44,11 @@ typedef enum OpCode {
     OP_JUMP_IF_FALSE,
     OP_LOOP,
     OP_CALL,
+    OP_INVOKE,
     OP_CLOSURE,
     OP_RETURN,
     OP_CLASS,
+    OP_METHOD,
     OP_SET_PROPERTY,
     OP_GET_PROPERTY,
 } OpCode;

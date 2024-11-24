@@ -38,7 +38,13 @@ void *reallocate(void *pointer, size_t oldSize, size_t newSize) {
  */
 void freeObject(Obj* object) {
     switch (object->type) {
+        case OBJ_BOUND_METHOD: {
+            FREE(ObjBoundMethod, object);
+            break;
+        }
         case OBJ_CLASS: {
+            ObjClass* sClass = (ObjClass*)object;
+            freeTable(&sClass->methods);
             FREE(ObjClass, object);
             break;
         }

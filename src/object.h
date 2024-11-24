@@ -19,6 +19,9 @@
  * Macros for checking object types.
  */
 
+/** Macro for checking if the given object is an ObjBoundMethod. */
+#define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
+
 /** Macro for checking if the given object is an ObjClass. */
 #define IS_CLASS(value)        isObjType(value, OBJ_CLASS)
 
@@ -26,7 +29,7 @@
 #define IS_INSTANCE(value)     isObjType(value, OBJ_INSTANCE)
 
 /** Macro for checking if the given object is an ObjClosure. */
-#define IS_CLOSURE(value)      isObjType(value, OBJ_CLOSURE);
+#define IS_CLOSURE(value)      isObjType(value, OBJ_CLOSURE)
 
 /** Macro for checking the given object is an ObjFunction. */
 #define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION)
@@ -41,11 +44,14 @@
  * Macros for converting values to objects.
  */
 
+/** Macro for convering the Value to an ObjBoundMethod. */
+#define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
+
 /** Macro for converting the Value to an ObjClass. */
 #define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
 
 /** Macro for converting the Value to an ObjInstance. */
-#define AS_INSTANCE(value)        ((ObjInstance*)AS_OBJ(value))
+#define AS_INSTANCE(value)     ((ObjInstance*)AS_OBJ(value))
 
 /** Macro for converting the Value to an ObjClosure. */
 #define AS_CLOSURE(value)      ((ObjClosure*)AS_OBJ(value))
@@ -66,6 +72,7 @@
  * @enum ObjType
  */
 typedef enum ObjType {
+    OBJ_BOUND_METHOD,
     OBJ_CLASS,
     OBJ_CLOSURE,
     OBJ_FUNCTION,
@@ -154,6 +161,7 @@ typedef struct ObjClosure {
 typedef struct ObjClass{
     Obj obj;
     ObjString* name;
+    Table methods;
 } ObjClass;
 
 /**
@@ -164,6 +172,20 @@ typedef struct ObjInstance {
     ObjClass* sClass;
     Table fields;
 } ObjInstance;
+
+/**
+ * @struct ObjBoundMethod
+ */
+typedef struct ObjBoundMethod {
+    Obj obj;
+    Value receiver;
+    ObjClosure* method;
+} ObjBoundMethod;
+
+/**
+ * Method for creating a new bound method.
+ */
+ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 
 /**
  * Method for creating a new ObjClass.
