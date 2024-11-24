@@ -45,10 +45,13 @@ typedef enum OpCode {
     OP_LOOP,
     OP_CALL,
     OP_INVOKE,
+    OP_SUPER_INVOKE,
     OP_CLOSURE,
     OP_RETURN,
     OP_CLASS,
     OP_METHOD,
+    OP_INHERIT,
+    OP_GET_SUPER,
     OP_SET_PROPERTY,
     OP_GET_PROPERTY,
 } OpCode;

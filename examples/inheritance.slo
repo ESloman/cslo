@@ -1,0 +1,16 @@
+class A {
+
+    func test() {
+        print("A");
+    }
+}
+
+class B extends A {
+
+    func anothertest() {
+        super.test();
+    }
+}
+
+var b = B();
+b.anothertest();

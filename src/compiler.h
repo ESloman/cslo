@@ -99,6 +99,7 @@ typedef struct Compiler {
  */
 typedef struct ClassCompiler {
     struct ClassCompiler* enclosing;
+    bool hasSuperClass;
 } ClassCompiler;
 
 extern Compiler* current;

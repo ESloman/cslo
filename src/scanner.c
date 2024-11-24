@@ -83,6 +83,8 @@ static TokenType identifierType() {
                     default:
                         break;
                 }
+            } else if (scanner.current - scanner.start > 1 && scanner.start[1] == 'x') {
+                return checkKeyword(1, 6, "xtends", TOKEN_EXTENDS);
             }
             break;
         }
