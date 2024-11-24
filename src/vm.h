@@ -1,56 +1,88 @@
-#ifndef clox_vm_h
-#define clox_vm_h
+/**
+ * @file vm.h
+ */
+
+#ifndef cslo_vm_h
+#define cslo_vm_h
 
 #include "chunk.h"
 #include "object.h"
 #include "table.h"
 #include "value.h"
 
-#define FRAMES_MAX 64
+#define FRAMES_MAX 256
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
 
-
-typedef struct {
+/**
+ * @struct CallFrame
+ */
+typedef struct CallFrame {
     ObjClosure* closure;
     uint8_t* ip;
     Value* slots;
 } CallFrame;
 
-
-typedef struct {
+/**
+ * @struct VM
+ */
+typedef struct VM {
     CallFrame frames[FRAMES_MAX];
     int frameCount;
+
     Value stack[STACK_MAX];
     Value* stackTop;
     Table globals;
     Table strings;
     ObjString* initString;
+
     ObjUpvalue* openUpvalues;
+
+
     size_t bytesAllocated;
     size_t nextGC;
+
     Obj* objects;
+
+    bool markValue;
     int grayCount;
     int grayCapacity;
     Obj** grayStack;
 } VM;
 
-
-typedef enum {
+/**
+ * @struct Interpretresult
+ */
+typedef enum InterpretResult {
     INTERPRET_OK,
     INTERPRET_COMPILE_ERROR,
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
 
-
 extern VM vm;
 
-
+/**
+ * Method for initialising the virtual machine on startup.
+ */
 void initVM();
+
+/**
+ * Method for freeing the virtual machine on shutdown.
+ */
 void freeVM();
 
+/**
+ * Method for executing a string of slo code.
+ */
 InterpretResult interpret(const char* source);
-void push(Value value);
-Value pop();
 
+/**
+ * Method for pushing a value onto the stack.
+ */
+void push(Value value);
+
+/**
+ * Method for popping a value off of the stack.
+ */
+Value pop();
 
 #endif

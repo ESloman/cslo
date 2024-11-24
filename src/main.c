@@ -1,3 +1,7 @@
+/**
+ * @file main.c
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,24 +9,12 @@
 #include "common.h"
 #include "chunk.h"
 #include "debug.h"
+#include "repl.h"
 #include "vm.h"
 
-
-static void repl() {
-    char line[1024];
-    for (;;) {
-        printf("> ");
-
-        if (!fgets(line, sizeof(line), stdin)) {
-            printf("\n");
-            break;
-        }
-
-        interpret(line);
-    }
-}
-
-
+/**
+ * Method for reading a slo file.
+ */
 static char* readFile(const char* path) {
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
@@ -52,7 +44,9 @@ static char* readFile(const char* path) {
     return buffer;
 }
 
-
+/**
+ * Method for running a slo file.
+ */
 static void runFile(const char* path) {
     char* source = readFile(path);
     InterpretResult result = interpret(source);
@@ -62,7 +56,11 @@ static void runFile(const char* path) {
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 }
 
-
+/**
+ * Our main entry point for slo.
+ *
+ * This is currently our REPL handler and program runner.
+ */
 int main(int argc, const char* argv[]) {
     initVM();
 
@@ -71,10 +69,11 @@ int main(int argc, const char* argv[]) {
     } else if (argc == 2) {
         runFile(argv[1]);
     } else {
-        fprintf(stderr, "Usage: clox [path]\n");
+        fprintf(stderr, "Usage: cslo [path]\n");
         exit(64);
     }
 
     freeVM();
+
     return 0;
 }

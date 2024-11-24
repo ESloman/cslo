@@ -1,0 +1,12 @@
+var start = clock();
+
+for (var c = 0; c < 10000; c = c + 1) {
+    var x = 1000;
+    var y = 1000 * 1000;
+    var z = y * x * x * (c + 1);
+    print(z);
+}
+
+var end = clock();
+print("Took: ");
+print(end - start);

@@ -14,7 +14,8 @@ else
 	CFLAGS := -std=c99
 endif
 
-CFLAGS += -Wall -Wextra -Werror -Wno-unused-parameter
+# CFLAGS += -Wall -Wextra -Werror -Wno-unused-parameter
+CFLAGS += -Wall -Wextra -Wno-unused-parameter
 
 # If we're building at a point in the middle of a chapter, don't fail if there
 # are functions that aren't used yet.
@@ -24,7 +25,7 @@ endif
 
 # Mode configuration.
 ifeq ($(MODE),debug)
-	CFLAGS += -O0 -DDEBUG -g
+	CFLAGS += -O0 -DDEBUG=1 -g
 	BUILD_DIR := build/debug
 else
 	CFLAGS += -O3 -flto
@@ -42,7 +43,7 @@ OBJECTS := $(addprefix $(BUILD_DIR)/$(NAME)/, $(notdir $(SOURCES:.c=.o)))
 build/$(NAME): $(OBJECTS)
 	@ printf "%8s %-40s %s\n" $(CC) $@ "$(CFLAGS)"
 	@ mkdir -p build
-	@ $(CC) $(CFLAGS) $^ -o $@
+	@ $(CC) $(CFLAGS) $^ -o $@ -lm
 
 # Compile object files.
 $(BUILD_DIR)/$(NAME)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)

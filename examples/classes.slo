@@ -1,19 +1,24 @@
 
 class TestClass {
-    __init__(name, age) {
-        this.name = name;
-        this.age = age;
+    func __init__(name, age) {
+        self.name = name;
+        self.age = age;
     }
 
-    hello() {
-        print "My name is: " + this.name;
+    func hello() {
+        print("My name is: " + self.name);
     }
 }
 
 var test = TestClass("elliot", 29);
+var h = test.hello;
+print(h);
+h();
+print(test);
+print(test.name);
+print(test.age);
+print(test.hello);
 test.hello();
-print test.age;
 
 var test2 = TestClass("bob", 43);
 test2.hello();
-print test2.age;

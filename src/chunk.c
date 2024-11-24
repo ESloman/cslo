@@ -1,31 +1,43 @@
+/** @file chunk.c
+ *
+ */
+
 #include <stdlib.h>
 
 #include "chunk.h"
-#include "debug.h"
 #include "memory.h"
 #include "vm.h"
 
-
+/**
+ * Implemention of method to initialise a new chunk.
+ */
 void initChunk(Chunk* chunk) {
     chunk->count = 0;
     chunk->capacity = 0;
+    chunk->code = NULL;
+
     chunk->lineCount = 0;
     chunk->lineCapacity = 0;
-    chunk->code = NULL;
     chunk->lines = NULL;
-
     initValueArray(&chunk->constants);
 }
 
-
-void freeChunk(Chunk * chunk) {
+/**
+ * Implementation of method to free a given chunk.
+ */
+void freeChunk(Chunk* chunk) {
     FREE_ARRAY(uint8_t, chunk->code, chunk->capacity);
-    FREE_ARRAY(LineStart, chunk->lines, chunk->capacity);
+    FREE_ARRAY(LineStart, chunk->lines, chunk->lineCapacity);
     freeValueArray(&chunk->constants);
     initChunk(chunk);
 }
 
-
+/**
+ * Implementation of a method to write a new chunk.
+ *
+ * If the byte will take the count over capacity,
+ * we grow the Chunk so we can fit the new byte in.
+ */
 void writeChunk(Chunk* chunk, uint8_t byte, int line) {
     if (chunk->capacity < chunk->count + 1) {
         int oldCapacity = chunk->capacity;
@@ -51,7 +63,9 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
     lineStart->line = line;
 }
 
-
+/**
+ * Implementation of method to write a constant value to a chunk.
+ */
 int addConstant(Chunk* chunk, Value value) {
     push(value);
     writeValueArray(&chunk->constants, value);
@@ -59,34 +73,20 @@ int addConstant(Chunk* chunk, Value value) {
     return chunk->constants.count - 1;
 }
 
-
-void writeConstant(Chunk* chunk, Value value, int line) {
-    int index = addConstant(chunk, value);
-    if (index < 256) {
-        writeChunk(chunk, OP_CONSTANT, line);
-        writeChunk(chunk, (uint8_t)index, line);
-    } else {
-        writeChunk(chunk, OP_CONSTANT_LONG, line);
-        writeChunk(chunk, (uint8_t)(index & 0xff), line);
-        writeChunk(chunk, (uint8_t)((index >> 8) & 0xff), line);
-        writeChunk(chunk, (uint8_t)((index >> 16) & 0xff), line);
-    }
-}
-
-
-int getLine(Chunk* chunk, int instruction) {
+int getLine(Chunk chunk, size_t instruction) {
     int start = 0;
-    int end = chunk->lineCount - 1;
+    int end = chunk.lineCount;
+    int _instruction = (int) instruction;
 
     for (;;) {
         int mid = (start + end) / 2;
-        LineStart* line = &chunk->lines[mid];
-        if (instruction < line->offset) {
+        LineStart* line = &chunk.lines[mid];
+        if (_instruction < line->offset) {
             end = mid - 1;
-        } else if (mid == chunk->lineCount - 1 || instruction < chunk->lines[mid + 1].offset) {
+        } else if (mid == chunk.lineCount - 1 || _instruction < chunk.lines[mid + 1].offset) {
             return line->line;
         } else {
-            start = mid + 1;
+        start = mid + 1;
         }
     }
 }

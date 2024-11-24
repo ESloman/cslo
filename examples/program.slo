@@ -2,21 +2,21 @@
 var reach = 100;
 var someString = "Hello World!";
 
-print someString;
+print(someString);
 
 var someString = reach;
 
 var start = clock();
 
-print "Start printing squares";
+print("Start printing squares");
 for (var x = 0; x < reach; x = x + 1) {
-    print x * x;
+    print(x * x);
 }
-print "Finished printing squares";
+print("Finished printing squares");
 
 var end = clock();
 var took = end - start;
-print "Took:";
-print took;
+print("Took:");
+print(took);
 
-print someString;
+print(someString);

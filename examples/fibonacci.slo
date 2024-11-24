@@ -1,12 +1,13 @@
 
-fun fibonacci(n) {
-  if (n <= 1) return n;
+# the number to work the fibonacci value of
+var number = 20;
+
+# define our fibonacci function
+func fibonacci(n) {
+  if (n <= 1) {
+    return n;
+  }
   return fibonacci(n - 2) + fibonacci(n - 1);
 }
 
-for (var i = 0; i < 35; i = i + 1) {
-  var start = clock();
-  print fibonacci(i);
-  var end = clock();
-  print end - start;
-}
+print(fibonacci(number));

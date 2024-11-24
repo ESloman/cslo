@@ -1,21 +1,31 @@
 # cslo
-C implemention of Slo
 
+C implementation of `slo`. `slo` is a high-level and dynamically typed language.
+This is primarily based off of [Lox](https://craftinginterpreters.com/the-lox-language.html)
+and this C implementation was created whilst reading
+[Crafting Interpreters](https://craftinginterpreters.com).
 
-Some goals of things to add/change:
-- caching files by writing compiled bytecode to a file
-- complete all (most) of the challenges in the book
-- statically typed
-- lists + dictionaries
-- `for x in z` for loop type
-- different number types: `int`, `float`, `long`
-- `print` as a function
+Whilst I have made changes to the language as I went through it is still
+primarily the same at the moment. The purpose of `slo` is a hobby and learning project and the
+language will continue to see development and features as time goes on.
+I will endeavour to keep the documentation up to date.
+
+My primary goal is to one day be able to complete challenges like **Advent of Code** in my own language.
+
+## Implementation goals
+
+This is a list of some additional features and functionality I would like to change/add. They're not listed in
+any particular order and are subject to change.
+
+- additional operands like `+=`, `++`, `--`
+- adding a `list` type
+- adding a `dict` type for maps
+- adding `enums`
+- better error reporting
 - everything as an object á la Python
-- better error reporting (line numbers, reverse stack printing, perhaps even show bad code)
-- mixed string/type printing
-    - generally string formatting
-- standard library ideas:
-    - math
-    - json
-    - io
-    - some kind of http library
+- more builtin methods like `size`, `str`, `max`, `min`, etc
+- string formatting
+- standard library (and some `namespace`, `import`, `include` system)
+  - things like a `math`, `io`, etc
+
+I would like to eventually add type hints or some kind of type system but that's very much a stretch goal.
