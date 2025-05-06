@@ -54,6 +54,10 @@ typedef enum OpCode {
     OP_GET_SUPER,
     OP_SET_PROPERTY,
     OP_GET_PROPERTY,
+    OP_PRE_INCREMENT,
+    OP_PRE_DECREMENT,
+    OP_PLUS_ONE,
+    OP_MINUS_ONE,
 } OpCode;
 
 /**

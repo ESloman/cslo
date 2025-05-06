@@ -32,10 +32,11 @@ typedef enum Precedence {
     PREC_AND,         // and
     PREC_EQUALITY,    // == !=
     PREC_COMPARISON,  // < > <= >=
-    PREC_TERM,        // + -
+    PREC_TERM,        // + - ++ --
     PREC_FACTOR,      // * / % **
     PREC_UNARY,       // ! -
     PREC_CALL,        // . ()
+    PREC_POSTFIX,     // ++, --
     PREC_PRIMARY
 } Precedence;
 
@@ -50,6 +51,7 @@ typedef void (*ParseFn)(bool canAssign);
 typedef struct ParseRule {
     ParseFn prefix;
     ParseFn infix;
+    ParseFn postfix;
     Precedence precedence;
 } ParseRule;
 
