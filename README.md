@@ -34,7 +34,10 @@ I would like to eventually add type hints or some kind of type system but that's
 
 This is a non-exhaustive list of things that have been added / are different to `lox`.
 
-- print is now a function `print()` and supports multiple arguments
+- print is a function (`print()`) and supports multiple arguments
+- support for `elif`
+- `self` rather than `this` in classes
+- `extends` for inheritance rather than `<`
 - prefix and postfix increment / decrement (`--`, `++`)
 - compound assignment operators (`+=`, `-=`, `*=`, `/=`)
 - math native functions, things like: `min`, `max`, `sin` / `cos` / `tan`, `ceil` / `floor`, `abs`, `sqrt`, etc
