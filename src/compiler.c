@@ -35,6 +35,9 @@ static void call(bool canAssign);
 static void dot(bool canAssign);
 static void namedVariable(Token name, bool canAssign);
 static void self(bool canAssign);
+static void prefixIncDec(bool canAssign);
+static void postfixIncDec(bool canAssign);
+static void compoundAssign(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
@@ -55,53 +58,58 @@ static void self(bool canAssign);
  * AKA, how much code belongs to this expression we're compiling.
  */
 ParseRule rules[] = {
-  [TOKEN_LEFT_PAREN]    = {grouping, call,   PREC_CALL},
-  [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_LEFT_BRACE]    = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_COMMA]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_DOT]           = {NULL,     dot,    PREC_CALL},
-  [TOKEN_MINUS]         = {unary,    binary, PREC_TERM},
-  [TOKEN_PLUS]          = {NULL,     binary, PREC_TERM},
-  [TOKEN_SEMICOLON]     = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_MODULO]        = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_EXPO]          = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_BANG]          = {unary,    NULL,   PREC_NONE},
-  [TOKEN_BANG_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_EQUAL_EQUAL]   = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_GREATER]       = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_GREATER_EQUAL] = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_LESS]          = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_LESS_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_IDENTIFIER]    = {variable, NULL,   PREC_NONE},
-  [TOKEN_STRING]        = {string,   NULL,   PREC_NONE},
-  [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
-  [TOKEN_AND]           = {NULL,     and_,   PREC_AND},
-  [TOKEN_CLASS]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_ELSE]          = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
-  [TOKEN_FOR]           = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_ELIF]          = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
-  [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
-  [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_SUPER]         = {super_,   NULL,   PREC_NONE},
-  [TOKEN_SELF]          = {self,     NULL,   PREC_NONE},
-  [TOKEN_TRUE]          = {literal,  NULL,   PREC_NONE},
-  [TOKEN_VAR]           = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_LEFT_PAREN]      = { grouping,     call,         PREC_CALL      },
+    [TOKEN_RIGHT_PAREN]     = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_LEFT_BRACE]      = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_RIGHT_BRACE]     = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_COMMA]           = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_DOT]             = { NULL,         dot,          PREC_CALL      },
+    [TOKEN_MINUS]           = { unary,        binary,       PREC_TERM      },
+    [TOKEN_PLUS]            = { NULL,         binary,       PREC_TERM      },
+    [TOKEN_SEMICOLON]       = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_SLASH]           = { NULL,         binary,       PREC_FACTOR    },
+    [TOKEN_STAR]            = { NULL,         binary,       PREC_FACTOR    },
+    [TOKEN_MODULO]          = { NULL,         binary,       PREC_FACTOR    },
+    [TOKEN_EXPO]            = { NULL,         binary,       PREC_FACTOR    },
+    [TOKEN_BANG]            = { unary,        NULL,         PREC_NONE      },
+    [TOKEN_BANG_EQUAL]      = { NULL,         binary,       PREC_EQUALITY  },
+    [TOKEN_EQUAL]           = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_EQUAL_EQUAL]     = { NULL,         binary,       PREC_EQUALITY  },
+    [TOKEN_GREATER]         = { NULL,         binary,       PREC_EQUALITY  },
+    [TOKEN_GREATER_EQUAL]   = { NULL,         binary,       PREC_EQUALITY  },
+    [TOKEN_LESS]            = { NULL,         binary,       PREC_EQUALITY  },
+    [TOKEN_LESS_EQUAL]      = { NULL,         binary,       PREC_EQUALITY  },
+    [TOKEN_IDENTIFIER]      = { variable,     NULL,         PREC_NONE      },
+    [TOKEN_STRING]          = { string,       NULL,         PREC_NONE      },
+    [TOKEN_NUMBER]          = { number,       NULL,         PREC_NONE      },
+    [TOKEN_AND]             = { NULL,         and_,         PREC_AND       },
+    [TOKEN_CLASS]           = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_ELSE]            = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_FOR]             = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_FUN]             = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_ELIF]            = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_IF]              = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_NIL]             = { literal,      NULL,         PREC_NONE      },
+    [TOKEN_OR]              = { NULL,         or_,          PREC_OR        },
+    [TOKEN_RETURN]          = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_SUPER]           = { super_,       NULL,         PREC_NONE      },
+    [TOKEN_SELF]            = { self,         NULL,         PREC_NONE      },
+    [TOKEN_VAR]             = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_WHILE]           = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_ERROR]           = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_EOF]             = { NULL,         NULL,         PREC_NONE      },
+    [TOKEN_PLUS_PLUS]       = { prefixIncDec, postfixIncDec,PREC_POSTFIX   },
+    [TOKEN_MINUS_MINUS]     = { prefixIncDec, postfixIncDec,PREC_POSTFIX   },
+    [TOKEN_PLUS_EQUAL]      = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_MINUS_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_STAR_EQUAL]      = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_SLASH_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
 };
 
 Parser parser;
 Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
+Token lastVariableToken;
 
 /**
  * Method for returning the current compiling chunk.
@@ -541,6 +549,118 @@ static void defineVariable(uint8_t global) {
 }
 
 /**
+ * @brief Compiles a postfix increment or decrement expression (x++ or x--).
+ *
+ * This function assumes the variable's value is already on the stack.
+ * It duplicates the value (so the original is left as the result of the expression),
+ * increments or decrements the value, stores the new value back into the variable,
+ * and then pops the new value, leaving the original value on the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused for postfix).
+ */
+static void postfixIncDec(bool canAssign) {
+    TokenType op = parser.previous.type;
+    // The variable is already on the stack (from the prefix rule for identifiers)
+    // Duplicate the value for the result
+    emitByte(OP_DUP, parser.previous.line);
+    emitConstant(NUMBER_VAL(1));
+    emitByte(op == TOKEN_PLUS_PLUS ? OP_ADD : OP_SUBTRACT, parser.previous.line);
+
+    
+    uint8_t setOp;
+    int arg = resolveLocal(current, &lastVariableToken);
+
+    if (arg != -1) {
+        setOp = OP_SET_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &lastVariableToken)) != -1) {
+        setOp = OP_SET_UPVALUE;
+    } else {
+        arg = identifierConstant(&lastVariableToken);
+        setOp = OP_SET_GLOBAL;
+    }
+
+    emitBytes(setOp, (uint8_t)arg);
+    emitByte(OP_POP, parser.previous.line);
+}
+
+/**
+ * @brief Compiles a prefix increment or decrement expression (++x or --x).
+ *
+ * Advances to the variable token, loads its value, increments or decrements it,
+ * stores the new value back into the variable, and leaves the new value on the stack
+ * as the result of the expression.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused for prefix).
+ */
+static void prefixIncDec(bool canAssign) {
+    TokenType op = parser.previous.type;
+    advance();
+    variable(false);
+    emitConstant(NUMBER_VAL(1));
+    emitByte(op == TOKEN_PLUS_PLUS ? OP_ADD : OP_SUBTRACT, parser.previous.line);
+    uint8_t setOp;
+    int arg = resolveLocal(current, &lastVariableToken);
+
+    if (arg != -1) {
+        setOp = OP_SET_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &lastVariableToken)) != -1) {
+        setOp = OP_SET_UPVALUE;
+    } else {
+        arg = identifierConstant(&lastVariableToken);
+        setOp = OP_SET_GLOBAL;
+    }
+    emitBytes(setOp, (uint8_t)arg);
+}
+
+/**
+ * @brief Compiles a compound assignment expression (e.g., x += y, x -= y, x *= y, x /= y).
+ *
+ * This function assumes the left-hand side is a variable and is already on the stack.
+ * It parses the right-hand side expression, emits the appropriate bytecode for the operation,
+ * and stores the result back into the variable.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
+ */
+static void compoundAssign(bool canAssign) {
+    if (lastVariableToken.start == NULL || lastVariableToken.length == 0) {
+        error("Invalid assignment target for compound assignment.");
+        return;
+    }
+
+    TokenType op = parser.previous.type;
+    // The left-hand side (variable) is already parsed and on the stack
+    // Save the variable token for assignment
+    Token varToken = lastVariableToken;
+
+    // Parse the right-hand side expression
+    expression();
+
+    // Perform the operation
+    if (op == TOKEN_PLUS_EQUAL) {
+        emitByte(OP_ADD, parser.previous.line);
+    } else if (op == TOKEN_MINUS_EQUAL) {
+        emitByte(OP_SUBTRACT, parser.previous.line);
+    } else if (op == TOKEN_STAR_EQUAL) {
+        emitByte(OP_MULTIPLY, parser.previous.line);
+    } else if (op == TOKEN_SLASH_EQUAL) {
+        emitByte(OP_DIVIDE, parser.previous.line);
+    }
+
+    // Assign the result back to the variable
+    uint8_t setOp;
+    int arg = resolveLocal(current, &varToken);
+    if (arg != -1) {
+        setOp = OP_SET_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &varToken)) != -1) {
+        setOp = OP_SET_UPVALUE;
+    } else {
+        arg = identifierConstant(&varToken);
+        setOp = OP_SET_GLOBAL;
+    }
+    emitBytes(setOp, (uint8_t)arg);
+}
+
+/**
  * Method for compiling an argument list.
  */
 static uint8_t argumentList() {
@@ -679,7 +799,11 @@ static void dot(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a literal value (nil, true, false).
  *
+ * Emits bytecode to load the literal onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void literal(bool canAssign) {
 
@@ -1091,7 +1215,11 @@ static void statement() {
 }
 
 /**
+ * @brief Compiles a grouping expression (parentheses).
  *
+ * Parses the inner expression and expects a closing parenthesis.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void grouping(bool canAssign) {
     expression();
@@ -1099,7 +1227,11 @@ static void grouping(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a numeric literal.
  *
+ * Emits bytecode to load the number onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void number(bool canAssign) {
     double value = strtod(parser.previous.start, NULL);
@@ -1107,7 +1239,11 @@ static void number(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a string literal.
  *
+ * Emits bytecode to load the string onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void string(bool canAssign) {
     emitConstant(OBJ_VAL(copyString(parser.previous.start +1, parser.previous.length - 2)));
@@ -1144,11 +1280,18 @@ static void namedVariable(Token name, bool canAssign) {
  * Method for compiling a variable.
  */
 static void variable(bool canAssign) {
+    lastVariableToken = parser.previous;
     namedVariable(parser.previous, canAssign);
 }
 
 /**
- * Method for adding a synthetic token.
+ * @brief Creates a synthetic token from a string.
+ *
+ * This is used to create a token for identifiers that do not come directly from source code,
+ * such as "self" or "super" in class contexts.
+ *
+ * @param text The string to use as the token's text.
+ * @return The synthetic token.
  */
 static Token syntheticToken(const char* text) {
     Token token;
@@ -1158,7 +1301,11 @@ static Token syntheticToken(const char* text) {
 }
 
 /**
+ * @brief Handles the 'super' keyword for superclass method access.
  *
+ * Emits bytecode to access or invoke a method from the superclass.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void super_(bool canAssign) {
     if (currentClass == NULL) {
@@ -1184,7 +1331,11 @@ static void super_(bool canAssign) {
 }
 
 /**
- * Method for binding 'self'.
+ * @brief Handles the 'self' keyword for method calls within a class.
+ *
+ * Emits bytecode to push the current instance onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void self(bool canAssign) {
     if (currentClass == NULL) {
@@ -1195,7 +1346,11 @@ static void self(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a unary expression (e.g., -x or !x).
  *
+ * Parses the operand and emits the appropriate bytecode for the unary operator.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void unary(bool canAssign) {
     TokenType operatorType = parser.previous.type;

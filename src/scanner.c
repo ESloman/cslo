@@ -352,9 +352,6 @@ Token scanToken() {
         case ';': return makeToken(TOKEN_SEMICOLON);
         case ',': return makeToken(TOKEN_COMMA);
         case '.': return makeToken(TOKEN_DOT);
-        case '-': return makeToken(TOKEN_MINUS);
-        case '+': return makeToken(TOKEN_PLUS);
-        case '/': return makeToken(TOKEN_SLASH);
         case '%': return makeToken(TOKEN_MODULO);
 
         // these tokens can either be single or two char tokens
@@ -362,8 +359,23 @@ Token scanToken() {
         // simply match on the possible second token
         // if true, return the valid two char token, if not the
         // single char token
+        case '+': {
+            if (match('+')) return makeToken(TOKEN_PLUS_PLUS);
+            if (match('=')) return makeToken(TOKEN_PLUS_EQUAL);
+            return makeToken(TOKEN_PLUS);
+        }
+        case '-': {
+            if (match('-')) return makeToken(TOKEN_MINUS_MINUS);
+            if (match('=')) return makeToken(TOKEN_MINUS_EQUAL);
+            return makeToken(TOKEN_MINUS);
+        }
         case '*': {
-            return makeToken(match('*') ? TOKEN_EXPO : TOKEN_STAR);
+            if (match('=')) return makeToken(TOKEN_STAR_EQUAL);
+            if (match('*')) return makeToken(TOKEN_EXPO);
+            return makeToken(TOKEN_STAR);
+        }
+        case '/': {
+            return makeToken(match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
         }
         case '!': {
             return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);

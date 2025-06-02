@@ -526,6 +526,11 @@ static InterpretResult run() {
                 push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
             }
+            case OP_DUP: {
+                Value value = peek(0);
+                push(value);
+                break;
+            }
             case OP_JUMP: {
                 uint16_t offset = READ_SHORT();
                 ip += offset;
