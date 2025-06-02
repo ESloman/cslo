@@ -566,7 +566,7 @@ static void postfixIncDec(bool canAssign) {
     emitConstant(NUMBER_VAL(1));
     emitByte(op == TOKEN_PLUS_PLUS ? OP_ADD : OP_SUBTRACT, parser.previous.line);
 
-    
+
     uint8_t setOp;
     int arg = resolveLocal(current, &lastVariableToken);
 
