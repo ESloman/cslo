@@ -37,6 +37,7 @@ static void namedVariable(Token name, bool canAssign);
 static void self(bool canAssign);
 static void prefixIncDec(bool canAssign);
 static void postfixIncDec(bool canAssign);
+static void compoundAssign(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
@@ -99,12 +100,16 @@ ParseRule rules[] = {
     [TOKEN_EOF]             = { NULL,         NULL,         PREC_NONE      },
     [TOKEN_PLUS_PLUS]       = { prefixIncDec, postfixIncDec,PREC_POSTFIX   },
     [TOKEN_MINUS_MINUS]     = { prefixIncDec, postfixIncDec,PREC_POSTFIX   },
+    [TOKEN_PLUS_EQUAL]      = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_MINUS_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_STAR_EQUAL]      = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_SLASH_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
 };
 
 Parser parser;
 Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
-static Token lastVariableToken;
+Token lastVariableToken;
 
 /**
  * Method for returning the current compiling chunk.
@@ -608,6 +613,54 @@ static void prefixIncDec(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a compound assignment expression (e.g., x += y, x -= y, x *= y, x /= y).
+ *
+ * This function assumes the left-hand side is a variable and is already on the stack.
+ * It parses the right-hand side expression, emits the appropriate bytecode for the operation,
+ * and stores the result back into the variable.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
+ */
+static void compoundAssign(bool canAssign) {
+    if (lastVariableToken.start == NULL || lastVariableToken.length == 0) {
+        error("Invalid assignment target for compound assignment.");
+        return;
+    }
+
+    TokenType op = parser.previous.type;
+    // The left-hand side (variable) is already parsed and on the stack
+    // Save the variable token for assignment
+    Token varToken = lastVariableToken;
+
+    // Parse the right-hand side expression
+    expression();
+
+    // Perform the operation
+    if (op == TOKEN_PLUS_EQUAL) {
+        emitByte(OP_ADD, parser.previous.line);
+    } else if (op == TOKEN_MINUS_EQUAL) {
+        emitByte(OP_SUBTRACT, parser.previous.line);
+    } else if (op == TOKEN_STAR_EQUAL) {
+        emitByte(OP_MULTIPLY, parser.previous.line);
+    } else if (op == TOKEN_SLASH_EQUAL) {
+        emitByte(OP_DIVIDE, parser.previous.line);
+    }
+
+    // Assign the result back to the variable
+    uint8_t setOp;
+    int arg = resolveLocal(current, &varToken);
+    if (arg != -1) {
+        setOp = OP_SET_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &varToken)) != -1) {
+        setOp = OP_SET_UPVALUE;
+    } else {
+        arg = identifierConstant(&varToken);
+        setOp = OP_SET_GLOBAL;
+    }
+    emitBytes(setOp, (uint8_t)arg);
+}
+
+/**
  * Method for compiling an argument list.
  */
 static uint8_t argumentList() {
@@ -746,7 +799,11 @@ static void dot(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a literal value (nil, true, false).
  *
+ * Emits bytecode to load the literal onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void literal(bool canAssign) {
 
@@ -1158,7 +1215,11 @@ static void statement() {
 }
 
 /**
+ * @brief Compiles a grouping expression (parentheses).
  *
+ * Parses the inner expression and expects a closing parenthesis.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void grouping(bool canAssign) {
     expression();
@@ -1166,7 +1227,11 @@ static void grouping(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a numeric literal.
  *
+ * Emits bytecode to load the number onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void number(bool canAssign) {
     double value = strtod(parser.previous.start, NULL);
@@ -1174,7 +1239,11 @@ static void number(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a string literal.
  *
+ * Emits bytecode to load the string onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void string(bool canAssign) {
     emitConstant(OBJ_VAL(copyString(parser.previous.start +1, parser.previous.length - 2)));
@@ -1216,7 +1285,13 @@ static void variable(bool canAssign) {
 }
 
 /**
- * Method for adding a synthetic token.
+ * @brief Creates a synthetic token from a string.
+ *
+ * This is used to create a token for identifiers that do not come directly from source code,
+ * such as "self" or "super" in class contexts.
+ *
+ * @param text The string to use as the token's text.
+ * @return The synthetic token.
  */
 static Token syntheticToken(const char* text) {
     Token token;
@@ -1226,7 +1301,11 @@ static Token syntheticToken(const char* text) {
 }
 
 /**
+ * @brief Handles the 'super' keyword for superclass method access.
  *
+ * Emits bytecode to access or invoke a method from the superclass.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void super_(bool canAssign) {
     if (currentClass == NULL) {
@@ -1252,7 +1331,11 @@ static void super_(bool canAssign) {
 }
 
 /**
- * Method for binding 'self'.
+ * @brief Handles the 'self' keyword for method calls within a class.
+ *
+ * Emits bytecode to push the current instance onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void self(bool canAssign) {
     if (currentClass == NULL) {
@@ -1263,7 +1346,11 @@ static void self(bool canAssign) {
 }
 
 /**
+ * @brief Compiles a unary expression (e.g., -x or !x).
  *
+ * Parses the operand and emits the appropriate bytecode for the unary operator.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
  */
 static void unary(bool canAssign) {
     TokenType operatorType = parser.previous.type;

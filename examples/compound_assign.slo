@@ -1,0 +1,9 @@
+var x = 10;
+x += 5;
+print(x); // should print 15
+x -= 2;
+print(x); // should print 13
+x *= 3;
+print(x);  // should print 39
+x /= 3;
+print(x);  # should print 13
