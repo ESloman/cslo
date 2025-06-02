@@ -25,6 +25,9 @@ typedef enum TokenType {
     TOKEN_LESS, TOKEN_LESS_EQUAL,
     TOKEN_EXPO,
 
+    TOKEN_PLUS_PLUS,
+    TOKEN_MINUS_MINUS,
+
     // Literals.
     TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_NUMBER,
 

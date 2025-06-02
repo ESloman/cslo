@@ -35,6 +35,8 @@ static void call(bool canAssign);
 static void dot(bool canAssign);
 static void namedVariable(Token name, bool canAssign);
 static void self(bool canAssign);
+static void prefixIncDec(bool canAssign);
+static void postfixIncDec(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
@@ -55,53 +57,54 @@ static void self(bool canAssign);
  * AKA, how much code belongs to this expression we're compiling.
  */
 ParseRule rules[] = {
-  [TOKEN_LEFT_PAREN]    = {grouping, call,   PREC_CALL},
-  [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_LEFT_BRACE]    = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_COMMA]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_DOT]           = {NULL,     dot,    PREC_CALL},
-  [TOKEN_MINUS]         = {unary,    binary, PREC_TERM},
-  [TOKEN_PLUS]          = {NULL,     binary, PREC_TERM},
-  [TOKEN_SEMICOLON]     = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_MODULO]        = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_EXPO]          = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_BANG]          = {unary,    NULL,   PREC_NONE},
-  [TOKEN_BANG_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_EQUAL_EQUAL]   = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_GREATER]       = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_GREATER_EQUAL] = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_LESS]          = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_LESS_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
-  [TOKEN_IDENTIFIER]    = {variable, NULL,   PREC_NONE},
-  [TOKEN_STRING]        = {string,   NULL,   PREC_NONE},
-  [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
-  [TOKEN_AND]           = {NULL,     and_,   PREC_AND},
-  [TOKEN_CLASS]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_ELSE]          = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
-  [TOKEN_FOR]           = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_ELIF]          = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
-  [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
-  [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_SUPER]         = {super_,   NULL,   PREC_NONE},
-  [TOKEN_SELF]          = {self,     NULL,   PREC_NONE},
-  [TOKEN_TRUE]          = {literal,  NULL,   PREC_NONE},
-  [TOKEN_VAR]           = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_LEFT_PAREN]    = {grouping,     call,      PREC_CALL},
+  [TOKEN_RIGHT_PAREN]   = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_LEFT_BRACE]    = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_RIGHT_BRACE]   = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_COMMA]         = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_DOT]           = {NULL,         dot,       PREC_CALL},
+  [TOKEN_MINUS]         = {unary,        binary,    PREC_TERM},
+  [TOKEN_PLUS]          = {NULL,         binary,    PREC_TERM},
+  [TOKEN_SEMICOLON]     = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_SLASH]         = {NULL,         binary,    PREC_FACTOR},
+  [TOKEN_STAR]          = {NULL,         binary,    PREC_FACTOR},
+  [TOKEN_MODULO]        = {NULL,         binary,    PREC_FACTOR},
+  [TOKEN_EXPO]          = {NULL,         binary,    PREC_FACTOR},
+  [TOKEN_BANG]          = {unary,        NULL,      PREC_NONE},
+  [TOKEN_BANG_EQUAL]    = {NULL,         binary,    PREC_EQUALITY},
+  [TOKEN_EQUAL]         = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_EQUAL_EQUAL]   = {NULL,         binary,    PREC_EQUALITY},
+  [TOKEN_GREATER]       = {NULL,         binary,    PREC_EQUALITY},
+  [TOKEN_GREATER_EQUAL] = {NULL,         binary,    PREC_EQUALITY},
+  [TOKEN_LESS]          = {NULL,         binary,    PREC_EQUALITY},
+  [TOKEN_LESS_EQUAL]    = {NULL,         binary,    PREC_EQUALITY},
+  [TOKEN_IDENTIFIER]    = {variable,     NULL,      PREC_NONE},
+  [TOKEN_STRING]        = {string,       NULL,      PREC_NONE},
+  [TOKEN_NUMBER]        = {number,       NULL,      PREC_NONE},
+  [TOKEN_AND]           = {NULL,         and_,      PREC_AND},
+  [TOKEN_CLASS]         = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_ELSE]          = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_FOR]           = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_FUN]           = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_ELIF]          = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_IF]            = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_NIL]           = {literal,      NULL,      PREC_NONE},
+  [TOKEN_OR]            = {NULL,         or_,       PREC_OR},
+  [TOKEN_RETURN]        = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_SUPER]         = {super_,       NULL,      PREC_NONE},
+  [TOKEN_SELF]          = {self,         NULL,      PREC_NONE},
+  [TOKEN_VAR]           = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_WHILE]         = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_ERROR]         = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_EOF]           = {NULL,         NULL,      PREC_NONE},
+  [TOKEN_PLUS_PLUS]     = {prefixIncDec,    postfixIncDec,PREC_POSTFIX},
+  [TOKEN_MINUS_MINUS]   = {prefixIncDec,    postfixIncDec,PREC_POSTFIX},
 };
 
 Parser parser;
 Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
+static Token lastVariableToken;
 
 /**
  * Method for returning the current compiling chunk.
@@ -538,6 +541,32 @@ static void defineVariable(uint8_t global) {
         return;
     }
     emitBytes(OP_DEFINE_GLOBAL, global);
+}
+
+static void postfixIncDec(bool canAssign) {
+    TokenType op = parser.previous.type;
+    // The variable is already on the stack (from the prefix rule for identifiers)
+    // Duplicate the value for the result
+    emitByte(OP_DUP, parser.previous.line);
+
+    // Push 1
+    emitConstant(NUMBER_VAL(1));
+
+    // Add or subtract
+    emitByte(op == TOKEN_PLUS_PLUS ? OP_ADD : OP_SUBTRACT, parser.previous.line);
+
+    namedVariable(lastVariableToken, true);
+    // The result of the expression is the original value (already duplicated)
+}
+
+
+static void prefixIncDec(bool canAssign) {
+    TokenType op = parser.previous.type;
+    variable(false);
+    emitConstant(NUMBER_VAL(1));
+    emitByte(op == TOKEN_PLUS_PLUS ? OP_ADD : OP_SUBTRACT, parser.previous.line);
+    namedVariable(parser.previous, true);
+    variable(false);
 }
 
 /**
@@ -1132,7 +1161,7 @@ static void namedVariable(Token name, bool canAssign) {
         setOp = OP_SET_GLOBAL;
     }
 
-    if (canAssign && match(TOKEN_EQUAL)) {
+    if (canAssign && (match(TOKEN_EQUAL) || match(TOKEN_PLUS_PLUS) || match(TOKEN_MINUS_MINUS))) {
         expression();
         emitBytes(setOp, (uint8_t)arg);
     } else {
@@ -1144,6 +1173,7 @@ static void namedVariable(Token name, bool canAssign) {
  * Method for compiling a variable.
  */
 static void variable(bool canAssign) {
+    lastVariableToken = parser.previous;
     namedVariable(parser.previous, canAssign);
 }
 
