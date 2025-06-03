@@ -38,6 +38,9 @@ static void self(bool canAssign);
 static void prefixIncDec(bool canAssign);
 static void postfixIncDec(bool canAssign);
 static void compoundAssign(bool canAssign);
+static void list(bool canAssign);
+static void index(bool canAssign);
+static void expressionStatement();
 
 /**
  * Table for defining parse rules and precedence.
@@ -104,6 +107,8 @@ ParseRule rules[] = {
     [TOKEN_MINUS_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
     [TOKEN_STAR_EQUAL]      = { NULL, compoundAssign,         PREC_ASSIGNMENT },
     [TOKEN_SLASH_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_LEFT_BRACKET]    = { list, index,          PREC_CALL}
+    // [TOKEN_RIGHT_BRACKET]   = { NULL,         NULL,         PREC_NONE      },
 };
 
 Parser parser;
@@ -566,7 +571,7 @@ static void postfixIncDec(bool canAssign) {
     emitConstant(NUMBER_VAL(1));
     emitByte(op == TOKEN_PLUS_PLUS ? OP_ADD : OP_SUBTRACT, parser.previous.line);
 
-    
+
     uint8_t setOp;
     int arg = resolveLocal(current, &lastVariableToken);
 
@@ -658,6 +663,60 @@ static void compoundAssign(bool canAssign) {
         setOp = OP_SET_GLOBAL;
     }
     emitBytes(setOp, (uint8_t)arg);
+}
+
+/**
+ * Method for compiling a list.
+ */
+static void list(bool canAssign) {
+    int32_t argCount = 0;
+
+    if (!check(TOKEN_RIGHT_BRACKET)) {
+        do {
+            expression();
+            if (argCount >= INT32_MAX) {
+                error("Can't have more elements in a list that 65k.");
+            }
+            argCount++;
+        } while(match(TOKEN_COMMA));
+    }
+
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after list literal.");
+    emitByte(OP_LIST, parser.previous.line);
+    emitByte((argCount >> 8) & 0xff, parser.previous.line);
+    emitByte(argCount & 0xff, parser.previous.line);
+}
+
+/**
+ * Method for compiling list indexing.
+ */
+static void index(bool canAssign) {
+    expression(); // parse the index value
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
+    if (match(TOKEN_PLUS_EQUAL) || match(TOKEN_MINUS_EQUAL) ||
+        match(TOKEN_STAR_EQUAL) || match(TOKEN_SLASH_EQUAL)) {
+
+            TokenType op = parser.previous.type;
+
+            emitByte(OP_DUP2, parser.previous.line);
+            emitByte(OP_GET_INDEX, parser.previous.line);
+
+            // If we have a compound assignment, we need to compile the right-hand side
+            expression();
+            switch (op) {
+                case TOKEN_PLUS_EQUAL:    emitByte(OP_ADD, parser.previous.line); break;
+                case TOKEN_MINUS_EQUAL:   emitByte(OP_SUBTRACT, parser.previous.line); break;
+                case TOKEN_STAR_EQUAL:    emitByte(OP_MULTIPLY, parser.previous.line); break;
+                case TOKEN_SLASH_EQUAL:   emitByte(OP_DIVIDE, parser.previous.line); break;
+                default: break;
+            }
+            emitByte(OP_SET_INDEX, parser.previous.line);
+    } else if (canAssign && match(TOKEN_EQUAL)) {
+        expression();
+        emitByte(OP_SET_INDEX, parser.previous.line);
+    } else {
+        emitByte(OP_GET_INDEX, parser.previous.line);
+    }
 }
 
 /**
@@ -995,6 +1054,7 @@ static void forStatement() {
         consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
 
         exitJump = emitJump(OP_JUMP_IF_FALSE);
+        // needed to pop the condition
         emitByte(OP_POP, parser.previous.line);
     }
 
@@ -1015,6 +1075,7 @@ static void forStatement() {
 
     if (exitJump != -1) {
         patchJump(exitJump);
+        // needed to pop the condition
         emitByte(OP_POP, parser.previous.line);
     }
     endScope();

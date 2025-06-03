@@ -55,6 +55,10 @@ typedef enum OpCode {
     OP_SET_PROPERTY,
     OP_GET_PROPERTY,
     OP_DUP,
+    OP_DUP2,
+    OP_LIST,
+    OP_GET_INDEX,
+    OP_SET_INDEX,
 } OpCode;
 
 /**

@@ -380,6 +380,14 @@ static InterpretResult run() {
             }
             case OP_POP: {
                 pop();
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Stack after OP_POP: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 break;
             }
             case OP_GET_LOCAL: {
@@ -466,6 +474,14 @@ static InterpretResult run() {
                 break;
             }
             case OP_ADD: {
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Stack before OP_ADD: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
                     concatenate();
                 } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
@@ -527,8 +543,17 @@ static InterpretResult run() {
                 break;
             }
             case OP_DUP: {
+                // duplicates the top value on the stack
                 Value value = peek(0);
                 push(value);
+                break;
+            }
+            case OP_DUP2: {
+                // duplicates the top two values on the stack
+                Value value1 = peek(0);
+                Value value2 = peek(1);
+                push(value2);
+                push(value1);
                 break;
             }
             case OP_JUMP: {
@@ -667,6 +692,76 @@ static InterpretResult run() {
                 }
                 frame = &vm.frames[vm.frameCount - 1];
                 ip = frame->ip;
+                break;
+            }
+            case OP_LIST: {
+                int count = READ_SHORT();
+                ObjList* list = newList();
+                // Pop values into a temporary array
+                Value* temp = ALLOCATE(Value, count);
+                for (int i = count - 1; i >= 0; i--) {
+                    temp[i] = pop();
+                }
+                for (int i = 0; i < count; i++) {
+                    writeValueArray(&list->values, temp[i]);
+                    list->count++;
+                }
+                FREE_ARRAY(Value, temp, count);
+                push(OBJ_VAL(list));
+                break;
+            }
+            case OP_GET_INDEX: {
+                Value index = pop();
+                Value listValue = pop();
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: OP_GET_INDEX types: index=%d, value=%d\n", index.type, listValue.type);
+                #endif
+                if (!IS_LIST(listValue)) {
+                    frame->ip = ip;
+                    runtimeError("Expected a list.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjList* list = AS_LIST(listValue);
+                if (!IS_NUMBER(index)) {
+                    frame->ip = ip;
+                    runtimeError("Index must be a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                int idx = (int)AS_NUMBER(index);
+                if (idx < 0 || idx >= list->count) {
+                    frame->ip = ip;
+                    runtimeError("Index out of bounds.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(list->values.values[idx]);
+                break;
+            }
+            case OP_SET_INDEX: {
+                Value value = pop();
+                Value index = pop();
+                Value listValue = pop();
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: OP_SET_INDEX types: list=%d, index=%d, value=%d\n", listValue.type, index.type, value.type);
+                #endif
+                if (!IS_LIST(listValue)) {
+                    frame->ip = ip;
+                    runtimeError("Expected a list.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjList* list = AS_LIST(listValue);
+                if (!IS_NUMBER(index)) {
+                    frame->ip = ip;
+                    runtimeError("Index must be a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                int idx = (int)AS_NUMBER(index);
+                if (idx < 0 || idx >= list->count) {
+                    frame->ip = ip;
+                    runtimeError("Index out of bounds.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                list->values.values[idx] = value;
+                push(value);
                 break;
             }
             case OP_RETURN: {

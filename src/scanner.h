@@ -18,6 +18,8 @@ typedef enum TokenType {
     TOKEN_SEMICOLON, TOKEN_SLASH, TOKEN_STAR,
     TOKEN_MODULO,
 
+    TOKEN_LEFT_BRACKET, TOKEN_RIGHT_BRACKET,
+
     // One or two character tokens.
     TOKEN_BANG, TOKEN_BANG_EQUAL,
     TOKEN_EQUAL, TOKEN_EQUAL_EQUAL,

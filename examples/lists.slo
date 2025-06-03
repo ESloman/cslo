@@ -1,0 +1,25 @@
+var x = [1, 2, 3];
+var y = [];
+
+for (var i = 0; i < 3; i++) {
+    print(x[i]);
+}
+
+x[0] = 10;
+print(x[0]);
+
+x[1] = 20;
+
+var z = 0;
+z += x[1];
+
+print(z);
+print(x);
+
+for (var j = 0; j < 3; j++) {
+    x[j] = 5;
+}
+
+for (var i = 0; i < 3; i++) {
+    print(x[i]);
+}
