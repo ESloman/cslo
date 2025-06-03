@@ -72,6 +72,7 @@ void initVM() {
     ObjString* listName = copyString("list", 4);
     vm.listClass = newClass(listName);
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
 
     defineNatives();
 }

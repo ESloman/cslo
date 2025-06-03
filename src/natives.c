@@ -120,3 +120,23 @@ Value appendNative(int argCount, Value *args) {
     list->count++;
     return NIL_VAL;
 }
+
+/**
+ * Pop native function.
+ */
+Value popNative(int argCount, Value *args) {
+    if (argCount != 1 || !IS_LIST(args[0])) {
+        printf("append() must be called on a list.");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    if (list->count == 0) {
+        // popping an empty list returns nil
+        return NIL_VAL;
+    }
+    Value val = list->values.values[list->values.count - 1];
+    list->count--;
+    list->values.values[list->values.count - 1] = NIL_VAL; // Clear the popped value
+    list->values.count--;
+    return val;
+}

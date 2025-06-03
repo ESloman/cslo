@@ -51,3 +51,8 @@ Value lenNative(int argCount, Value* args);
  * append native function.
  */
 Value appendNative(int argCount, Value* args);
+
+/**
+ * Pop native function.
+ */
+Value popNative(int argCount, Value *args);
