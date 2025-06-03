@@ -27,9 +27,9 @@ while (x > 5) {
 }
 
 print("Inline for");
-for (var i = 0; i < 2; i = i + 1) { print(i); }
+for (var i = 0; i < 2; i++) { print(i); }
 
 print("Using global x");
-for (; x < 20; x = x + 1) {
+for (; x < 20; x = x++) {
     print(x);
 }

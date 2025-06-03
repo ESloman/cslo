@@ -1,19 +1,19 @@
-var x = 4;
 
-if (x == 2) {
-    print("x is 2");
-} elif (x == 1) {
-    print("x is 1");
-} elif (x == 3) {
-    print("x is 3");
-} else {
-    print("x is neither");
+for (var x = 0; x < 10; x++) {
+    if (x == 2) {
+        print("x is 2");
+    } elif (x == 1) {
+        print("x is 1");
+    } elif (x == 3) {
+        print("x is 3");
+    } else {
+        print("x is neither");
+    }
 }
 
 
 var y = 0;
-
-while( y < 10) {
+while (y < 10) {
     if (y == 0) {
         print("y is 0");
         print(y);
@@ -23,15 +23,15 @@ while( y < 10) {
     } else {
         print("y is odd");
     }
-    y = y + 1;
+    y += 1;
 }
 
-
-var z = 0;
-if (z == 1) {
-    print("z is 1");
-} elif (z == 2) {
-    print("z == 2");
+for (var z = 0; z < 3; z++) {
+    if (z == 1) {
+        print("z is 1");
+    } elif (z == 2) {
+        print("z == 2");
+    }
 }
 
 print("end of elif.slo");

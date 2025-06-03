@@ -1,0 +1,28 @@
+# abs
+print(abs(-1));  # 1
+
+# ceil and floor
+print("Printing ceil and floor stuff");
+for (var x = 0; x < 10; x = x + 1.1) {
+    print("Testing with ", x, "; ceil: ", ceil(x), ", floor: ", floor(x));
+    # print(ceil(x));
+    # print(floor(x));
+}
+
+# sqrt
+print(sqrt(9));  # 3
+
+# sin
+print(sin(1));
+
+# cos
+print(cos(1));
+
+# tan
+print(tan(1));
+
+# min
+print(min(5, 2));  # 2
+
+# max
+print(max(7, 8));  # 8

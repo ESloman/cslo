@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -56,6 +57,7 @@ static void runtimeError(const char* format, ...) {
  * Implementation of method to initialise the virtual machine.
  */
 void initVM() {
+    srand(time(NULL));
     resetStack();
     vm.objects = NULL;
     vm.bytesAllocated = 0;
