@@ -106,3 +106,17 @@ Value lenNative(int argCount, Value* args) {
             return NIL_VAL;
     }
 }
+
+/**
+ * Append native function.
+ */
+Value appendNative(int argCount, Value *args) {
+    if (argCount != 2 || !IS_LIST(args[0])) {
+        printf("append() must be called on a list with one argument.");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    writeValueArray(&list->values, args[1]);
+    list->count++;
+    return NIL_VAL;
+}

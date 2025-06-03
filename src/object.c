@@ -114,6 +114,7 @@ ObjList* newList() {
     ObjList* list = ALLOCATE_OBJ(ObjList, OBJ_LIST);
     list->count = 0;
     initValueArray(&list->values);
+    list->sClass = vm.listClass;
     return list;
 }
 

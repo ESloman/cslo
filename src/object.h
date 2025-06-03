@@ -196,6 +196,7 @@ typedef struct {
     Obj obj;
     int count;
     int capacity;
+    ObjClass* sClass;
     ValueArray values;
 } ObjList;
 

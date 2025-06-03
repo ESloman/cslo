@@ -68,6 +68,11 @@ void initVM() {
     initTable(&vm.strings);
     vm.initString = NULL;
     vm.initString = copyString("__init__", 8);
+
+    ObjString* listName = copyString("list", 4);
+    vm.listClass = newClass(listName);
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
+
     defineNatives();
 }
 
@@ -194,20 +199,43 @@ static bool invokeFromClass(ObjClass* sClass, ObjString* name, int argCount) {
 static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
     Value receiver = peek(argCount);
 
-    if (!IS_INSTANCE(receiver)) {
-        runtimeError("Only instances have methods.");
+    if (IS_INSTANCE(receiver)) {
+        // implementation if receiver is an instance of a class
+        ObjInstance* instance = AS_INSTANCE(receiver);
+        Value value;
+        if (tableGet(&instance->fields, OBJ_VAL(name), &value)) {
+            vm.stackTop[-argCount - 1] = value;
+            return callValue(value, argCount, ip);
+        }
+        return invokeFromClass(instance->sClass, name, argCount);
+    } else if (IS_LIST(receiver)) {
+        // implementation if receiver is a list
+        ObjList* list = AS_LIST(receiver);
+        Value method;
+        if (tableGet(&list->sClass->methods, OBJ_VAL(name), &method)) {
+            // For native methods, pass the list as the first argument
+            if (IS_NATIVE(method)) {
+                // Shift arguments up by one to make room for the receiver
+                for (int i = 0; i < argCount; i++) {
+                    vm.stackTop[-argCount - 1 + i] = vm.stackTop[-argCount + i];
+                }
+                vm.stackTop[-argCount - 1] = receiver; // list as self
+                NativeFn native = AS_NATIVE(method);
+                Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+                vm.stackTop -= argCount + 1;
+                push(result);
+                return true;
+            } else {
+                // If you support closures/methods on lists, handle here
+                return call(AS_CLOSURE(method), argCount);
+            }
+        }
+        runtimeError("Undefined method '%s' for list.", name->chars);
+        return false;
+    } else {
+        runtimeError("Only instances and lists have methods.");
         return false;
     }
-
-    ObjInstance* instance = AS_INSTANCE(receiver);
-
-    Value value;
-    if (tableGet(&instance->fields, OBJ_VAL(name), &value)) {
-        vm.stackTop[-argCount - 1] = value;
-        return callValue(value, argCount, ip);
-    }
-
-    return invokeFromClass(instance->sClass, name, argCount);
 }
 
 /**
