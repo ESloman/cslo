@@ -130,3 +130,9 @@ Value getEnvNative(int argCount, Value* args);
  * If the variable does not exist, it will be created.
  */
 Value setEnvNative(int argCount, Value* args);
+
+/**
+ * Unsets an environment variable.
+ * If the variable does not exist, it will do nothing.
+ */
+Value unsetEnvNative(int argCount, Value* args);
