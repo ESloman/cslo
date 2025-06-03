@@ -1,0 +1,5 @@
+var s = "Hello world!";
+print("Length of string s: ", len(s));
+
+var x = [1, 2, 3];
+print("Length of list x: ", len(x));

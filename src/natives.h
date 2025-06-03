@@ -41,3 +41,8 @@ Value timeNative(int argCount, Value* args);
  * Exits the current running script or REPL.
  */
 Value exitNative(int argCount, Value* args);
+
+/**
+ * len native function.
+ */
+Value lenNative(int argCount, Value* args);

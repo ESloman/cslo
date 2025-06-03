@@ -22,6 +22,7 @@ void defineNatives() {
     defineNative("sleep", sleepNative);
     defineNative("time", timeNative);
     defineNative("print", printNative);
+    defineNative("len", lenNative);
 }
 
 /**
@@ -83,4 +84,25 @@ Value exitNative(int argCount, Value* args) {
     exit(0);
     // not reachable
     return NIL_VAL;
+}
+
+/**
+ * len native function.
+ */
+Value lenNative(int argCount, Value* args) {
+    if (argCount != 1 || (!IS_LIST(args[0]) && !IS_STRING(args[0]))) {
+        printf("len() expects a single argument of type string or list.\n");
+        return NIL_VAL;
+    }
+    switch (OBJ_TYPE(args[0])) {
+        case OBJ_STRING:
+             return NUMBER_VAL((double)AS_STRING(args[0])->length);
+            break;
+        case OBJ_LIST:
+            return NUMBER_VAL((double)AS_LIST(args[0])->count);
+            break;
+        default:
+            printf("len() expects a single argument of type string or list.\n");
+            return NIL_VAL;
+    }
 }
