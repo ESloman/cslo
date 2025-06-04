@@ -691,7 +691,24 @@ static void list(bool canAssign) {
  * Method for compiling list indexing.
  */
 static void index(bool canAssign) {
-    expression(); // parse the index value
+    if (check(TOKEN_COLON)) {
+        emitByte(OP_NIL, parser.previous.line); // default to nil if no start index
+    } else {
+        expression(); // parse the index value
+    }
+    if (match(TOKEN_COLON)) {
+        // handle slicers
+        if (!check(TOKEN_RIGHT_BRACKET)) {
+            expression(); // parse the end index
+        } else {
+            emitByte(OP_NIL, parser.previous.line); // default to nil if no end index
+        }
+        consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
+        emitByte(OP_SLICE, parser.previous.line);
+        return;
+    }
+
+    // handle standard indexing
     consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
     if (match(TOKEN_PLUS_EQUAL) || match(TOKEN_MINUS_EQUAL) ||
         match(TOKEN_STAR_EQUAL) || match(TOKEN_SLASH_EQUAL)) {

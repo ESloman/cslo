@@ -355,6 +355,7 @@ Token scanToken() {
         case ',': return makeToken(TOKEN_COMMA);
         case '.': return makeToken(TOKEN_DOT);
         case '%': return makeToken(TOKEN_MODULO);
+        case ':': return makeToken(TOKEN_COLON);
 
         // these tokens can either be single or two char tokens
         // aka ! or !=

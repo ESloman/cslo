@@ -814,6 +814,49 @@ static InterpretResult run() {
                 push(value);
                 break;
             }
+            case OP_SLICE: {
+                Value end = pop();
+                Value start = pop();
+                Value listValue = pop();
+                if (!IS_LIST(listValue)) {
+                    frame->ip = ip;
+                    runtimeError("Expected a list.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjList* list = AS_LIST(listValue);
+
+                int iStart = IS_NIL(start) ? 0 : (int)AS_NUMBER(start);
+                int iEnd = IS_NIL(end) ? list->count : (int)AS_NUMBER(end);
+
+                // Handle negative indices
+                if (iStart < 0) {
+                    iStart += list->count;
+                }
+                if (iEnd < 0) {
+                    iEnd += list->count;
+                }
+                if (iStart < 0) {
+                    iStart = 0;
+                }
+                if (iEnd > list->count) {
+                    iEnd = list->count;
+                }
+                if (iEnd < iStart) {
+                    iEnd = iStart;
+                }
+
+                ObjList* result = newList();
+                for (int i = iStart; i < iEnd; i++) {
+                    // Copy each value
+                    if (result->count + 1 > result->values.capacity) {
+                        growValueArray(&result->values);
+                    }
+                    result->values.values[result->count++] = list->values.values[i];
+                    result->values.count = result->count;
+                }
+                push(OBJ_VAL(result));
+                break;
+            }
             case OP_RETURN: {
                 Value result = pop();
                 closeUpvalues(frame->slots);

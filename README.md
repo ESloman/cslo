@@ -48,4 +48,5 @@ This is a non-exhaustive list of things that have been added / are different to 
 - `exit()` to exit with optional status code
 - random native functions: `random()`, `randomInt()`, `randomRange()`
 - lists declared like: `var x = [1, 2, 3];` and accessed like: `print(x[0]);` or `x[0] = 99`
+- list slicing and support for negative indices
 - list methods like: `insert`, `pop`, `remove`, `append`

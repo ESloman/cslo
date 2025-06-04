@@ -59,6 +59,7 @@ typedef enum OpCode {
     OP_LIST,
     OP_GET_INDEX,
     OP_SET_INDEX,
+    OP_SLICE,
 } OpCode;
 
 /**

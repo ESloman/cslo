@@ -1,0 +1,5 @@
+var x = [10, 20, 30, 40, 50];
+print(x[1:4]); // Should print [20, 30, 40]
+print(x[:3]);  // Should print [10, 20, 30]
+print(x[2:]);  // Should print [30, 40, 50]
+print(x[-3:-1]); // Should print [30, 40]
