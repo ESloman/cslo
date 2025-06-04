@@ -255,6 +255,92 @@ Value removeNative(int argCount, Value* args) {
     return removed;
 }
 
+/**
+ * Reverse native function.
+ */
+Value reverseNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_LIST(args[0])) {
+        printf("reverse() must be called on a list.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    if (list->count == 0 || list->count == 1) {
+        // nothing to reverse; can just return current list as is
+        return args[0];
+    }
+    ObjList* reversed = newList();
+    for (int i = list->count - 1; i >= 0; i--) {
+        if (reversed->count >= reversed->values.capacity) {
+            growValueArray(&reversed->values);
+        }
+        reversed->values.values[reversed->count++] = list->values.values[i];
+    }
+    return OBJ_VAL(reversed);
+}
+
+/**
+ * Index native function.
+ */
+Value indexNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_LIST(args[0])) {
+        printf("index() must be called on a list with a value.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    if (list->count == 0) {
+        printf("index() called on an empty list.\n");
+        return NIL_VAL;
+    }
+
+    for (int idx = 0; idx < list->count; idx++) {
+        if (valuesEqual(list->values.values[idx], args[1])) {
+            return NUMBER_VAL((double)idx);
+        }
+    }
+    return NIL_VAL; // not found
+}
+
+/**
+ * Count native function.
+ */
+Value countNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_LIST(args[0])) {
+        printf("count() must be called on a list with a value.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    if (list->count == 0) {
+        // guaranteed to be 0 occurences
+        return NUMBER_VAL(0);
+    }
+
+    int occurences = 0;
+    for (int idx = 0; idx < list->count; idx++) {
+        if (valuesEqual(list->values.values[idx], args[1])) {
+            occurences++;
+        }
+    }
+    return NUMBER_VAL((double)occurences);
+}
+
+/**
+ * Clear native function.
+ * Removes all elements from the list.
+ */
+Value clearNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_LIST(args[0])) {
+        printf("clear() must be called on a list.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    // Set all elements to NIL_VAL to avoid holding references
+    for (int i = 0; i < list->count; i++) {
+        list->values.values[i] = NIL_VAL;
+    }
+    list->count = 0;
+    list->values.count = 0;
+    return NIL_VAL;
+}
 
 // MATH FUNCTIONS
 

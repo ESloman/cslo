@@ -77,6 +77,10 @@ void initVM() {
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("insert", 6)), OBJ_VAL(newNative(insertNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("remove", 6)), OBJ_VAL(newNative(removeNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("reverse", 7)), OBJ_VAL(newNative(reverseNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(indexNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(countNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
 
     defineNatives();
 }
@@ -743,13 +747,14 @@ static InterpretResult run() {
                 for (int i = count - 1; i >= 0; i--) {
                     temp[i] = pop();
                 }
-                if (list->count + count > list->values.capacity) {
+                while (list->values.capacity < count) {
                     growValueArray(&list->values);
                 }
                 for (int i = 0; i < count; i++) {
                     list->values.values[i] = temp[i];
                     list->count++;
                 }
+                list->values.count = list->count;
                 FREE_ARRAY(Value, temp, count);
                 push(OBJ_VAL(list));
                 break;

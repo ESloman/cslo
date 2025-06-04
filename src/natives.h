@@ -69,6 +69,27 @@ Value insertNative(int argCount, Value* args);
  */
 Value removeNative(int argCount, Value* args);
 
+/**
+ * Reverse native function.
+ */
+Value reverseNative(int argCount, Value* args);
+
+/**
+ * Index native function.
+ */
+Value indexNative(int argCount, Value* args);
+
+/**
+ * Count native function.
+ */
+Value countNative(int argCount, Value* args);
+
+/**
+ * Clear native function.
+ * Removes all elements from the list.
+ */
+Value clearNative(int argCount, Value* args);
+
 // MATH NATIVES
 
 /**

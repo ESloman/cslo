@@ -1,0 +1,11 @@
+var x = [1, 2, 3, 4];
+print(x);
+print(x.reverse());
+
+var y = [1];
+print(y);
+print(y.reverse());
+
+var z = [];
+print(z);
+print(z.reverse());
