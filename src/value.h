@@ -123,6 +123,11 @@ bool valuesEqual(Value a, Value b);
 void initValueArray(ValueArray* array);
 
 /**
+ * Method for growing the capacity of an array.
+ */
+void growValueArray(ValueArray* array);
+
+/**
  * Method for writing to a value array.
  */
 void writeValueArray(ValueArray* array, Value value);

@@ -75,6 +75,8 @@ void initVM() {
     vm.listClass = newClass(listName);
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("insert", 6)), OBJ_VAL(newNative(insertNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("remove", 6)), OBJ_VAL(newNative(removeNative)));
 
     defineNatives();
 }
@@ -170,6 +172,14 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
             }
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
+                #ifdef DEBUG_LOGGING
+                printf("Stack before native call: ");
+                for (int i = 0; i < argCount + 1; i++) {
+                    printValue(vm.stackTop[-argCount - 1 + i]);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 Value result = native(argCount, vm.stackTop - argCount);
                 vm.stackTop -= argCount + 1;
                 push(result);
@@ -219,10 +229,10 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             // For native methods, pass the list as the first argument
             if (IS_NATIVE(method)) {
                 // Shift arguments up by one to make room for the receiver
-                for (int i = 0; i < argCount; i++) {
-                    vm.stackTop[-argCount - 1 + i] = vm.stackTop[-argCount + i];
-                }
-                vm.stackTop[-argCount - 1] = receiver; // list as self
+                // for (int i = 0; i < argCount; i++) {
+                //     vm.stackTop[-argCount - 1 + i] = vm.stackTop[-argCount + i];
+                // }
+                // vm.stackTop[-argCount - 1] = receiver; // list as self
                 NativeFn native = AS_NATIVE(method);
                 Value result = native(argCount + 1, vm.stackTop - argCount - 1);
                 vm.stackTop -= argCount + 1;
@@ -733,8 +743,11 @@ static InterpretResult run() {
                 for (int i = count - 1; i >= 0; i--) {
                     temp[i] = pop();
                 }
+                if (list->count + count > list->values.capacity) {
+                    growValueArray(&list->values);
+                }
                 for (int i = 0; i < count; i++) {
-                    writeValueArray(&list->values, temp[i]);
+                    list->values.values[i] = temp[i];
                     list->count++;
                 }
                 FREE_ARRAY(Value, temp, count);
@@ -759,6 +772,9 @@ static InterpretResult run() {
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 int idx = (int)AS_NUMBER(index);
+                if (idx < 0) {
+                    idx += list->count; // allow negative indexing
+                }
                 if (idx < 0 || idx >= list->count) {
                     frame->ip = ip;
                     runtimeError("Index out of bounds.");
@@ -786,6 +802,9 @@ static InterpretResult run() {
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 int idx = (int)AS_NUMBER(index);
+                if (idx < 0) {
+                    idx += list->count; // allow negative indexing
+                }
                 if (idx < 0 || idx >= list->count) {
                     frame->ip = ip;
                     runtimeError("Index out of bounds.");

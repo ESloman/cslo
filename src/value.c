@@ -20,6 +20,12 @@ void initValueArray(ValueArray* array) {
     array->count = 0;
 }
 
+void growValueArray(ValueArray* array) {
+    int oldCapacity = array->capacity;
+    array->capacity = GROW_CAPACITY(oldCapacity);
+    array->values = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+}
+
 /**
  * Implementation of method to write a value to an array.
  *
@@ -27,9 +33,7 @@ void initValueArray(ValueArray* array) {
  */
 void writeValueArray(ValueArray* array, Value value) {
     if (array->capacity < array->count + 1) {
-        int oldCapacity = array->capacity;
-        array->capacity = GROW_CAPACITY(oldCapacity);
-        array->values = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+        growValueArray(array);
     }
 
     array->values[array->count] = value;
@@ -88,7 +92,24 @@ bool valuesEqual(Value a, Value b) {
         case VAL_NUMBER:
             return AS_NUMBER(a) == AS_NUMBER(b);
         case VAL_OBJ:
-            return AS_OBJ(a) == AS_OBJ(b);
+            if (OBJ_TYPE(a) != OBJ_TYPE(b)) {
+                return false;
+            }
+            switch (OBJ_TYPE(a)) {
+                case OBJ_STRING:
+                    return AS_STRING(a)->length == AS_STRING(b)->length &&
+                           memcmp(AS_STRING(a)->chars, AS_STRING(b)->chars, AS_STRING(a)->length) == 0;
+                case OBJ_LIST:
+                    ObjList* la = AS_LIST(a);
+                    ObjList* lb = AS_LIST(b);
+                    if (la->count != lb->count) return false;
+                    for (int i = 0; i < la->count; i++) {
+                        if (!valuesEqual(la->values.values[i], lb->values.values[i])) return false;
+                    }
+                    return true;
+                default:
+                    return AS_OBJ(a) == AS_OBJ(b);
+            }
         case VAL_EMPTY:
             return true;
         default:

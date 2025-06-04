@@ -18,7 +18,7 @@ This is a list of some additional features and functionality I would like to cha
 any particular order and are subject to change.
 
 - ~~additional operands like `+=`, `++`, `--`~~
-- adding a `list` type
+- ~~adding a `list` type~~
 - adding a `dict` type for maps
 - adding `enums`
 - better error reporting
@@ -37,11 +37,15 @@ This is a non-exhaustive list of things that have been added / are different to 
 - print is a function (`print()`) and supports multiple arguments
 - support for `elif`
 - `self` rather than `this` in classes
+- `__init__` rather than `init` in classes
 - `extends` for inheritance rather than `<`
 - prefix and postfix increment / decrement (`--`, `++`)
 - compound assignment operators (`+=`, `-=`, `*=`, `/=`)
+- `len` native function for length of strings/lists
 - math native functions, things like: `min`, `max`, `sin` / `cos` / `tan`, `ceil` / `floor`, `abs`, `sqrt`, etc
 - environment variable handling with `setenv` and `getenv`
 - `time()` to get current now
 - `exit()` to exit with optional status code
 - random native functions: `random()`, `randomInt()`, `randomRange()`
+- lists declared like: `var x = [1, 2, 3];` and accessed like: `print(x[0]);` or `x[0] = 99`
+- list methods like: `insert`, `pop`, `remove`, `append`

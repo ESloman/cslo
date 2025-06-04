@@ -47,6 +47,8 @@ Value exitNative(int argCount, Value* args);
  */
 Value lenNative(int argCount, Value* args);
 
+// LIST NATIVES
+
 /**
  * append native function.
  */
@@ -56,6 +58,16 @@ Value appendNative(int argCount, Value* args);
  * Pop native function.
  */
 Value popNative(int argCount, Value *args);
+
+/**
+ * insert native function.
+ */
+Value insertNative(int argCount, Value* args);
+
+/**
+ * remove native function.
+ */
+Value removeNative(int argCount, Value* args);
 
 // MATH NATIVES
 

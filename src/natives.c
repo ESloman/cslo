@@ -146,6 +146,8 @@ Value lenNative(int argCount, Value* args) {
     }
 }
 
+// LIST FUNCTIONS
+
 /**
  * Append native function.
  */
@@ -155,8 +157,12 @@ Value appendNative(int argCount, Value *args) {
         return NIL_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
-    writeValueArray(&list->values, args[1]);
+    if (list->count + 1 > list->values.capacity) {
+        growValueArray(&list->values);
+    }
+    list->values.values[list->count] = args[1];
     list->count++;
+    list->values.count = list->count;
     return NIL_VAL;
 }
 
@@ -165,7 +171,7 @@ Value appendNative(int argCount, Value *args) {
  */
 Value popNative(int argCount, Value *args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
-        printf("append() must be called on a list.");
+        printf("pop() must be called on a list.");
         return NIL_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
@@ -173,12 +179,82 @@ Value popNative(int argCount, Value *args) {
         // popping an empty list returns nil
         return NIL_VAL;
     }
-    Value val = list->values.values[list->values.count - 1];
+    Value val = list->values.values[list->count - 1];
+    list->values.values[list->count - 1] = NIL_VAL; // Clear the popped value
     list->count--;
-    list->values.values[list->values.count - 1] = NIL_VAL; // Clear the popped value
-    list->values.count--;
+    list->values.count = list->count;
     return val;
 }
+
+/**
+ * Insert native function.
+ */
+Value insertNative(int argCount, Value* args) {
+    if (argCount != 3 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
+        printf("insert() must be called on a list with an index and a value.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    int idx = (int)AS_NUMBER(args[1]);
+    if (idx < 0) {
+        idx = 0;
+    }
+    if (idx > list->count) {
+        idx = list->count; // allow insert at end
+    }
+
+    #ifdef DEBUG_LOGGING
+    printf("insert: idx=%d, value=", idx);
+    printValue(args[2]);
+    printf("\n");
+    #endif
+
+    // Grow the array if needed
+    if (list->count + 1 > list->values.capacity) {
+        growValueArray(&list->values);
+    }
+
+    // Shift elements to the right
+    #ifdef DEBUG_LOGGING
+    printf("Inserting at idx=%d, count=%d\n", idx, list->count);
+    for (int i = list->count; i > idx; i--) {
+        printf("shifting %d to %d\n", i-1, i);
+        list->values.values[i] = list->values.values[i - 1];
+    }
+    #endif
+    list->values.values[idx] = args[2];
+    list->count++;
+    list->values.count = list->count;
+    return NIL_VAL;
+}
+
+/**
+ * remove native function.
+ */
+Value removeNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
+        printf("remove() must be called on a list with an index.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    int idx = (int)AS_NUMBER(args[1]);
+    if (idx < 0 || idx >= list->count) {
+        printf("Index out of bounds for remove().\n");
+        return NIL_VAL;
+    }
+
+    Value removed = list->values.values[idx];
+
+    // Shift elements to the left
+    for (int i = idx; i < list->count - 1; i++) {
+        list->values.values[i] = list->values.values[i + 1];
+    }
+    list->count--;
+    list->values.count = list->count;
+    list->values.values[list->count] = NIL_VAL; // Clear the slot
+    return removed;
+}
+
 
 // MATH FUNCTIONS
 
