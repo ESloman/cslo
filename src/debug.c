@@ -207,6 +207,15 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         case OP_SET_INDEX: {
             return simpleInstruction("OP_SET_INDEX", offset);
         }
+        case OP_SLICE: {
+            return simpleInstruction("OP_SLICE", offset);
+        }
+        case OP_HAS: {
+            return simpleInstruction("OP_HAS", offset);
+        }
+        case OP_HAS_NOT: {
+            return simpleInstruction("OP_HAS_NOT", offset);
+        }
         case OP_RETURN: {
             return simpleInstruction("OP_RETURN", offset);
         }

@@ -1,0 +1,6 @@
+var x = [1, 2, 3, 4];
+print(x has 2);  // true
+print(x has 3 + 3);  // false
+
+print(x has not 6);  // true
+print(x has not 1);  // false

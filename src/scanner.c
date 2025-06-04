@@ -102,6 +102,20 @@ static TokenType identifierType() {
                 }
             }
             break;
+        case 'h':
+            if(checkKeyword(1, 2, "as", TOKEN_HAS) == TOKEN_HAS) {
+                const char* afterHas = scanner.current;
+                while (*afterHas == ' ') {
+                    afterHas++;
+                }
+                if (strncmp(afterHas, "not", 3) == 0 && !isAlpha(afterHas[3])) {
+                    // Advance scanner.current to after "not"
+                    scanner.current = afterHas + 3;
+                    return TOKEN_HAS_NOT;
+                }
+                return TOKEN_HAS;
+            }
+            break;
         case 'i':
             return checkKeyword(1, 1, "f", TOKEN_IF);
         case 'n':

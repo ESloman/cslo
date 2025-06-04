@@ -41,6 +41,8 @@ static void compoundAssign(bool canAssign);
 static void list(bool canAssign);
 static void index(bool canAssign);
 static void expressionStatement();
+static void has(bool canAssign);
+static void hasNot(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
@@ -107,7 +109,9 @@ ParseRule rules[] = {
     [TOKEN_MINUS_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
     [TOKEN_STAR_EQUAL]      = { NULL, compoundAssign,         PREC_ASSIGNMENT },
     [TOKEN_SLASH_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
-    [TOKEN_LEFT_BRACKET]    = { list, index,          PREC_CALL}
+    [TOKEN_LEFT_BRACKET]    = { list, index,          PREC_CALL},
+    [TOKEN_HAS]              = { NULL,          has,         PREC_EQUALITY      },
+    [TOKEN_HAS_NOT]              = { NULL,          hasNot,         PREC_EQUALITY      },
     // [TOKEN_RIGHT_BRACKET]   = { NULL,         NULL,         PREC_NONE      },
 };
 
@@ -786,6 +790,22 @@ static void or_(bool canAssign) {
 
     parsePrecedence(PREC_OR);
     patchJump(endJump);
+}
+
+/**
+ * Method for compiling has statements.
+ */
+static void has(bool canAssign) {
+    expression();
+    emitByte(OP_HAS, parser.previous.line);
+}
+
+/**
+ * Method for compiling has statements.
+ */
+static void hasNot(bool canAssign) {
+    expression();
+    emitByte(OP_HAS_NOT, parser.previous.line);
 }
 
 /**

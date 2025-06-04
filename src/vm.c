@@ -862,6 +862,66 @@ static InterpretResult run() {
                 push(OBJ_VAL(result));
                 break;
             }
+            case OP_HAS: {
+                Value value = pop();
+                Value container = pop();
+                if (IS_LIST(container)) {
+                    ObjList* list = AS_LIST(container);
+                    bool found = false;
+                    for (int i = 0; i < list->count; i++) {
+                        if (valuesEqual(list->values.values[i], value)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    push(BOOL_VAL(found));
+                } else if (IS_STRING(container)) {
+                    ObjString* str = AS_STRING(container);
+                    if (IS_STRING(value)) {
+                        ObjString* valStr = AS_STRING(value);
+                        push(BOOL_VAL(strstr(str->chars, valStr->chars) != NULL));
+                    } else {
+                        frame->ip = ip;
+                        runtimeError("Can only check for strings in strings.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else {
+                    frame->ip = ip;
+                    runtimeError("'has' not supported for this type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+            case OP_HAS_NOT: {
+                Value value = pop();
+                Value container = pop();
+                if (IS_LIST(container)) {
+                    ObjList* list = AS_LIST(container);
+                    bool found = false;
+                    for (int i = 0; i < list->count; i++) {
+                        if (valuesEqual(list->values.values[i], value)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    push(BOOL_VAL(!found));
+                } else if (IS_STRING(container)) {
+                    ObjString* str = AS_STRING(container);
+                    if (IS_STRING(value)) {
+                        ObjString* valStr = AS_STRING(value);
+                        push(BOOL_VAL(!(strstr(str->chars, valStr->chars) != NULL)));
+                    } else {
+                        frame->ip = ip;
+                        runtimeError("Can only check for strings in strings.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else {
+                    frame->ip = ip;
+                    runtimeError("'has' not supported for this type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
             case OP_RETURN: {
                 Value result = pop();
                 closeUpvalues(frame->slots);
