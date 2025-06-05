@@ -25,7 +25,8 @@ typedef enum ValueType {
     VAL_NIL,
     VAL_NUMBER,
     VAL_OBJ,
-    VAL_EMPTY // used for tombstoning
+    VAL_EMPTY, // used for tombstoning
+    VAL_ERROR // used for error handling
 } ValueType;
 
 /**
@@ -62,6 +63,9 @@ typedef struct Value {
 /** Macro for checking if the given value is a VAL_EMPTY. */
 #define IS_EMPTY(value)   ((value).type == VAL_EMPTY)
 
+/** Macro for checking if the given value is a VAL_ERROR. */
+#define IS_ERROR(value)   ((value).type == VAL_ERROR)
+
 /**
  * Macros for converting slo Values into C values.
  */
@@ -94,6 +98,9 @@ typedef struct Value {
 /** Macro for creating an Empty value. */
 #define EMPTY_VAL         ((Value){VAL_EMPTY, { .number = 0 } })
 
+/** Macro for creating an Error value. */
+#define ERROR_VAL         ((Value){VAL_ERROR, { .number = 0 } })
+
 /**
  * @struct ValueArray
  *
@@ -111,9 +118,24 @@ typedef struct ValueArray {
 bool valuesEqual(Value a, Value b);
 
 /**
+ * Method for comparing values.
+ */
+int valueCompare(const void* a, const void* b);
+
+/**
  * Method for initialising a value array.
  */
 void initValueArray(ValueArray* array);
+
+/**
+ * Method for growing the capacity of an array.
+ */
+void growValueArray(ValueArray* array);
+
+/**
+ * Method for shrinking the capacity of an array.
+ */
+void shrinkValueArray(ValueArray* array);
 
 /**
  * Method for writing to a value array.
@@ -134,5 +156,10 @@ void printValue(Value value);
  * Method for hashing a Value.
  */
 uint32_t hashValue(Value value);
+
+/**
+ * Method for getting a ValueType as a string.
+ */
+char* valueTypeToString(Value value);
 
 #endif

@@ -21,15 +21,39 @@ void initValueArray(ValueArray* array) {
 }
 
 /**
+ * Method to grow a ValueArray.
+ */
+void growValueArray(ValueArray* array) {
+    int oldCapacity = array->capacity;
+    array->capacity = GROW_CAPACITY(oldCapacity);
+    array->values = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+}
+
+/**
+ * Method to shrink a ValueArray.
+ */
+void shrinkValueArray(ValueArray* array) {
+    int newCapacity = array->capacity / 2;
+    if (newCapacity < 8) {
+        newCapacity = 8;
+    }
+    if (newCapacity < array->count) {
+        newCapacity = array->count;
+    }
+    if (newCapacity < array->capacity) {
+        array->values = GROW_ARRAY(Value, array->values, array->capacity, newCapacity);
+        array->capacity = newCapacity;
+    }
+}
+
+/**
  * Implementation of method to write a value to an array.
  *
  * If the array is out of capacity, grow the array to fit the new element.
  */
 void writeValueArray(ValueArray* array, Value value) {
     if (array->capacity < array->count + 1) {
-        int oldCapacity = array->capacity;
-        array->capacity = GROW_CAPACITY(oldCapacity);
-        array->values = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+        growValueArray(array);
     }
 
     array->values[array->count] = value;
@@ -88,11 +112,50 @@ bool valuesEqual(Value a, Value b) {
         case VAL_NUMBER:
             return AS_NUMBER(a) == AS_NUMBER(b);
         case VAL_OBJ:
-            return AS_OBJ(a) == AS_OBJ(b);
+            if (OBJ_TYPE(a) != OBJ_TYPE(b)) {
+                return false;
+            }
+            switch (OBJ_TYPE(a)) {
+                case OBJ_STRING:
+                    return AS_STRING(a)->length == AS_STRING(b)->length &&
+                           memcmp(AS_STRING(a)->chars, AS_STRING(b)->chars, AS_STRING(a)->length) == 0;
+                case OBJ_LIST:
+                    ObjList* la = AS_LIST(a);
+                    ObjList* lb = AS_LIST(b);
+                    if (la->count != lb->count) return false;
+                    for (int i = 0; i < la->count; i++) {
+                        if (!valuesEqual(la->values.values[i], lb->values.values[i])) return false;
+                    }
+                    return true;
+                default:
+                    return AS_OBJ(a) == AS_OBJ(b);
+            }
         case VAL_EMPTY:
             return true;
         default:
             return false;
+    }
+}
+
+/**
+ * Method for comparing values.
+ */
+int valueCompare(const void* a, const void* b) {
+    const Value* va = (const Value*)a;
+    const Value* vb = (const Value*)b;
+
+    if (IS_NUMBER(*va) && IS_NUMBER(*vb)) {
+        double diff = AS_NUMBER(*va) - AS_NUMBER(*vb);
+        return (diff > 0) - (diff < 0);
+    } else if (IS_STRING(*va) && IS_STRING(*vb)) {
+        return strcmp(AS_CSTRING(*va), AS_CSTRING(*vb));
+    } else {
+        // Fallback: numbers < strings < others
+        if (IS_NUMBER(*va)) return -1;
+        if (IS_NUMBER(*vb)) return 1;
+        if (IS_STRING(*va)) return -1;
+        if (IS_STRING(*vb)) return 1;
+        return 0;
     }
 }
 
@@ -130,5 +193,30 @@ uint32_t hashValue(Value value) {
         default:
             printf("Unknown hash type: '%d'", value.type);
             return 1;
+    }
+}
+
+/**
+ * Method for getting a ValueType as a string.
+ */
+char* valueTypeToString(Value value) {
+    switch (value.type) {
+        case VAL_BOOL: return "bool";
+        case VAL_NIL: return "nil";
+        case VAL_NUMBER: return "number";
+        case VAL_OBJ: {
+            switch (OBJ_TYPE(value)) {
+                case OBJ_STRING: return "string";
+                case OBJ_LIST: return "list";
+                case OBJ_CLASS: return "class";
+                case OBJ_INSTANCE: return "instance";
+                case OBJ_FUNCTION: return "function";
+                case OBJ_NATIVE: return "native function";
+                default: return "object";
+            }
+        }
+        case VAL_EMPTY: return "empty";
+        case VAL_ERROR: return "error";
+        default: return "unknown";
     }
 }

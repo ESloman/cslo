@@ -1,5 +1,0 @@
-
-for (var x = 0; x < 10; x = x + 1.1) {
-    print(ceil(x));
-    print(floor(x));
-}

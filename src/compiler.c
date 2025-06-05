@@ -38,6 +38,11 @@ static void self(bool canAssign);
 static void prefixIncDec(bool canAssign);
 static void postfixIncDec(bool canAssign);
 static void compoundAssign(bool canAssign);
+static void list(bool canAssign);
+static void index(bool canAssign);
+static void expressionStatement();
+static void has(bool canAssign);
+static void hasNot(bool canAssign);
 
 /**
  * Table for defining parse rules and precedence.
@@ -104,6 +109,10 @@ ParseRule rules[] = {
     [TOKEN_MINUS_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
     [TOKEN_STAR_EQUAL]      = { NULL, compoundAssign,         PREC_ASSIGNMENT },
     [TOKEN_SLASH_EQUAL]     = { NULL, compoundAssign,         PREC_ASSIGNMENT },
+    [TOKEN_LEFT_BRACKET]    = { list, index,          PREC_CALL},
+    [TOKEN_HAS]              = { NULL,          has,         PREC_EQUALITY      },
+    [TOKEN_HAS_NOT]              = { NULL,          hasNot,         PREC_EQUALITY      },
+    // [TOKEN_RIGHT_BRACKET]   = { NULL,         NULL,         PREC_NONE      },
 };
 
 Parser parser;
@@ -161,7 +170,7 @@ static void errorAtCurrent(const char* message) {
  * Method for advancing the parser's token.
  *
  * Sets the previous token to the current and retrieves the next
- * token. Will report any errors if it encoutners an error token.
+ * token. Will report any errors if it encounters an error token.
  */
 static void advance() {
     parser.previous = parser.current;
@@ -566,7 +575,7 @@ static void postfixIncDec(bool canAssign) {
     emitConstant(NUMBER_VAL(1));
     emitByte(op == TOKEN_PLUS_PLUS ? OP_ADD : OP_SUBTRACT, parser.previous.line);
 
-    
+
     uint8_t setOp;
     int arg = resolveLocal(current, &lastVariableToken);
 
@@ -661,6 +670,77 @@ static void compoundAssign(bool canAssign) {
 }
 
 /**
+ * Method for compiling a list.
+ */
+static void list(bool canAssign) {
+    int32_t argCount = 0;
+
+    if (!check(TOKEN_RIGHT_BRACKET)) {
+        do {
+            expression();
+            if (argCount >= INT32_MAX) {
+                error("Can't have more elements in a list that 65k.");
+            }
+            argCount++;
+        } while(match(TOKEN_COMMA));
+    }
+
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after list literal.");
+    emitByte(OP_LIST, parser.previous.line);
+    emitByte((argCount >> 8) & 0xff, parser.previous.line);
+    emitByte(argCount & 0xff, parser.previous.line);
+}
+
+/**
+ * Method for compiling list indexing.
+ */
+static void index(bool canAssign) {
+    if (check(TOKEN_COLON)) {
+        emitByte(OP_NIL, parser.previous.line); // default to nil if no start index
+    } else {
+        expression(); // parse the index value
+    }
+    if (match(TOKEN_COLON)) {
+        // handle slicers
+        if (!check(TOKEN_RIGHT_BRACKET)) {
+            expression(); // parse the end index
+        } else {
+            emitByte(OP_NIL, parser.previous.line); // default to nil if no end index
+        }
+        consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
+        emitByte(OP_SLICE, parser.previous.line);
+        return;
+    }
+
+    // handle standard indexing
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
+    if (match(TOKEN_PLUS_EQUAL) || match(TOKEN_MINUS_EQUAL) ||
+        match(TOKEN_STAR_EQUAL) || match(TOKEN_SLASH_EQUAL)) {
+
+            TokenType op = parser.previous.type;
+
+            emitByte(OP_DUP2, parser.previous.line);
+            emitByte(OP_GET_INDEX, parser.previous.line);
+
+            // If we have a compound assignment, we need to compile the right-hand side
+            expression();
+            switch (op) {
+                case TOKEN_PLUS_EQUAL:    emitByte(OP_ADD, parser.previous.line); break;
+                case TOKEN_MINUS_EQUAL:   emitByte(OP_SUBTRACT, parser.previous.line); break;
+                case TOKEN_STAR_EQUAL:    emitByte(OP_MULTIPLY, parser.previous.line); break;
+                case TOKEN_SLASH_EQUAL:   emitByte(OP_DIVIDE, parser.previous.line); break;
+                default: break;
+            }
+            emitByte(OP_SET_INDEX, parser.previous.line);
+    } else if (canAssign && match(TOKEN_EQUAL)) {
+        expression();
+        emitByte(OP_SET_INDEX, parser.previous.line);
+    } else {
+        emitByte(OP_GET_INDEX, parser.previous.line);
+    }
+}
+
+/**
  * Method for compiling an argument list.
  */
 static uint8_t argumentList() {
@@ -710,6 +790,22 @@ static void or_(bool canAssign) {
 
     parsePrecedence(PREC_OR);
     patchJump(endJump);
+}
+
+/**
+ * Method for compiling has statements.
+ */
+static void has(bool canAssign) {
+    expression();
+    emitByte(OP_HAS, parser.previous.line);
+}
+
+/**
+ * Method for compiling has statements.
+ */
+static void hasNot(bool canAssign) {
+    expression();
+    emitByte(OP_HAS_NOT, parser.previous.line);
 }
 
 /**
@@ -980,10 +1076,68 @@ static void expressionStatement() {
 static void forStatement() {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
-    if (match(TOKEN_SEMICOLON)) {
-        // NOTHING
-    } else if (match(TOKEN_VAR)) {
+
+    // check and handle 'for (x in list)' syntax
+    if (check(TOKEN_IDENTIFIER)) {
+        Token varName = parser.current;
+        advance();  // consume identifier
+        if (check(TOKEN_IN)) {
+            advance();
+            expression();
+            consume(TOKEN_RIGHT_PAREN, "Expect ')' after 'for' clauses.");
+
+            // store iterable locally
+            addLocal(syntheticToken("__iterable"));
+            uint8_t iterableSlot = current->localCount - 1;
+            emitBytes(OP_SET_LOCAL, iterableSlot);
+
+            // create index variable
+            addLocal(syntheticToken("__idx"));
+            uint8_t indexSlot = current->localCount - 1;
+            emitConstant(NUMBER_VAL(0));
+            emitBytes(OP_SET_LOCAL, indexSlot);
+
+            int loopStart = currentChunk()->count;
+
+            // check we're still in range
+            emitBytes(OP_GET_LOCAL, indexSlot);
+            emitBytes(OP_GET_LOCAL, iterableSlot);
+
+            emitByte(OP_LEN, parser.previous.line);
+            emitByte(OP_GREATER_EQUAL, parser.previous.line);
+
+            int exitJump = emitJump(OP_JUMP_IF_TRUE);
+
+            // get the current index and iterable
+            emitBytes(OP_GET_LOCAL, iterableSlot);
+            emitBytes(OP_GET_LOCAL, indexSlot);
+            emitByte(OP_GET_INDEX, parser.previous.line);
+            addLocal(varName);
+            markInitialized();
+            uint8_t varSlot = current->localCount - 1;
+            emitBytes(OP_SET_LOCAL, varSlot);
+
+            statement();
+
+            // increment index
+            emitBytes(OP_GET_LOCAL, indexSlot);
+            emitConstant(NUMBER_VAL(1));
+            emitByte(OP_ADD, parser.previous.line);
+            emitBytes(OP_SET_LOCAL, indexSlot);
+
+            emitLoop(loopStart);
+            patchJump(exitJump);
+            emitByte(OP_POP, parser.previous.line);
+            endScope();
+            return;
+        }
+    }
+
+    // handle traditional style for loop syntax
+    if (match(TOKEN_VAR)) {
         varDeclaration();
+    } else if (match(TOKEN_SEMICOLON)) {
+        // nothing
     } else {
         expressionStatement();
     }
@@ -995,6 +1149,7 @@ static void forStatement() {
         consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
 
         exitJump = emitJump(OP_JUMP_IF_FALSE);
+        // needed to pop the condition
         emitByte(OP_POP, parser.previous.line);
     }
 
@@ -1015,6 +1170,7 @@ static void forStatement() {
 
     if (exitJump != -1) {
         patchJump(exitJump);
+        // needed to pop the condition
         emitByte(OP_POP, parser.previous.line);
     }
     endScope();

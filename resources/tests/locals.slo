@@ -6,4 +6,5 @@ var x = 10;
     print(x * y);
 }
 
+this will error
 print(y);

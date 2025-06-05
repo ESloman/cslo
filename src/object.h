@@ -40,6 +40,9 @@
 /** Macro for checking the given object is an ObjString. */
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 
+/** Macro for checking the given object is an ObjList. */
+#define IS_LIST(value)         isObjType(value, OBJ_LIST)
+
 /**
  * Macros for converting values to objects.
  */
@@ -68,6 +71,9 @@
 /** Macro for returning the ObjString character array for the given Value. */
 #define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
 
+/** Macro for converting a Value to an ObjList. */
+#define AS_LIST(value)        ((ObjList*)AS_OBJ(value))
+
 /**
  * @enum ObjType
  */
@@ -80,6 +86,7 @@ typedef enum ObjType {
     OBJ_INSTANCE,
     OBJ_STRING,
     OBJ_UPVALUE,
+    OBJ_LIST,
 } ObjType;
 
 /**
@@ -183,6 +190,17 @@ typedef struct ObjBoundMethod {
 } ObjBoundMethod;
 
 /**
+ * @struct ObjList
+ */
+typedef struct {
+    Obj obj;
+    int count;
+    int capacity;
+    ObjClass* sClass;
+    ValueArray values;
+} ObjList;
+
+/**
  * Method for creating a new bound method.
  */
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
@@ -226,6 +244,11 @@ ObjString* copyString(const char* chars, int length);
  * Method for creating a new upvalue.
  */
 ObjUpvalue* newUpvalue(Value* slot);
+
+/**
+ * Method for creating a new ObjList.
+ */
+ObjList* newList();
 
 /**
  * Method for printing an object.

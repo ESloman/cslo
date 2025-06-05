@@ -110,6 +110,14 @@ ObjUpvalue* newUpvalue(Value* slot) {
     return upvalue;
 }
 
+ObjList* newList() {
+    ObjList* list = ALLOCATE_OBJ(ObjList, OBJ_LIST);
+    list->count = 0;
+    initValueArray(&list->values);
+    list->sClass = vm.listClass;
+    return list;
+}
+
 /**
  * Method for creating an ObjString.
  *
@@ -214,6 +222,18 @@ void printObject(Value value) {
         }
         case OBJ_UPVALUE: {
             printf("upvalue");
+            break;
+        }
+        case OBJ_LIST: {
+            ObjList *list = AS_LIST(value);
+            printf("list[%d]: [", list->count);
+            for (int i = 0; i < list->count; i++) {
+                printValue(list->values.values[i]);
+                if (i < list->count - 1) {
+                    printf(", ");
+                }
+            }
+            printf("]");
             break;
         }
         default:

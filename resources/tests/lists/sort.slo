@@ -1,0 +1,8 @@
+var x = [];
+for (var count = 0; count < 10; count++) {
+    x.append(random());
+}
+print(x);
+
+x.sort();
+print(x);

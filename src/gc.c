@@ -249,6 +249,12 @@ void blackenObject(Obj* object) {
             markValue(((ObjUpvalue*)object)->closed);
             break;
         }
+        case OBJ_LIST: {
+            ObjList* list = (ObjList*)object;
+            markObject((Obj*)list->sClass);
+            markArray(&list->values);
+            break;
+        }
         case OBJ_NATIVE:
             break;
         case OBJ_STRING:

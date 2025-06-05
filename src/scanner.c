@@ -102,8 +102,26 @@ static TokenType identifierType() {
                 }
             }
             break;
+        case 'h':
+            if(checkKeyword(1, 2, "as", TOKEN_HAS) == TOKEN_HAS) {
+                const char* afterHas = scanner.current;
+                while (*afterHas == ' ') {
+                    afterHas++;
+                }
+                if (strncmp(afterHas, "not", 3) == 0 && !isAlpha(afterHas[3])) {
+                    // Advance scanner.current to after "not"
+                    scanner.current = afterHas + 3;
+                    return TOKEN_HAS_NOT;
+                }
+                return TOKEN_HAS;
+            }
+            break;
         case 'i':
-            return checkKeyword(1, 1, "f", TOKEN_IF);
+            if (scanner.start[1] == 'f') {
+                return checkKeyword(1, 1, "f", TOKEN_IF);
+            } else {
+                return checkKeyword(1, 1, "n", TOKEN_IN);
+            }
         case 'n':
             return checkKeyword(1, 2, "il", TOKEN_NIL);
         case 'o':
@@ -347,12 +365,15 @@ Token scanToken() {
         // single char tokens
         case '(': return makeToken(TOKEN_LEFT_PAREN);
         case ')': return makeToken(TOKEN_RIGHT_PAREN);
+        case '[': return makeToken(TOKEN_LEFT_BRACKET);
+        case ']': return makeToken(TOKEN_RIGHT_BRACKET);
         case '{': return makeToken(TOKEN_LEFT_BRACE);
         case '}': return makeToken(TOKEN_RIGHT_BRACE);
         case ';': return makeToken(TOKEN_SEMICOLON);
         case ',': return makeToken(TOKEN_COMMA);
         case '.': return makeToken(TOKEN_DOT);
         case '%': return makeToken(TOKEN_MODULO);
+        case ':': return makeToken(TOKEN_COLON);
 
         // these tokens can either be single or two char tokens
         // aka ! or !=

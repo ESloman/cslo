@@ -1,0 +1,1 @@
+exit(1);  # should exit with non-zero exit code

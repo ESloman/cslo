@@ -1,0 +1,11 @@
+var y = [];
+print(y);
+
+y.append(1);
+print(y);
+
+for (var x = 1; x < 10; x++) {
+    var ran = x**x;
+    y.append(ran);
+}
+print(y);

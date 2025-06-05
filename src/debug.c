@@ -148,10 +148,14 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_POW", offset);
         case OP_DUP:
             return simpleInstruction("OP_DUP", offset);
+        case OP_DUP2:
+            return simpleInstruction("OP_DUP2", offset);
         case OP_JUMP:
             return jumpInstruction("OP_JUMP", 1, chunk, offset);
         case OP_JUMP_IF_FALSE:
             return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
+        case OP_JUMP_IF_TRUE:
+            return jumpInstruction("OP_JUMP_IF_TRUE", 1, chunk, offset);
         case OP_LOOP:
             return jumpInstruction("OP_LOOP", -1, chunk, offset);
         case OP_CALL:
@@ -195,6 +199,27 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         }
         case OP_METHOD: {
             return constantInstruction("OP_METHOD", chunk, offset);
+        }
+        case OP_LIST: {
+            return simpleInstruction("OP_LIST", offset);
+        }
+        case OP_GET_INDEX: {
+            return simpleInstruction("OP_GET_INDEX", offset);
+        }
+        case OP_SET_INDEX: {
+            return simpleInstruction("OP_SET_INDEX", offset);
+        }
+        case OP_SLICE: {
+            return simpleInstruction("OP_SLICE", offset);
+        }
+        case OP_HAS: {
+            return simpleInstruction("OP_HAS", offset);
+        }
+        case OP_HAS_NOT: {
+            return simpleInstruction("OP_HAS_NOT", offset);
+        }
+        case OP_LEN: {
+            return simpleInstruction("OP_LEN", offset);
         }
         case OP_RETURN: {
             return simpleInstruction("OP_RETURN", offset);

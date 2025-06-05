@@ -1,0 +1,8 @@
+var x = [1, 2, 3];
+for (var i = len(x); i > 0; i--) {
+    print(x[i - 1]);
+}
+
+for (var j = 0; j < len(x); j++) {
+    print(x[j]);
+}

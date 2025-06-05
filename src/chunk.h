@@ -42,6 +42,7 @@ typedef enum OpCode {
     OP_NOT,
     OP_JUMP,
     OP_JUMP_IF_FALSE,
+    OP_JUMP_IF_TRUE,
     OP_LOOP,
     OP_CALL,
     OP_INVOKE,
@@ -55,6 +56,14 @@ typedef enum OpCode {
     OP_SET_PROPERTY,
     OP_GET_PROPERTY,
     OP_DUP,
+    OP_DUP2,
+    OP_LIST,
+    OP_GET_INDEX,
+    OP_SET_INDEX,
+    OP_SLICE,
+    OP_HAS,
+    OP_HAS_NOT,
+    OP_LEN,
 } OpCode;
 
 /**

@@ -1,0 +1,9 @@
+var x = [1, 2, 3];
+print(x);
+
+print("Removed: ", x.remove(0));
+print(x);
+
+var y = x.remove(1);
+print("Removed: ", y);
+print(x);

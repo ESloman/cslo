@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -56,6 +57,7 @@ static void runtimeError(const char* format, ...) {
  * Implementation of method to initialise the virtual machine.
  */
 void initVM() {
+    srand(time(NULL));
     resetStack();
     vm.objects = NULL;
     vm.bytesAllocated = 0;
@@ -68,6 +70,21 @@ void initVM() {
     initTable(&vm.strings);
     vm.initString = NULL;
     vm.initString = copyString("__init__", 8);
+
+    ObjString* listName = copyString("list", 4);
+    vm.listClass = newClass(listName);
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("insert", 6)), OBJ_VAL(newNative(insertNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("remove", 6)), OBJ_VAL(newNative(removeNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("reverse", 7)), OBJ_VAL(newNative(reverseNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(indexNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(countNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("extend", 6)), OBJ_VAL(newNative(extendNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("sort", 4)), OBJ_VAL(newNative(sortNative)));
+
     defineNatives();
 }
 
@@ -162,6 +179,14 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
             }
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
+                #ifdef DEBUG_LOGGING
+                printf("Stack before native call: ");
+                for (int i = 0; i < argCount + 1; i++) {
+                    printValue(vm.stackTop[-argCount - 1 + i]);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 Value result = native(argCount, vm.stackTop - argCount);
                 vm.stackTop -= argCount + 1;
                 push(result);
@@ -194,20 +219,43 @@ static bool invokeFromClass(ObjClass* sClass, ObjString* name, int argCount) {
 static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
     Value receiver = peek(argCount);
 
-    if (!IS_INSTANCE(receiver)) {
-        runtimeError("Only instances have methods.");
+    if (IS_INSTANCE(receiver)) {
+        // implementation if receiver is an instance of a class
+        ObjInstance* instance = AS_INSTANCE(receiver);
+        Value value;
+        if (tableGet(&instance->fields, OBJ_VAL(name), &value)) {
+            vm.stackTop[-argCount - 1] = value;
+            return callValue(value, argCount, ip);
+        }
+        return invokeFromClass(instance->sClass, name, argCount);
+    } else if (IS_LIST(receiver)) {
+        // implementation if receiver is a list
+        ObjList* list = AS_LIST(receiver);
+        Value method;
+        if (tableGet(&list->sClass->methods, OBJ_VAL(name), &method)) {
+            // For native methods, pass the list as the first argument
+            if (IS_NATIVE(method)) {
+                // Shift arguments up by one to make room for the receiver
+                // for (int i = 0; i < argCount; i++) {
+                //     vm.stackTop[-argCount - 1 + i] = vm.stackTop[-argCount + i];
+                // }
+                // vm.stackTop[-argCount - 1] = receiver; // list as self
+                NativeFn native = AS_NATIVE(method);
+                Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+                vm.stackTop -= argCount + 1;
+                push(result);
+                return true;
+            } else {
+                // If you support closures/methods on lists, handle here
+                return call(AS_CLOSURE(method), argCount);
+            }
+        }
+        runtimeError("Undefined method '%s' for list.", name->chars);
+        return false;
+    } else {
+        runtimeError("Only instances and lists have methods.");
         return false;
     }
-
-    ObjInstance* instance = AS_INSTANCE(receiver);
-
-    Value value;
-    if (tableGet(&instance->fields, OBJ_VAL(name), &value)) {
-        vm.stackTop[-argCount - 1] = value;
-        return callValue(value, argCount, ip);
-    }
-
-    return invokeFromClass(instance->sClass, name, argCount);
 }
 
 /**
@@ -380,6 +428,14 @@ static InterpretResult run() {
             }
             case OP_POP: {
                 pop();
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Stack after OP_POP: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 break;
             }
             case OP_GET_LOCAL: {
@@ -466,15 +522,52 @@ static InterpretResult run() {
                 break;
             }
             case OP_ADD: {
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Stack before OP_ADD: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
                     concatenate();
                 } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
                     push(NUMBER_VAL(a + b));
+                } else if (IS_LIST(peek(0)) && IS_LIST(peek(1))) {
+                    ObjList* b = AS_LIST(pop());
+                    ObjList* a = AS_LIST(pop());
+                    ObjList* result = newList();
+
+                    // Ensure enough capacity
+                    while (result->values.capacity < a->count + b->count) {
+                        growValueArray(&result->values);
+                    }
+
+                    // Copy elements from a
+                    for (int i = 0; i < a->count; i++) {
+                        result->values.values[result->count++] = a->values.values[i];
+                    }
+                    // Copy elements from b
+                    for (int i = 0; i < b->count; i++) {
+                        result->values.values[result->count++] = b->values.values[i];
+                    }
+                    result->values.count = result->count;
+
+                    push(OBJ_VAL(result));
                 } else {
                     frame->ip = ip;
-                    runtimeError("Invalid type.");
+                    if (peek(0).type != peek(1).type) {
+                        runtimeError(
+                            "Mismatched types: %s and %s.",
+                            valueTypeToString(peek(0)),
+                            valueTypeToString(peek(1))
+                        );
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    runtimeError("Addition not support for %s.", valueTypeToString(peek(0)));
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -527,8 +620,17 @@ static InterpretResult run() {
                 break;
             }
             case OP_DUP: {
+                // duplicates the top value on the stack
                 Value value = peek(0);
                 push(value);
+                break;
+            }
+            case OP_DUP2: {
+                // duplicates the top two values on the stack
+                Value value1 = peek(0);
+                Value value2 = peek(1);
+                push(value2);
+                push(value1);
                 break;
             }
             case OP_JUMP: {
@@ -539,6 +641,13 @@ static InterpretResult run() {
             case OP_JUMP_IF_FALSE: {
                 uint16_t offset = READ_SHORT();
                 if (isFalsey(peek(0))) {
+                    ip += offset;
+                }
+                break;
+            }
+            case OP_JUMP_IF_TRUE: {
+                uint16_t offset = READ_SHORT();
+                if (!isFalsey(peek(0))) {
                     ip += offset;
                 }
                 break;
@@ -667,6 +776,204 @@ static InterpretResult run() {
                 }
                 frame = &vm.frames[vm.frameCount - 1];
                 ip = frame->ip;
+                break;
+            }
+            case OP_LIST: {
+                int count = READ_SHORT();
+                ObjList* list = newList();
+                // Pop values into a temporary array
+                Value* temp = ALLOCATE(Value, count);
+                for (int i = count - 1; i >= 0; i--) {
+                    temp[i] = pop();
+                }
+                while (list->values.capacity < count) {
+                    growValueArray(&list->values);
+                }
+                for (int i = 0; i < count; i++) {
+                    list->values.values[i] = temp[i];
+                    list->count++;
+                }
+                list->values.count = list->count;
+                FREE_ARRAY(Value, temp, count);
+                push(OBJ_VAL(list));
+                break;
+            }
+            case OP_GET_INDEX: {
+                Value index = pop();
+                Value listValue = pop();
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: OP_GET_INDEX types: index=%d, value=%d\n", index.type, listValue.type);
+                #endif
+                if (!IS_LIST(listValue)) {
+                    frame->ip = ip;
+                    runtimeError("Expected a list.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjList* list = AS_LIST(listValue);
+                if (!IS_NUMBER(index)) {
+                    frame->ip = ip;
+                    runtimeError("Index must be a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                int idx = (int)AS_NUMBER(index);
+                if (idx < 0) {
+                    idx += list->count; // allow negative indexing
+                }
+                if (idx < 0 || idx >= list->count) {
+                    frame->ip = ip;
+                    runtimeError("Index out of bounds.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(list->values.values[idx]);
+                break;
+            }
+            case OP_SET_INDEX: {
+                Value value = pop();
+                Value index = pop();
+                Value listValue = pop();
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: OP_SET_INDEX types: list=%d, index=%d, value=%d\n", listValue.type, index.type, value.type);
+                #endif
+                if (!IS_LIST(listValue)) {
+                    frame->ip = ip;
+                    runtimeError("Expected a list.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjList* list = AS_LIST(listValue);
+                if (!IS_NUMBER(index)) {
+                    frame->ip = ip;
+                    runtimeError("Index must be a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                int idx = (int)AS_NUMBER(index);
+                if (idx < 0) {
+                    idx += list->count; // allow negative indexing
+                }
+                if (idx < 0 || idx >= list->count) {
+                    frame->ip = ip;
+                    runtimeError("Index out of bounds.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                list->values.values[idx] = value;
+                push(value);
+                break;
+            }
+            case OP_SLICE: {
+                Value end = pop();
+                Value start = pop();
+                Value listValue = pop();
+                if (!IS_LIST(listValue)) {
+                    frame->ip = ip;
+                    runtimeError("Expected a list.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjList* list = AS_LIST(listValue);
+
+                int iStart = IS_NIL(start) ? 0 : (int)AS_NUMBER(start);
+                int iEnd = IS_NIL(end) ? list->count : (int)AS_NUMBER(end);
+
+                // Handle negative indices
+                if (iStart < 0) {
+                    iStart += list->count;
+                }
+                if (iEnd < 0) {
+                    iEnd += list->count;
+                }
+                if (iStart < 0) {
+                    iStart = 0;
+                }
+                if (iEnd > list->count) {
+                    iEnd = list->count;
+                }
+                if (iEnd < iStart) {
+                    iEnd = iStart;
+                }
+
+                ObjList* result = newList();
+                for (int i = iStart; i < iEnd; i++) {
+                    // Copy each value
+                    if (result->count + 1 > result->values.capacity) {
+                        growValueArray(&result->values);
+                    }
+                    result->values.values[result->count++] = list->values.values[i];
+                    result->values.count = result->count;
+                }
+                push(OBJ_VAL(result));
+                break;
+            }
+            case OP_HAS: {
+                Value value = pop();
+                Value container = pop();
+                if (IS_LIST(container)) {
+                    ObjList* list = AS_LIST(container);
+                    bool found = false;
+                    for (int i = 0; i < list->count; i++) {
+                        if (valuesEqual(list->values.values[i], value)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    push(BOOL_VAL(found));
+                } else if (IS_STRING(container)) {
+                    ObjString* str = AS_STRING(container);
+                    if (IS_STRING(value)) {
+                        ObjString* valStr = AS_STRING(value);
+                        push(BOOL_VAL(strstr(str->chars, valStr->chars) != NULL));
+                    } else {
+                        frame->ip = ip;
+                        runtimeError("Can only check for strings in strings.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else {
+                    frame->ip = ip;
+                    runtimeError("'has' not supported for this type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+            case OP_HAS_NOT: {
+                Value value = pop();
+                Value container = pop();
+                if (IS_LIST(container)) {
+                    ObjList* list = AS_LIST(container);
+                    bool found = false;
+                    for (int i = 0; i < list->count; i++) {
+                        if (valuesEqual(list->values.values[i], value)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    push(BOOL_VAL(!found));
+                } else if (IS_STRING(container)) {
+                    ObjString* str = AS_STRING(container);
+                    if (IS_STRING(value)) {
+                        ObjString* valStr = AS_STRING(value);
+                        push(BOOL_VAL(!(strstr(str->chars, valStr->chars) != NULL)));
+                    } else {
+                        frame->ip = ip;
+                        runtimeError("Can only check for strings in strings.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else {
+                    frame->ip = ip;
+                    runtimeError("'has' not supported for this type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+            case OP_LEN: {
+                Value container = pop();
+                if (IS_LIST(container)) {
+                    ObjList* list = AS_LIST(container);
+                    push(NUMBER_VAL((double)list->count));
+                } else if (IS_STRING(container)) {
+                    ObjString* str = AS_STRING(container);
+                    push(NUMBER_VAL((double)str->length));
+                } else {
+                    frame->ip = ip;
+                    runtimeError("Length only supported for lists and strings.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 break;
             }
             case OP_RETURN: {
