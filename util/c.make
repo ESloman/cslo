@@ -38,7 +38,7 @@ endif
 # Recursive wildcard function
 rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
-HEADERS := $(call rwildcard,$(SOURCE_DIR)/,*.h)
+HEADERS := $(call rwildcard,include/,*.h)
 SOURCES := $(call rwildcard,$(SOURCE_DIR)/,*.c)
 
 # Files.
@@ -57,7 +57,7 @@ build/$(NAME): $(OBJECTS)
 # Compile object files.
 $(BUILD_DIR)/$(NAME)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)
 	@ printf "%8s %-40s %s\n" $(CC) $< "$(CFLAGS)"
-	@ mkdir -p $(BUILD_DIR)/$(NAME)
+	mkdir -p $(dir $@)
 	@ $(CC) -c $(C_LANG) $(CFLAGS) -o $@ $<
 
 .PHONY: default

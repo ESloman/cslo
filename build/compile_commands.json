@@ -1,0 +1,249 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/compiler/chunk.o",
+      "src/compiler/chunk.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/compiler/chunk.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/compiler/chunk.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/compiler/compiler.o",
+      "src/compiler/compiler.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/compiler/compiler.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/compiler/compiler.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/compiler/scanner.o",
+      "src/compiler/scanner.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/compiler/scanner.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/compiler/scanner.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/debug.o",
+      "src/core/debug.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/debug.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/debug.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/gc.o",
+      "src/core/gc.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/gc.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/gc.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/memory.o",
+      "src/core/memory.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/memory.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/memory.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/natives.o",
+      "src/core/natives.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/natives.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/natives.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/object.o",
+      "src/core/object.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/object.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/object.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/table.o",
+      "src/core/table.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/table.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/table.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/value.o",
+      "src/core/value.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/value.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/value.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/core/vm.o",
+      "src/core/vm.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/core/vm.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/core/vm.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/main.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-O3",
+      "-flto",
+      "-o",
+      "build/release/cslo/runtime/repl.o",
+      "src/runtime/repl.c"
+    ],
+    "directory": "/home/sloman/gitwork/cslo",
+    "file": "/home/sloman/gitwork/cslo/src/runtime/repl.c",
+    "output": "/home/sloman/gitwork/cslo/build/release/cslo/runtime/repl.o"
+  }
+]
