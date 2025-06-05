@@ -90,6 +90,18 @@ Value countNative(int argCount, Value* args);
  */
 Value clearNative(int argCount, Value* args);
 
+/**
+ * Clone native function.
+ * Shallow copies/clones a list.
+ */
+Value cloneNative(int argCount, Value* args);
+
+/**
+ * Extends native function.
+ * Extends a list with another list.
+ */
+Value extendNative(int argCount, Value* args);
+
 // MATH NATIVES
 
 /**

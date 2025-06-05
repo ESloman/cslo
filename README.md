@@ -49,6 +49,6 @@ This is a non-exhaustive list of things that have been added / are different to 
 - random native functions: `random()`, `randomInt()`, `randomRange()`
 - lists declared like: `var x = [1, 2, 3];` and accessed like: `print(x[0]);` or `x[0] = 99`
 - list slicing and support for negative indices
-- list methods like: `insert`, `pop`, `remove`, `append`, `reverse`, `count`, `clear`
+- list methods like: `insert`, `pop`, `remove`, `append`, `reverse`, `count`, `clear`, `clone`, `extend`, `sort`
 - membership checks with `has` and `has not` (ie `[1, 2, 3, 4] has 2  # true`)
 - `for (var item in my_list) {}` syntax for lists

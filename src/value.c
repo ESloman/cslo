@@ -153,3 +153,28 @@ uint32_t hashValue(Value value) {
             return 1;
     }
 }
+
+/**
+ * Method for getting a ValueType as a string.
+ */
+char* valueTypeToString(Value value) {
+    switch (value.type) {
+        case VAL_BOOL: return "bool";
+        case VAL_NIL: return "nil";
+        case VAL_NUMBER: return "number";
+        case VAL_OBJ: {
+            switch (OBJ_TYPE(value)) {
+                case OBJ_STRING: return "string";
+                case OBJ_LIST: return "list";
+                case OBJ_CLASS: return "class";
+                case OBJ_INSTANCE: return "instance";
+                case OBJ_FUNCTION: return "function";
+                case OBJ_NATIVE: return "native function";
+                default: return "object";
+            }
+        }
+        case VAL_EMPTY: return "empty";
+        case VAL_ERROR: return "error";
+        default: return "unknown";
+    }
+}

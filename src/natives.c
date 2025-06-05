@@ -110,7 +110,6 @@ Value printNative(int argCount, Value* args) {
  * Exit native function.
  *
  * Exits the program.
- * TODO: add optional status
  */
 Value exitNative(int argCount, Value* args) {
     if (argCount > 0 && !IS_NUMBER(args[0])) {
@@ -339,6 +338,50 @@ Value clearNative(int argCount, Value* args) {
     }
     list->count = 0;
     list->values.count = 0;
+    return NIL_VAL;
+}
+
+/**
+ * Clone native function.
+ * Shallow clones/copies a list.
+ */
+Value cloneNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_LIST(args[0])) {
+        printf("clone() must be called on a list.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    ObjList* clone = newList();
+    for (int i = 0; i < list->count; i++) {
+        if (clone->count + 1 > clone->values.capacity) {
+            growValueArray(&clone->values);
+        }
+        clone->values.values[clone->count++] = list->values.values[i];
+        clone->values.count = clone->count;
+    }
+    return OBJ_VAL(clone);
+}
+
+/**
+ * Extends native function.
+ * Extends a list with another list.
+ */
+Value extendNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_LIST(args[0]) || !IS_LIST(args[1])) {
+        printf("extend() must be called on a list with a list.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    ObjList* other = AS_LIST(args[1]);
+
+    while (list->values.capacity < list->count + other->count) {
+        growValueArray(&list->values);
+    }
+
+    for (int i = 0; i < other->count; i++) {
+        list->values.values[list->count++] = other->values.values[i];
+    }
+    list->values.count = list->count;
     return NIL_VAL;
 }
 

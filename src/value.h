@@ -147,4 +147,9 @@ void printValue(Value value);
  */
 uint32_t hashValue(Value value);
 
+/**
+ * Method for getting a ValueType as a string.
+ */
+char* valueTypeToString(Value value);
+
 #endif

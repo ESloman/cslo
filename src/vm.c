@@ -81,6 +81,8 @@ void initVM() {
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(indexNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(countNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("extend", 6)), OBJ_VAL(newNative(extendNative)));
 
     defineNatives();
 }
@@ -533,9 +535,38 @@ static InterpretResult run() {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
                     push(NUMBER_VAL(a + b));
+                } else if (IS_LIST(peek(0)) && IS_LIST(peek(1))) {
+                    ObjList* b = AS_LIST(pop());
+                    ObjList* a = AS_LIST(pop());
+                    ObjList* result = newList();
+
+                    // Ensure enough capacity
+                    while (result->values.capacity < a->count + b->count) {
+                        growValueArray(&result->values);
+                    }
+
+                    // Copy elements from a
+                    for (int i = 0; i < a->count; i++) {
+                        result->values.values[result->count++] = a->values.values[i];
+                    }
+                    // Copy elements from b
+                    for (int i = 0; i < b->count; i++) {
+                        result->values.values[result->count++] = b->values.values[i];
+                    }
+                    result->values.count = result->count;
+
+                    push(OBJ_VAL(result));
                 } else {
                     frame->ip = ip;
-                    runtimeError("Invalid type.");
+                    if (peek(0).type != peek(1).type) {
+                        runtimeError(
+                            "Mismatched types: %s and %s.",
+                            valueTypeToString(peek(0)),
+                            valueTypeToString(peek(1))
+                        );
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    runtimeError("Addition not support for %s.", valueTypeToString(peek(0)));
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;

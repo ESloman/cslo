@@ -1077,8 +1077,10 @@ static void forStatement() {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
 
+    bool tokenVar = match(TOKEN_VAR);
+
     // check and handle 'for (var x in list)' syntax
-    if (match(TOKEN_VAR)) {
+    if (tokenVar) {
         consume(TOKEN_IDENTIFIER, "Expect variable name after 'var'.");
         Token varName = parser.previous;
         consume(TOKEN_IN, "Expect 'in' after variable name.");
@@ -1131,10 +1133,10 @@ static void forStatement() {
         return;
     }
 
-    if (match(TOKEN_SEMICOLON)) {
-        // NOTHING
-    } else if (match(TOKEN_VAR)) {
+    if (tokenVar) {
         varDeclaration();
+    } else if (match(TOKEN_SEMICOLON)) {
+        // nothing
     } else {
         expressionStatement();
     }
