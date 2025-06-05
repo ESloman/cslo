@@ -1,0 +1,5 @@
+var some_var = 1;
+var text = "Hello, world!";
+
+print(text);
+print(some_var);

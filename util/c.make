@@ -17,6 +17,9 @@ endif
 # CFLAGS += -Wall -Wextra -Werror -Wno-unused-parameter
 CFLAGS += -Wall -Wextra -Wno-unused-parameter
 
+# include include directory for headers
+CFLAGS += -Iinclude
+
 # If we're building at a point in the middle of a chapter, don't fail if there
 # are functions that aren't used yet.
 ifeq ($(SNIPPET),true)
@@ -32,10 +35,16 @@ else
 	BUILD_DIR := build/release
 endif
 
+# Recursive wildcard function
+rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+
+HEADERS := $(call rwildcard,include/,*.h)
+SOURCES := $(call rwildcard,$(SOURCE_DIR)/,*.c)
+
 # Files.
-HEADERS := $(wildcard $(SOURCE_DIR)/*.h)
-SOURCES := $(wildcard $(SOURCE_DIR)/*.c)
-OBJECTS := $(addprefix $(BUILD_DIR)/$(NAME)/, $(notdir $(SOURCES:.c=.o)))
+HEADERS := $(call rwildcard,$(SOURCE_DIR)/,*.h)
+SOURCES := $(call rwildcard,$(SOURCE_DIR)/,*.c)
+OBJECTS := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_DIR)/$(NAME)/%.o,$(SOURCES))
 
 # Targets ---------------------------------------------------------------------
 
@@ -48,7 +57,7 @@ build/$(NAME): $(OBJECTS)
 # Compile object files.
 $(BUILD_DIR)/$(NAME)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)
 	@ printf "%8s %-40s %s\n" $(CC) $< "$(CFLAGS)"
-	@ mkdir -p $(BUILD_DIR)/$(NAME)
+	mkdir -p $(dir $@)
 	@ $(CC) -c $(C_LANG) $(CFLAGS) -o $@ $<
 
 .PHONY: default
