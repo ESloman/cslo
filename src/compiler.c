@@ -170,7 +170,7 @@ static void errorAtCurrent(const char* message) {
  * Method for advancing the parser's token.
  *
  * Sets the previous token to the current and retrieves the next
- * token. Will report any errors if it encoutners an error token.
+ * token. Will report any errors if it encounters an error token.
  */
 static void advance() {
     parser.previous = parser.current;
@@ -1077,63 +1077,64 @@ static void forStatement() {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
 
-    bool tokenVar = match(TOKEN_VAR);
+    // check and handle 'for (x in list)' syntax
+    if (check(TOKEN_IDENTIFIER)) {
+        Token varName = parser.current;
+        advance();  // consume identifier
+        if (check(TOKEN_IN)) {
+            advance();
+            expression();
+            consume(TOKEN_RIGHT_PAREN, "Expect ')' after 'for' clauses.");
 
-    // check and handle 'for (var x in list)' syntax
-    if (tokenVar) {
-        consume(TOKEN_IDENTIFIER, "Expect variable name after 'var'.");
-        Token varName = parser.previous;
-        consume(TOKEN_IN, "Expect 'in' after variable name.");
-        expression();
-        consume(TOKEN_RIGHT_PAREN, "Expect ')' after 'for' clauses.");
+            // store iterable locally
+            addLocal(syntheticToken("__iterable"));
+            uint8_t iterableSlot = current->localCount - 1;
+            emitBytes(OP_SET_LOCAL, iterableSlot);
 
-        // store iterable locally
-        addLocal(syntheticToken("__iterable"));
-        uint8_t iterableSlot = current->localCount - 1;
-        emitBytes(OP_SET_LOCAL, iterableSlot);
+            // create index variable
+            addLocal(syntheticToken("__idx"));
+            uint8_t indexSlot = current->localCount - 1;
+            emitConstant(NUMBER_VAL(0));
+            emitBytes(OP_SET_LOCAL, indexSlot);
 
-        // create index variable
-        addLocal(syntheticToken("__idx"));
-        uint8_t indexSlot = current->localCount - 1;
-        emitConstant(NUMBER_VAL(0));
-        emitBytes(OP_SET_LOCAL, indexSlot);
+            int loopStart = currentChunk()->count;
 
-        int loopStart = currentChunk()->count;
+            // check we're still in range
+            emitBytes(OP_GET_LOCAL, indexSlot);
+            emitBytes(OP_GET_LOCAL, iterableSlot);
 
-        // check we're still in range
-        emitBytes(OP_GET_LOCAL, indexSlot);
-        emitBytes(OP_GET_LOCAL, iterableSlot);
+            emitByte(OP_LEN, parser.previous.line);
+            emitByte(OP_GREATER_EQUAL, parser.previous.line);
 
-        emitByte(OP_LEN, parser.previous.line);
-        emitByte(OP_GREATER_EQUAL, parser.previous.line);
+            int exitJump = emitJump(OP_JUMP_IF_TRUE);
 
-        int exitJump = emitJump(OP_JUMP_IF_TRUE);
+            // get the current index and iterable
+            emitBytes(OP_GET_LOCAL, iterableSlot);
+            emitBytes(OP_GET_LOCAL, indexSlot);
+            emitByte(OP_GET_INDEX, parser.previous.line);
+            addLocal(varName);
+            markInitialized();
+            uint8_t varSlot = current->localCount - 1;
+            emitBytes(OP_SET_LOCAL, varSlot);
 
-        // get the current index and iterable
-        emitBytes(OP_GET_LOCAL, iterableSlot);
-        emitBytes(OP_GET_LOCAL, indexSlot);
-        emitByte(OP_GET_INDEX, parser.previous.line);
-        addLocal(varName);
-        markInitialized();
-        uint8_t varSlot = current->localCount - 1;
-        emitBytes(OP_SET_LOCAL, varSlot);
+            statement();
 
-        statement();
+            // increment index
+            emitBytes(OP_GET_LOCAL, indexSlot);
+            emitConstant(NUMBER_VAL(1));
+            emitByte(OP_ADD, parser.previous.line);
+            emitBytes(OP_SET_LOCAL, indexSlot);
 
-        // increment index
-        emitBytes(OP_GET_LOCAL, indexSlot);
-        emitConstant(NUMBER_VAL(1));
-        emitByte(OP_ADD, parser.previous.line);
-        emitBytes(OP_SET_LOCAL, indexSlot);
-
-        emitLoop(loopStart);
-        patchJump(exitJump);
-        emitByte(OP_POP, parser.previous.line);
-        endScope();
-        return;
+            emitLoop(loopStart);
+            patchJump(exitJump);
+            emitByte(OP_POP, parser.previous.line);
+            endScope();
+            return;
+        }
     }
 
-    if (tokenVar) {
+    // handle traditional style for loop syntax
+    if (match(TOKEN_VAR)) {
         varDeclaration();
     } else if (match(TOKEN_SEMICOLON)) {
         // nothing

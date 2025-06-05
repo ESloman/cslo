@@ -118,6 +118,28 @@ bool valuesEqual(Value a, Value b) {
 }
 
 /**
+ * Method for comparing values.
+ */
+int valueCompare(const void* a, const void* b) {
+    const Value* va = (const Value*)a;
+    const Value* vb = (const Value*)b;
+
+    if (IS_NUMBER(*va) && IS_NUMBER(*vb)) {
+        double diff = AS_NUMBER(*va) - AS_NUMBER(*vb);
+        return (diff > 0) - (diff < 0);
+    } else if (IS_STRING(*va) && IS_STRING(*vb)) {
+        return strcmp(AS_CSTRING(*va), AS_CSTRING(*vb));
+    } else {
+        // Fallback: numbers < strings < others
+        if (IS_NUMBER(*va)) return -1;
+        if (IS_NUMBER(*vb)) return 1;
+        if (IS_STRING(*va)) return -1;
+        if (IS_STRING(*vb)) return 1;
+        return 0;
+    }
+}
+
+/**
  * Method for hashing a double.
  *
  * Taken from LUA's implementation for hashing a double.

@@ -118,6 +118,11 @@ typedef struct ValueArray {
 bool valuesEqual(Value a, Value b);
 
 /**
+ * Method for comparing values.
+ */
+int valueCompare(const void* a, const void* b);
+
+/**
  * Method for initialising a value array.
  */
 void initValueArray(ValueArray* array);

@@ -102,6 +102,12 @@ Value cloneNative(int argCount, Value* args);
  */
 Value extendNative(int argCount, Value* args);
 
+/**
+ * Sort native function.
+ * Sorts a list in-place.
+ */
+Value sortNative(int argCount, Value* args);
+
 // MATH NATIVES
 
 /**

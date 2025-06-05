@@ -385,6 +385,28 @@ Value extendNative(int argCount, Value* args) {
     return NIL_VAL;
 }
 
+/**
+ * Sort native function.
+ * Sorts a list in-place.
+ */
+Value sortNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_LIST(args[0])) {
+        printf("sort() must be called on a list.\n");
+        return NIL_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+
+    if (list->count <= 1) {
+        // nothing to sort
+        return NIL_VAL;
+    }
+
+    // add sort function here
+    qsort(list->values.values, list->count, sizeof(Value), valueCompare);
+
+    return NIL_VAL;
+}
+
 // MATH FUNCTIONS
 
 /**

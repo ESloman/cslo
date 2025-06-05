@@ -83,6 +83,7 @@ void initVM() {
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("extend", 6)), OBJ_VAL(newNative(extendNative)));
+    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("sort", 4)), OBJ_VAL(newNative(sortNative)));
 
     defineNatives();
 }
