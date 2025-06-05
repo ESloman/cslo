@@ -5,54 +5,10 @@
 #ifndef cslo_compiler_h
 #define cslo_compiler_h
 
+#include "compiler/parser.h"
 #include "core/object.h"
 #include "scanner.h"
 #include "core/vm.h"
-
-/**
- * @struct Parser
- *
- * Parser struct keeps track of current and
- * previous tokens.
- */
-typedef struct Parser {
-    Token current;
-    Token previous;
-    bool hadError;
-    bool panicMode;
-} Parser;
-
-/**
- * @enum Precedence
- */
-typedef enum Precedence {
-    PREC_NONE,
-    PREC_ASSIGNMENT,  // =
-    PREC_OR,          // or
-    PREC_AND,         // and
-    PREC_EQUALITY,    // == !=
-    PREC_COMPARISON,  // < > <= >=
-    PREC_TERM,        // + -
-    PREC_FACTOR,      // * / % **
-    PREC_UNARY,       // ! -
-    PREC_POSTFIX,     // ++ --
-    PREC_CALL,        // . ()
-    PREC_PRIMARY
-} Precedence;
-
-/**
- *
- */
-typedef void (*ParseFn)(bool canAssign);
-
-/**
- * @struct ParseRule
- */
-typedef struct ParseRule {
-    ParseFn prefix;
-    ParseFn infix;
-    Precedence precedence;
-} ParseRule;
 
 /**
  * @struct Local
@@ -104,10 +60,139 @@ typedef struct ClassCompiler {
 } ClassCompiler;
 
 extern Compiler* current;
+extern ClassCompiler* currentClass;
+extern Token lastVariableToken;
 
 /**
  * Method for compiling slo code into bytecode.
  */
 ObjFunction* compile(const char* source);
+
+Token syntheticToken(const char* text);
+void namedVariable(Token name, bool canAssign);
+
+
+/**
+ * Method for reporting an error.
+ */
+void error(const char* message);
+
+/**
+ * Method for reporting an error at the current token.
+ */
+void errorAtCurrent(const char* message);
+
+/**
+ * Method for patching the previous jump instruction.
+ */
+void patchJump(int offset);
+
+/**
+ * Method for compiling an argument list.
+ */
+uint8_t argumentList();
+
+/**
+ * Method for parsing a variable.
+ */
+uint8_t parseVariable(const char* errorMessage);
+
+/**
+ * Method for marking a local variable initialised.
+ */
+void markInitialized();
+
+/**
+ * Method for defining a variale.
+ */
+void defineVariable(uint8_t global);
+
+/**
+ * Method for resolving an upvalue variable.
+ */
+int resolveUpvalue(Compiler* compiler, Token* name);
+
+/**
+ * Method for adding a local.
+ */
+void addLocal(Token name);
+
+/**
+ * Method for declaring a variable.
+ */
+void declareVariable();
+
+/**
+ * Method for identifying a constant.
+ */
+uint8_t identifierConstant(Token* name);
+
+/**
+ * Method for comparing two identifiers.
+ */
+bool identifiersEqual(Token* a, Token* b);
+
+/**
+ * Method for resolving a local variable.
+ */
+int resolveLocal(Compiler* compiler, Token* name);
+
+/**
+ * Method for adding an upvalue to the current compiler.
+ */
+int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal);
+
+/**
+ * Method for beginning a block's scope.
+ */
+void beginScope();
+
+/**
+ * Method for ending a block's scope.
+ */
+void endScope();
+
+/**
+ * Method for compiling if statements.
+ *
+ * This includes compiling the accompanying elif and else statements.
+ * We use jumping and patching here for flow so our VM knows where to jump to and from.
+ */
+void ifStatement();
+
+/**
+ * Method for compiling while statements.
+ */
+void whileStatement();
+
+/**
+ * Method for compiling a return statement.
+ */
+void returnStatement();
+
+/**
+ * Method for compiling a variable declaration.
+ */
+void varDeclaration();
+
+/**
+ * Method for compiling for statements.
+ */
+void forStatement();
+
+/**
+ * Method for compiling classes.
+ */
+void classDeclaration();
+
+/**
+ * Method for compiling functions.
+ */
+void funDeclaration();
+
+/**
+ * Method for synchronizing after an error.
+ */
+void synchronize();
 
 #endif
