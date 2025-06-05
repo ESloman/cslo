@@ -117,7 +117,11 @@ static TokenType identifierType() {
             }
             break;
         case 'i':
-            return checkKeyword(1, 1, "f", TOKEN_IF);
+            if (scanner.start[1] == 'f') {
+                return checkKeyword(1, 1, "f", TOKEN_IF);
+            } else {
+                return checkKeyword(1, 1, "n", TOKEN_IN);
+            }
         case 'n':
             return checkKeyword(1, 2, "il", TOKEN_NIL);
         case 'o':

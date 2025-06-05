@@ -613,6 +613,13 @@ static InterpretResult run() {
                 }
                 break;
             }
+            case OP_JUMP_IF_TRUE: {
+                uint16_t offset = READ_SHORT();
+                if (!isFalsey(peek(0))) {
+                    ip += offset;
+                }
+                break;
+            }
             case OP_LOOP: {
                 uint16_t offset = READ_SHORT();
                 ip -= offset;
@@ -918,6 +925,21 @@ static InterpretResult run() {
                 } else {
                     frame->ip = ip;
                     runtimeError("'has' not supported for this type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+            case OP_LEN: {
+                Value container = pop();
+                if (IS_LIST(container)) {
+                    ObjList* list = AS_LIST(container);
+                    push(NUMBER_VAL((double)list->count));
+                } else if (IS_STRING(container)) {
+                    ObjString* str = AS_STRING(container);
+                    push(NUMBER_VAL((double)str->length));
+                } else {
+                    frame->ip = ip;
+                    runtimeError("Length only supported for lists and strings.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
