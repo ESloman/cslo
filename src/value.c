@@ -20,10 +20,30 @@ void initValueArray(ValueArray* array) {
     array->count = 0;
 }
 
+/**
+ * Method to grow a ValueArray.
+ */
 void growValueArray(ValueArray* array) {
     int oldCapacity = array->capacity;
     array->capacity = GROW_CAPACITY(oldCapacity);
     array->values = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+}
+
+/**
+ * Method to shrink a ValueArray.
+ */
+void shrinkValueArray(ValueArray* array) {
+    int newCapacity = array->capacity / 2;
+    if (newCapacity < 8) {
+        newCapacity = 8;
+    }
+    if (newCapacity < array->count) {
+        newCapacity = array->count;
+    }
+    if (newCapacity < array->capacity) {
+        array->values = GROW_ARRAY(Value, array->values, array->capacity, newCapacity);
+        array->capacity = newCapacity;
+    }
 }
 
 /**

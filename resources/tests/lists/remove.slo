@@ -1,7 +1,7 @@
 var x = [1, 2, 3];
 print(x);
 
-x.remove(0);
+print("Removed: ", x.remove(0));
 print(x);
 
 var y = x.remove(1);

@@ -30,6 +30,6 @@ print("Inline for");
 for (var i = 0; i < 2; i++) { print(i); }
 
 print("Using global x");
-for (; x < 20; x = x++) {
+for (; x < 20; x++) {
     print(x);
 }

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -77,7 +78,9 @@ Value clockNative(int argCount, Value* args) {
  * Returns the number of seconds since epoch.
  */
 Value timeNative(int argCount, Value* args) {
-    return NUMBER_VAL((double)time(NULL));
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return NUMBER_VAL((double)tv.tv_sec + (double)tv.tv_usec / 1e6);
 }
 
 /**
@@ -180,6 +183,9 @@ Value popNative(int argCount, Value *args) {
     }
     Value val = list->values.values[list->count - 1];
     list->values.values[list->count - 1] = NIL_VAL; // Clear the popped value
+    if (list->values.capacity > 8 && list->count < list->values.capacity / 4) {
+        shrinkValueArray(&list->values);
+    }
     list->count--;
     list->values.count = list->count;
     return val;
@@ -214,13 +220,17 @@ Value insertNative(int argCount, Value* args) {
     }
 
     // Shift elements to the right
-    #ifdef DEBUG_LOGGING
-    printf("Inserting at idx=%d, count=%d\n", idx, list->count);
-    for (int i = list->count; i > idx; i--) {
-        printf("shifting %d to %d\n", i-1, i);
-        list->values.values[i] = list->values.values[i - 1];
-    }
-    #endif
+    // #ifdef DEBUG_LOGGING
+    // printf("Inserting at idx=%d, count=%d\n", idx, list->count);
+    // #endif
+    // for (int i = list->count; i > idx; i--) {
+    //     #ifdef DEBUG_LOGGING
+    //     printf("shifting %d to %d\n", i-1, i);
+    //     #endif
+    //     list->values.values[i] = list->values.values[i - 1];
+    // }
+
+    memmove(&list->values.values[idx + 1], &list->values.values[idx], sizeof(Value) * (list->count - idx));
     list->values.values[idx] = args[2];
     list->count++;
     list->values.count = list->count;
@@ -245,12 +255,16 @@ Value removeNative(int argCount, Value* args) {
     Value removed = list->values.values[idx];
 
     // Shift elements to the left
-    for (int i = idx; i < list->count - 1; i++) {
-        list->values.values[i] = list->values.values[i + 1];
-    }
+    // for (int i = idx; i < list->count - 1; i++) {
+    //     list->values.values[i] = list->values.values[i + 1];
+    // }
+    memmove(&list->values.values[idx], &list->values.values[idx + 1], sizeof(Value) * (list->count - idx - 1));
     list->count--;
     list->values.count = list->count;
     list->values.values[list->count] = NIL_VAL; // Clear the slot
+    if (list->values.capacity > 8 && list->count < list->values.capacity / 4) {
+        shrinkValueArray(&list->values);
+    }
     return removed;
 }
 
@@ -336,6 +350,9 @@ Value clearNative(int argCount, Value* args) {
     for (int i = 0; i < list->count; i++) {
         list->values.values[i] = NIL_VAL;
     }
+    if (list->values.capacity > 8 && list->count < list->values.capacity / 4) {
+        shrinkValueArray(&list->values);
+    }
     list->count = 0;
     list->values.count = 0;
     return NIL_VAL;
@@ -352,11 +369,13 @@ Value cloneNative(int argCount, Value* args) {
     }
     ObjList* list = AS_LIST(args[0]);
     ObjList* clone = newList();
-    for (int i = 0; i < list->count; i++) {
-        if (clone->count + 1 > clone->values.capacity) {
+    if (list->count > 0) {
+        while (clone->values.capacity < list->count) {
             growValueArray(&clone->values);
         }
-        clone->values.values[clone->count++] = list->values.values[i];
+        // copying memory blocks is faster than copying each element
+        memcpy(clone->values.values, list->values.values, sizeof(Value) * list->count);
+        clone->count = list->count;
         clone->values.count = clone->count;
     }
     return OBJ_VAL(clone);
@@ -374,14 +393,18 @@ Value extendNative(int argCount, Value* args) {
     ObjList* list = AS_LIST(args[0]);
     ObjList* other = AS_LIST(args[1]);
 
-    while (list->values.capacity < list->count + other->count) {
+    int oldCount = list->count;
+    int newCount = oldCount + other->count;
+
+    while (list->values.capacity < newCount) {
         growValueArray(&list->values);
     }
 
-    for (int i = 0; i < other->count; i++) {
-        list->values.values[list->count++] = other->values.values[i];
-    }
-    list->values.count = list->count;
+    // copy the values from the other list
+    // faster than copying the values one by one
+    memcpy(&list->values.values[oldCount], other->values.values, sizeof(Value) * other->count);
+    list->count = newCount;
+    list->values.count = newCount;
     return NIL_VAL;
 }
 

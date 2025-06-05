@@ -3,7 +3,7 @@ func echo(x) {
     print(x + 10);
 }
 
-print "Start";
+print("Start");
 for (var i = 0; i < 25; i = i + 1) {
     print(i);
 }

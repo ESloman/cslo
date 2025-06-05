@@ -133,6 +133,11 @@ void initValueArray(ValueArray* array);
 void growValueArray(ValueArray* array);
 
 /**
+ * Method for shrinking the capacity of an array.
+ */
+void shrinkValueArray(ValueArray* array);
+
+/**
  * Method for writing to a value array.
  */
 void writeValueArray(ValueArray* array, Value value);

@@ -1,13 +1,12 @@
+#!/usr/bin/slo
 
-# the number to work the fibonacci value of
-var number = 20;
-
-# define our fibonacci function
-func fibonacci(n) {
-  if (n <= 1) {
-    return n;
-  }
-  return fibonacci(n - 2) + fibonacci(n - 1);
+func fib(n) {
+    if (n <= 1) {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
 }
 
-print(fibonacci(number));
+for (var i = 0; i < 30; i++) {
+    print("fib(", i, ") = ", fib(i));
+}
