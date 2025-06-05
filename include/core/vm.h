@@ -6,9 +6,9 @@
 #define cslo_vm_h
 
 #include "chunk.h"
-#include "object.h"
+#include "core/object.h"
 #include "table.h"
-#include "value.h"
+#include "core/value.h"
 
 #define FRAMES_MAX 256
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)

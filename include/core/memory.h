@@ -5,8 +5,8 @@
 #ifndef cslo_memory_h
 #define cslo_memory_h
 
-#include "common.h"
-#include "object.h"
+#include "core/common.h"
+#include "core/object.h"
 
 /**
  * Macro for allocating an array with given type and count.

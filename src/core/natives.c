@@ -12,10 +12,10 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "natives.h"
-#include "object.h"
-#include "value.h"
-#include "vm.h"
+#include "core/natives.h"
+#include "core/object.h"
+#include "core/value.h"
+#include "core/vm.h"
 
 /**
  * Method for defining all our natives.

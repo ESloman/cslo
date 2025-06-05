@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "common.h"
-#include "scanner.h"
+#include "core/common.h"
+#include "compiler/scanner.h"
 
 typedef struct Scanner {
   const char* start;

@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
-#include "compiler.h"
-#include "debug.h"
-#include "scanner.h"
+#include "core/common.h"
+#include "compiler/compiler.h"
+#include "core/debug.h"
+#include "compiler/scanner.h"
 
 #define MAX_IF_BRANCHES 56
 

@@ -6,11 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
-#include "chunk.h"
-#include "debug.h"
-#include "repl.h"
-#include "vm.h"
+#include "core/common.h"
+#include "core/chunk.h"
+#include "core/debug.h"
+#include "runtime/repl.h"
+#include "core/vm.h"
 
 /**
  * Method for reading a slo file.

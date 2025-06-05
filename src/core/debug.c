@@ -4,9 +4,9 @@
 
 #include <stdio.h>
 
-#include "debug.h"
-#include "object.h"
-#include "value.h"
+#include "core/debug.h"
+#include "core/object.h"
+#include "core/value.h"
 
 /**
  * Implementation of method to disassemble a chunk.

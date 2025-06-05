@@ -4,10 +4,10 @@
 
  #ifndef cslo_chunk_h
  #define cslo_chunk_h
- 
- #include "common.h"
- #include "value.h"
- 
+
+ #include "core/common.h"
+ #include "core/value.h"
+
  /** @enum OpCode
   *  This defines all of the valid OpCode for our program.
   *
@@ -65,7 +65,7 @@
      OP_HAS_NOT,
      OP_LEN,
  } OpCode;
- 
+
  /**
   * @struct LineStart
   */
@@ -73,7 +73,7 @@
    int offset;
    int line;
  } LineStart;
- 
+
  /** @struct Chunk
   *  This defines a chunk of code.
   *
@@ -91,29 +91,28 @@
      int lineCapacity;
      LineStart* lines;
  } Chunk;
- 
- 
+
+
  /**
   * Method for initialising a new chunk
   */
  void initChunk(Chunk* chunk);
- 
+
  /**
   * Method for freeing a chunk.
   */
  void freeChunk(Chunk* chunk);
- 
+
  /**
   * Method for writing a byte to a chunk.
   */
  void writeChunk(Chunk* chunk, uint8_t byte, int line);
- 
+
  /**
   * Method for adding a new constant value to a given chunk.
   */
  int addConstant(Chunk* chunk, Value value);
- 
+
  int getLine(Chunk chunk, size_t instruction);
- 
+
  #endif
- 

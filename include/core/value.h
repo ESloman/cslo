@@ -5,7 +5,7 @@
 #ifndef cslo_value_h
 #define cslo_value_h
 
-#include "common.h"
+#include "core/common.h"
 
 /**
  * @struct Obj

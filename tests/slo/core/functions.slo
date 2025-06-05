@@ -1,3 +1,17 @@
+func echo(x) {
+    print(x);
+    print(x + 10);
+}
+
+print("Start");
+for (var i = 0; i < 25; i = i + 1) {
+    print(i);
+}
+
+print("End");
+
+echo(59);
+
 func sloman() {
     return 5 + 6;
 }

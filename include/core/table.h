@@ -5,8 +5,8 @@
 #ifndef cslo_table_h
 #define cslo_table_h
 
-#include "common.h"
-#include "value.h"
+#include "core/common.h"
+#include "core/value.h"
 
 /**
  * @struct Entry

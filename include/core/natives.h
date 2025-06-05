@@ -2,8 +2,8 @@
  * @file natives.h
  */
 
-#include "object.h"
-#include "value.h"
+#include "core/object.h"
+#include "core/value.h"
 
 /**
  * Method for defining a native function.

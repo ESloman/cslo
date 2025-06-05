@@ -4,17 +4,17 @@
 
 #include <stdlib.h>
 
-#include "common.h"
-#include "compiler.h"
-#include "gc.h"
-#include "memory.h"
-#include "table.h"
-#include "value.h"
-#include "vm.h"
+#include "core/common.h"
+#include "compiler/compiler.h"
+#include "core/gc.h"
+#include "core/memory.h"
+#include "core/table.h"
+#include "core/value.h"
+#include "core/vm.h"
 
 #ifdef DEBUG_LOG_GC
 #include <stdio.h>
-#include "debug.h"
+#include "core/debug.h"
 #endif
 
 #define GC_HEAP_GROW_FACTOR 2

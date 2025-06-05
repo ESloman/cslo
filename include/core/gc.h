@@ -3,7 +3,7 @@
  */
 
 #include "table.h"
-#include "value.h"
+#include "core/value.h"
 
 /**
  * Method for gc processing.

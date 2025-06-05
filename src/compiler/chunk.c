@@ -4,9 +4,9 @@
 
 #include <stdlib.h>
 
-#include "chunk.h"
-#include "memory.h"
-#include "vm.h"
+#include "core/chunk.h"
+#include "core/memory.h"
+#include "core/vm.h"
 
 /**
  * Implemention of method to initialise a new chunk.

@@ -9,13 +9,13 @@
 #include <string.h>
 #include <time.h>
 
-#include "common.h"
-#include "compiler.h"
-#include "debug.h"
-#include "object.h"
-#include "memory.h"
-#include "natives.h"
-#include "vm.h"
+#include "core/common.h"
+#include "compiler/compiler.h"
+#include "core/debug.h"
+#include "core/object.h"
+#include "core/memory.h"
+#include "core/natives.h"
+#include "core/vm.h"
 
 VM vm;
 

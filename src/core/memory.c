@@ -4,10 +4,10 @@
 
 #include <stdlib.h>
 
-#include "gc.h"
-#include "memory.h"
-#include "object.h"
-#include "vm.h"
+#include "core/gc.h"
+#include "core/memory.h"
+#include "core/object.h"
+#include "core/vm.h"
 
 /**
  * Implementation of reallocate function.

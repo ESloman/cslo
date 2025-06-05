@@ -1,2 +1,5 @@
 var x = [1, 2, 3];
 print(x);
+
+var y = [];
+print(y);

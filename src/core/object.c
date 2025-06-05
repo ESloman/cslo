@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "memory.h"
-#include "object.h"
-#include "table.h"
-#include "value.h"
-#include "vm.h"
+#include "core/memory.h"
+#include "core/object.h"
+#include "core/table.h"
+#include "core/value.h"
+#include "core/vm.h"
 
 /** Macro for wrapping allocateObject with the right type. */
 #define ALLOCATE_OBJ(type, objectType) \

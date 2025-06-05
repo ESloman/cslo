@@ -13,7 +13,7 @@ expected_errors = [
 if __name__ == "__main__":
     # Get the current working directory
     current_dir = Path(os.getcwd())
-    example_dir = Path(current_dir, "resources", "tests")
+    example_dir = Path(current_dir, "tests", "slo")
     print(f"Running tests in: {example_dir}")
 
     failed_files = []

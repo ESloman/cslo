@@ -6,9 +6,9 @@
 #define cslo_object_h
 
 #include "chunk.h"
-#include "common.h"
+#include "core/common.h"
 #include "table.h"
-#include "value.h"
+#include "core/value.h"
 
 /**
  * Macro for getting the ObjType from a given Value.

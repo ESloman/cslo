@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "object.h"
-#include "memory.h"
-#include "value.h"
+#include "core/object.h"
+#include "core/memory.h"
+#include "core/value.h"
 
 /**
  * Implemention of method to initialise a value array.

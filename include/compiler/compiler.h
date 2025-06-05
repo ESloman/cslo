@@ -5,9 +5,9 @@
 #ifndef cslo_compiler_h
 #define cslo_compiler_h
 
-#include "object.h"
+#include "core/object.h"
 #include "scanner.h"
-#include "vm.h"
+#include "core/vm.h"
 
 /**
  * @struct Parser
