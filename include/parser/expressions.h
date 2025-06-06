@@ -8,6 +8,11 @@
 #ifndef cslo_expressions_h
 #define cslo_expressions_h
 
+#include "stdbool.h"
 
+/**
+ * Method for parsing a dictionary literal.
+ */
+void parseDictLiteral(bool canAssign);
 
 #endif

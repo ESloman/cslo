@@ -255,6 +255,12 @@ void blackenObject(Obj* object) {
             markArray(&list->values);
             break;
         }
+        case OBJ_DICT: {
+            ObjDict* dict = (ObjDict*)object;
+            markObject((Obj*)dict->sClass);
+            markTable(&dict->data);
+            break;
+        }
         case OBJ_NATIVE:
             break;
         case OBJ_STRING:

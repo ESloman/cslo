@@ -38,6 +38,7 @@ typedef struct VM {
     ObjUpvalue* openUpvalues;
 
     ObjClass* listClass;
+    ObjClass* dictClass;
 
     size_t bytesAllocated;
     size_t nextGC;

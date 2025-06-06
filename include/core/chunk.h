@@ -64,6 +64,7 @@
      OP_HAS,
      OP_HAS_NOT,
      OP_LEN,
+     OP_DICT,
  } OpCode;
 
  /**

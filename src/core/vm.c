@@ -71,6 +71,7 @@ void initVM() {
     vm.initString = NULL;
     vm.initString = copyString("__init__", 8);
 
+    // Create the list class and its methods.
     ObjString* listName = copyString("list", 4);
     vm.listClass = newClass(listName);
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
@@ -84,6 +85,10 @@ void initVM() {
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("extend", 6)), OBJ_VAL(newNative(extendNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("sort", 4)), OBJ_VAL(newNative(sortNative)));
+
+    // Create the dict class and its methods.
+    ObjString* dictName = copyString("dict", 4);
+    vm.dictClass = newClass(dictName);
 
     defineNatives();
 }
@@ -974,6 +979,23 @@ static InterpretResult run() {
                     runtimeError("Length only supported for lists and strings.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                break;
+            }
+            case OP_DICT: {
+                int count = READ_SHORT();
+                ObjDict* dict = newDict();
+                Value* keys = ALLOCATE(Value, count);
+                Value* values = ALLOCATE(Value, count);
+                for (int i = count - 1; i >= 0; i--) {
+                    values[i] = pop();
+                    keys[i] = pop();
+                }
+                for (int i = 0; i < count; i++) {
+                    tableSet(&dict->data, keys[i], values[i]);
+                }
+                FREE_ARRAY(Value, keys, count);
+                FREE_ARRAY(Value, values, count);
+                push(OBJ_VAL(dict));
                 break;
             }
             case OP_RETURN: {

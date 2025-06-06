@@ -43,6 +43,9 @@
 /** Macro for checking the given object is an ObjList. */
 #define IS_LIST(value)         isObjType(value, OBJ_LIST)
 
+/** Macro for checking the given object is an ObjDict. */
+#define IS_DICT(value)        isObjType(value, OBJ_DICT)
+
 /**
  * Macros for converting values to objects.
  */
@@ -74,6 +77,9 @@
 /** Macro for converting a Value to an ObjList. */
 #define AS_LIST(value)        ((ObjList*)AS_OBJ(value))
 
+/** Macro for convering a Value to an ObjDict. */
+#define AS_DICT(value)        ((ObjDict*)AS_OBJ(value))
+
 /**
  * @enum ObjType
  */
@@ -87,6 +93,7 @@ typedef enum ObjType {
     OBJ_STRING,
     OBJ_UPVALUE,
     OBJ_LIST,
+    OBJ_DICT,
 } ObjType;
 
 /**
@@ -201,6 +208,15 @@ typedef struct {
 } ObjList;
 
 /**
+ * @struct ObjDict
+ */
+typedef struct {
+    Obj obj;
+    ObjClass* sClass;
+    Table data;
+} ObjDict;
+
+/**
  * Method for creating a new bound method.
  */
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
@@ -249,6 +265,11 @@ ObjUpvalue* newUpvalue(Value* slot);
  * Method for creating a new ObjList.
  */
 ObjList* newList();
+
+/**
+ * Method for creating a new ObjDict.
+ */
+ObjDict* newDict();
 
 /**
  * Method for printing an object.

@@ -118,6 +118,13 @@ ObjList* newList() {
     return list;
 }
 
+ObjDict* newDict() {
+    ObjDict* dict = ALLOCATE_OBJ(ObjDict, OBJ_DICT);
+    initTable(&dict->data);
+    dict->sClass = vm.dictClass;
+    return dict;
+}
+
 /**
  * Method for creating an ObjString.
  *
@@ -234,6 +241,23 @@ void printObject(Value value) {
                 }
             }
             printf("]");
+            break;
+        }
+        case OBJ_DICT: {
+            ObjDict* dict = AS_DICT(value);
+            printf("dict[%d]: {", dict->data.count);
+            for (int i = 0; i < dict->data.capacity; i++) {
+                Entry* entry = &dict->data.entries[i];
+                if (entry->key.type != VAL_NIL && entry->key.type != VAL_EMPTY) {
+                    printValue(entry->key);
+                    printf(": ");
+                    printValue(entry->value);
+                    if (i < dict->data.capacity - 1) {
+                        printf(", ");
+                    }
+                }
+            }
+            printf("}");
             break;
         }
         default:
