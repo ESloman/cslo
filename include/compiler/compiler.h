@@ -153,32 +153,9 @@ void beginScope();
 void endScope();
 
 /**
- * Method for compiling if statements.
- *
- * This includes compiling the accompanying elif and else statements.
- * We use jumping and patching here for flow so our VM knows where to jump to and from.
- */
-void ifStatement();
-
-/**
- * Method for compiling while statements.
- */
-void whileStatement();
-
-/**
- * Method for compiling a return statement.
- */
-void returnStatement();
-
-/**
  * Method for compiling a variable declaration.
  */
 void varDeclaration();
-
-/**
- * Method for compiling for statements.
- */
-void forStatement();
 
 /**
  * Method for compiling classes.

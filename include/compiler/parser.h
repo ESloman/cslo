@@ -9,25 +9,8 @@
 #include <stdbool.h>
 
 #include "compiler/compiler.h"
+#include "parser/rules.h"
 #include "compiler/scanner.h"
-
-/**
- * @enum Precedence
- */
-typedef enum Precedence {
-    PREC_NONE,
-    PREC_ASSIGNMENT,  // =
-    PREC_OR,          // or
-    PREC_AND,         // and
-    PREC_EQUALITY,    // == !=
-    PREC_COMPARISON,  // < > <= >=
-    PREC_TERM,        // + -
-    PREC_FACTOR,      // * / % **
-    PREC_UNARY,       // ! -
-    PREC_POSTFIX,     // ++ --
-    PREC_CALL,        // . ()
-    PREC_PRIMARY
-} Precedence;
 
 /**
  * @struct Parser
@@ -41,22 +24,6 @@ typedef struct Parser {
     bool hadError;
     bool panicMode;
 } Parser;
-
-/**
- * @typedef ParseFn
- * Function pointer type for parsing functions.
- */
-typedef void (*ParseFn)(bool canAssign);
-
-/**
- * @struct ParseRule
- * Struct that defines the parsing rules for each token type.
- */
-typedef struct ParseRule {
-    ParseFn prefix;
-    ParseFn infix;
-    Precedence precedence;
-} ParseRule;
 
 /**
  * Global parser instance.
@@ -109,42 +76,32 @@ bool matchToken(TokenType type);
 /**
  * Method for parsing an expression.
  */
-void expression();
-
-/**
- * Method for parsing a statement.
- */
-void statement();
-
-/**
- * Method for compiling expression statements.
- */
-void expressionStatement();
+void parseExpression();
 
 /**
  * Method for parsing a declaration.
  */
-void declaration();
+void parseDeclaration();
 
 /**
  * Method for compiling blocks.
  */
-void block();
+void parseBlock();
 
 /**
  * Method for compiling a grouping.
  */
-void grouping(bool canAssign);
+void parseGrouping(bool canAssign);
 
 /**
  * Method for compiling a number.
  */
-void number(bool canAssign);
+void parseNumber(bool canAssign);
 
 /**
  * Method for compiling a string.
  */
-void string(bool canAssign);
+void parseString(bool canAssign);
 
 /**
  * Method for compiling a variable.
@@ -168,25 +125,5 @@ void list(bool canAssign);
 void index(bool canAssign);
 void has(bool canAssign);
 void hasNot(bool canAssign);
-
-/**
- * Table for defining parse rules and precedence.
- *
- * The keys to the table are the token types.
- *
- * The columns are:
- *   - the function for prefix expressions for that token type
- *   - the function for infix expressions for that token type
- *   - the precedence of an infix expression for that token type
- *
- * AKA:
- *   - an expression starting with a '(' will call the 'grouping' expression function
- *   - a '-' token will call 'unary' if it's a prefix \
- *      and 'binary' if it's an infix expression with it's precendence set to TERM
- *
- * The precendence tells us how much of remaining code to consume before returning.
- * AKA, how much code belongs to this expression we're compiling.
- */
-extern ParseRule rules[];
 
 #endif

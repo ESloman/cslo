@@ -10,6 +10,8 @@
 #include "compiler/scanner.h"
 #include "compiler/parser.h"
 #include "core/chunk.h"
+#include "parser/statements.h"
+#include "parser/rules.h"
 
 /**
  * Method for advancing the parser's token.
@@ -105,44 +107,14 @@ bool matchToken(TokenType type) {
 /**
  * Method for compiling an expression.
  */
-void expression() {
+void parseExpression() {
     parsePrecedence(PREC_ASSIGNMENT);
-}
-
-/**
- * Method for compiling a statement.
- */
-void statement() {
-    if (matchToken(TOKEN_FOR)) {
-        forStatement();
-    } else if (matchToken(TOKEN_IF)) {
-        ifStatement();
-    } else if (matchToken(TOKEN_RETURN)) {
-        returnStatement();
-    } else if (matchToken(TOKEN_WHILE)) {
-        whileStatement();
-    } else if (matchToken(TOKEN_LEFT_BRACE)) {
-        beginScope();
-        block();
-        endScope();
-    } else {
-        expressionStatement();
-    }
-}
-
-/**
- * Method for compiling expression statements.
- */
-void expressionStatement() {
-    expression();
-    consumeToken(TOKEN_SEMICOLON, "Expect ';' after expression.");
-    emitByte(OP_POP, parser.previous.line);
 }
 
 /**
  * Method for compiling a declaration.
  */
-void declaration() {
+void parseDeclaration() {
     if (matchToken(TOKEN_CLASS)) {
         classDeclaration();
     } else if (matchToken(TOKEN_FUN)) {
@@ -150,7 +122,7 @@ void declaration() {
     } else if (matchToken(TOKEN_VAR)) {
         varDeclaration();
     } else {
-        statement();
+        parseStatement();
     }
 
     if (parser.panicMode) {
@@ -161,9 +133,9 @@ void declaration() {
 /**
  * Method for compiling blocks.
  */
-void block() {
+void parseBlock() {
     while (!checkToken(TOKEN_RIGHT_BRACE) && !checkToken(TOKEN_EOF)) {
-        declaration();
+        parseDeclaration();
     }
 
     consumeToken(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
@@ -176,8 +148,8 @@ void block() {
  *
  * @param canAssign Indicates if assignment is allowed (unused).
  */
-void grouping(bool canAssign) {
-    expression();
+void parseGrouping(bool canAssign) {
+    parseExpression();
     consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
 
@@ -188,7 +160,7 @@ void grouping(bool canAssign) {
  *
  * @param canAssign Indicates if assignment is allowed (unused).
  */
-void number(bool canAssign) {
+void parseNumber(bool canAssign) {
     double value = strtod(parser.previous.start, NULL);
     emitConstant(NUMBER_VAL(value));
 }
@@ -200,7 +172,7 @@ void number(bool canAssign) {
  *
  * @param canAssign Indicates if assignment is allowed (unused).
  */
-void string(bool canAssign) {
+void parseString(bool canAssign) {
     emitConstant(OBJ_VAL(copyString(parser.previous.start +1, parser.previous.length - 2)));
 }
 
@@ -297,7 +269,7 @@ void compoundAssign(bool canAssign) {
     Token varToken = lastVariableToken;
 
     // Parse the right-hand side expression
-    expression();
+    parseExpression();
 
     // Perform the operation
     if (op == TOKEN_PLUS_EQUAL) {
@@ -332,7 +304,7 @@ void list(bool canAssign) {
 
     if (!checkToken(TOKEN_RIGHT_BRACKET)) {
         do {
-            expression();
+            parseExpression();
             if (argCount >= INT32_MAX) {
                 error("Can't have more elements in a list that 65k.");
             }
@@ -353,12 +325,12 @@ void index(bool canAssign) {
     if (checkToken(TOKEN_COLON)) {
         emitByte(OP_NIL, parser.previous.line); // default to nil if no start index
     } else {
-        expression(); // parse the index value
+        parseExpression(); // parse the index value
     }
     if (matchToken(TOKEN_COLON)) {
         // handle slicers
         if (!checkToken(TOKEN_RIGHT_BRACKET)) {
-            expression(); // parse the end index
+            parseExpression(); // parse the end index
         } else {
             emitByte(OP_NIL, parser.previous.line); // default to nil if no end index
         }
@@ -378,7 +350,7 @@ void index(bool canAssign) {
             emitByte(OP_GET_INDEX, parser.previous.line);
 
             // If we have a compound assignment, we need to compile the right-hand side
-            expression();
+            parseExpression();
             switch (op) {
                 case TOKEN_PLUS_EQUAL:    emitByte(OP_ADD, parser.previous.line); break;
                 case TOKEN_MINUS_EQUAL:   emitByte(OP_SUBTRACT, parser.previous.line); break;
@@ -388,7 +360,7 @@ void index(bool canAssign) {
             }
             emitByte(OP_SET_INDEX, parser.previous.line);
     } else if (canAssign && matchToken(TOKEN_EQUAL)) {
-        expression();
+        parseExpression();
         emitByte(OP_SET_INDEX, parser.previous.line);
     } else {
         emitByte(OP_GET_INDEX, parser.previous.line);
@@ -433,7 +405,7 @@ void or_(bool canAssign) {
  * Method for compiling has statements.
  */
 void has(bool canAssign) {
-    expression();
+    parseExpression();
     emitByte(OP_HAS, parser.previous.line);
 }
 
@@ -441,7 +413,7 @@ void has(bool canAssign) {
  * Method for compiling has statements.
  */
 void hasNot(bool canAssign) {
-    expression();
+    parseExpression();
     emitByte(OP_HAS_NOT, parser.previous.line);
 }
 
@@ -513,7 +485,7 @@ void dot(bool canAssign) {
     uint8_t name = identifierConstant(&parser.previous);
 
     if (canAssign && matchToken(TOKEN_EQUAL)) {
-        expression();
+        parseExpression();
         emitBytes(OP_SET_PROPERTY, name);
     } else if (matchToken(TOKEN_LEFT_PAREN)) {
         uint8_t argCount = argumentList();
@@ -605,7 +577,7 @@ void unary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
 
     // store the line this unary operator is one for 'emitByte'
-    // it's plausible that expression() for compiling the operand
+    // it's plausible that parseExpression for compiling the operand
     // will take us onto a different line so our error reporting
     // could be wrong
     int tLine = parser.previous.line;
@@ -623,76 +595,5 @@ void unary(bool canAssign) {
             return;
     }
 }
-
-
-/**
- * Table for defining parse rules and precedence.
- *
- * The keys to the table are the token types.
- *
- * The columns are:
- *   - the function for prefix expressions for that token type
- *   - the function for infix expressions for that token type
- *   - the precedence of an infix expression for that token type
- *
- * AKA:
- *   - an expression starting with a '(' will call the 'grouping' expression function
- *   - a '-' token will call 'unary' if it's a prefix \
- *      and 'binary' if it's an infix expression with it's precendence set to TERM
- *
- * The precendence tells us how much of remaining code to consume before returning.
- * AKA, how much code belongs to this expression we're compiling.
- */
-ParseRule rules[] = {
-    [TOKEN_LEFT_PAREN]      = { grouping,     parseCall,      PREC_CALL       },
-    [TOKEN_RIGHT_PAREN]     = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_LEFT_BRACE]      = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_RIGHT_BRACE]     = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_COMMA]           = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_DOT]             = { NULL,         dot,            PREC_CALL       },
-    [TOKEN_MINUS]           = { unary,        binary,         PREC_TERM       },
-    [TOKEN_PLUS]            = { NULL,         binary,         PREC_TERM       },
-    [TOKEN_SEMICOLON]       = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_SLASH]           = { NULL,         binary,         PREC_FACTOR     },
-    [TOKEN_STAR]            = { NULL,         binary,         PREC_FACTOR     },
-    [TOKEN_MODULO]          = { NULL,         binary,         PREC_FACTOR     },
-    [TOKEN_EXPO]            = { NULL,         binary,         PREC_FACTOR     },
-    [TOKEN_BANG]            = { unary,        NULL,           PREC_NONE       },
-    [TOKEN_BANG_EQUAL]      = { NULL,         binary,         PREC_EQUALITY   },
-    [TOKEN_EQUAL]           = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_EQUAL_EQUAL]     = { NULL,         binary,         PREC_EQUALITY   },
-    [TOKEN_GREATER]         = { NULL,         binary,         PREC_EQUALITY   },
-    [TOKEN_GREATER_EQUAL]   = { NULL,         binary,         PREC_EQUALITY   },
-    [TOKEN_LESS]            = { NULL,         binary,         PREC_EQUALITY   },
-    [TOKEN_LESS_EQUAL]      = { NULL,         binary,         PREC_EQUALITY   },
-    [TOKEN_IDENTIFIER]      = { variable,     NULL,           PREC_NONE       },
-    [TOKEN_STRING]          = { string,       NULL,           PREC_NONE       },
-    [TOKEN_NUMBER]          = { number,       NULL,           PREC_NONE       },
-    [TOKEN_AND]             = { NULL,         and_,           PREC_AND        },
-    [TOKEN_CLASS]           = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_ELSE]            = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_FOR]             = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_FUN]             = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_ELIF]            = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_IF]              = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_NIL]             = { literal,      NULL,           PREC_NONE       },
-    [TOKEN_OR]              = { NULL,         or_,            PREC_OR         },
-    [TOKEN_RETURN]          = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_SUPER]           = { super_,       NULL,           PREC_NONE       },
-    [TOKEN_SELF]            = { self,         NULL,           PREC_NONE       },
-    [TOKEN_VAR]             = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_WHILE]           = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_ERROR]           = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_EOF]             = { NULL,         NULL,           PREC_NONE       },
-    [TOKEN_PLUS_PLUS]       = { prefixIncDec, postfixIncDec,  PREC_POSTFIX    },
-    [TOKEN_MINUS_MINUS]     = { prefixIncDec, postfixIncDec,  PREC_POSTFIX    },
-    [TOKEN_PLUS_EQUAL]      = { NULL,         compoundAssign, PREC_ASSIGNMENT },
-    [TOKEN_MINUS_EQUAL]     = { NULL,         compoundAssign, PREC_ASSIGNMENT },
-    [TOKEN_STAR_EQUAL]      = { NULL,         compoundAssign, PREC_ASSIGNMENT },
-    [TOKEN_SLASH_EQUAL]     = { NULL,         compoundAssign, PREC_ASSIGNMENT },
-    [TOKEN_LEFT_BRACKET]    = { list,         index,          PREC_CALL       },
-    [TOKEN_HAS]             = { NULL,         has,            PREC_EQUALITY   },
-    [TOKEN_HAS_NOT]         = { NULL,         hasNot,         PREC_EQUALITY   },
-};
 
 Parser parser;
