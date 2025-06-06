@@ -131,8 +131,8 @@ Value exitNative(int argCount, Value* args) {
  * len native function.
  */
 Value lenNative(int argCount, Value* args) {
-    if (argCount != 1 || (!IS_LIST(args[0]) && !IS_STRING(args[0]))) {
-        printf("len() expects a single argument of type string or list.\n");
+    if (argCount != 1 || (!IS_LIST(args[0]) && !IS_STRING(args[0]) && !IS_DICT(args[0]))) {
+        printf("len() expects a single argument of type string, list, or dict.\n");
         return NIL_VAL;
     }
     switch (OBJ_TYPE(args[0])) {
@@ -142,6 +142,8 @@ Value lenNative(int argCount, Value* args) {
         case OBJ_LIST:
             return NUMBER_VAL((double)AS_LIST(args[0])->count);
             break;
+        case OBJ_DICT:
+            return NUMBER_VAL((double)AS_DICT(args[0])->data.count);
         default:
             printf("len() expects a single argument of type string or list.\n");
             return NIL_VAL;

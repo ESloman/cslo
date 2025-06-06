@@ -974,6 +974,9 @@ static InterpretResult run() {
                 } else if (IS_STRING(container)) {
                     ObjString* str = AS_STRING(container);
                     push(NUMBER_VAL((double)str->length));
+                } else if (IS_DICT(container)) {
+                    ObjDict* dict = AS_DICT(container);
+                    push(NUMBER_VAL((double)dict->data.count));
                 } else {
                     frame->ip = ip;
                     runtimeError("Length only supported for lists and strings.");
