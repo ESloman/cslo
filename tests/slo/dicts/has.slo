@@ -1,0 +1,8 @@
+var map = {"a": 1, "b": 2, "c": 3};
+print(map has "a");  # true
+print(map has "b");  # true
+print(map has "d");  # false
+
+print(map has not "a");  # false
+print(map has not "b");  # false
+print(map has not "d");  # true

@@ -45,9 +45,10 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
 /**
  * Method for creating a new ObjClass.
  */
-ObjClass* newClass(ObjString* name) {
+ObjClass* newClass(ObjString* name, ObjClass* superClass) {
     ObjClass* sClass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
     sClass->name = name;
+    sClass->superclass = superClass;
     initTable(&sClass->methods);
     return sClass;
 }
@@ -116,6 +117,20 @@ ObjList* newList() {
     initValueArray(&list->values);
     list->sClass = vm.listClass;
     return list;
+}
+
+ObjDict* newDict() {
+    ObjDict* dict = ALLOCATE_OBJ(ObjDict, OBJ_DICT);
+    initTable(&dict->data);
+    dict->sClass = vm.dictClass;
+    return dict;
+}
+
+ObjEnum* newEnum(ObjString* name) {
+    ObjEnum* sEnum = ALLOCATE_OBJ(ObjEnum, OBJ_ENUM);
+    initTable(&sEnum->values);
+    sEnum->name = name;
+    return sEnum;
 }
 
 /**
@@ -234,6 +249,41 @@ void printObject(Value value) {
                 }
             }
             printf("]");
+            break;
+        }
+        case OBJ_DICT: {
+            ObjDict* dict = AS_DICT(value);
+            printf("dict[%d]: {", dict->data.count);
+            for (int i = 0; i < dict->data.capacity; i++) {
+                Entry* entry = &dict->data.entries[i];
+                if (entry->key.type != VAL_NIL && entry->key.type != VAL_EMPTY) {
+                    printValue(entry->key);
+                    printf(": ");
+                    printValue(entry->value);
+                    if (i < dict->data.capacity - 1) {
+                        printf(", ");
+                    }
+                }
+            }
+            printf("}");
+            break;
+        }
+        case OBJ_ENUM: {
+            ObjEnum* sEnum = AS_ENUM(value);
+            printf("enum %s: {", sEnum->name->chars);
+            int first = 1;
+            for (Entry* entry = sEnum->values.entries; entry < sEnum->values.entries + sEnum->values.capacity; entry++) {
+                if (entry->key.type != VAL_NIL && entry->key.type != VAL_EMPTY) {
+                    if (!first) {
+                        printf(", ");
+                    }
+                    first = 0;
+                    printValue(entry->key);
+                    printf(": ");
+                    printValue(entry->value);
+                }
+            }
+            printf("}");
             break;
         }
         default:

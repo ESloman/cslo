@@ -1,0 +1,8 @@
+enum Colours {
+    BLACK,
+    BLUE,
+    YELLOW,
+    ORANGE
+}
+
+print(Colours);

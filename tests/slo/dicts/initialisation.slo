@@ -1,0 +1,8 @@
+var map = {
+    "key": "value",
+    "key1": "value1",
+    "key2": "value2",
+    "key": 1
+};
+
+print(map);

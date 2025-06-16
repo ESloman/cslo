@@ -47,6 +47,10 @@ Value exitNative(int argCount, Value* args);
  */
 Value lenNative(int argCount, Value* args);
 
+// CONTAINER NATIVES
+
+Value internalIndexNative(int argCount, Value* args);
+
 // LIST NATIVES
 
 /**
@@ -107,6 +111,36 @@ Value extendNative(int argCount, Value* args);
  * Sorts a list in-place.
  */
 Value sortNative(int argCount, Value* args);
+
+// DICT NATIVES
+
+/**
+ * Returns the keys of a dictionary as a list.
+ */
+Value keysNative(int argCount, Value* args);
+
+/**
+ * Returns the values of a dictionary as a list.
+ */
+Value valuesNative(int argCount, Value* args);
+
+/**
+ * Returns the value associated with a key in a dictionary.
+ * If not present - returns NIL_VAL.
+ */
+Value getNative(int argCount, Value* args);
+
+/**
+ * update native method.
+ * Updates a dict with another dict.
+ */
+Value updateNative(int argCount, Value* args);
+
+/**
+ * items native method.
+ * Returns a list of key-value pairs from a dict.
+ */
+Value itemsNative(int argCount, Value* args);
 
 // MATH NATIVES
 

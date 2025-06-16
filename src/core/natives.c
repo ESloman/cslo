@@ -131,8 +131,8 @@ Value exitNative(int argCount, Value* args) {
  * len native function.
  */
 Value lenNative(int argCount, Value* args) {
-    if (argCount != 1 || (!IS_LIST(args[0]) && !IS_STRING(args[0]))) {
-        printf("len() expects a single argument of type string or list.\n");
+    if (argCount != 1 || (!IS_LIST(args[0]) && !IS_STRING(args[0]) && !IS_DICT(args[0]))) {
+        printf("len() expects a single argument of type string, list, or dict.\n");
         return NIL_VAL;
     }
     switch (OBJ_TYPE(args[0])) {
@@ -142,9 +142,178 @@ Value lenNative(int argCount, Value* args) {
         case OBJ_LIST:
             return NUMBER_VAL((double)AS_LIST(args[0])->count);
             break;
+        case OBJ_DICT:
+            return NUMBER_VAL((double)AS_DICT(args[0])->data.count);
         default:
             printf("len() expects a single argument of type string or list.\n");
             return NIL_VAL;
+    }
+}
+
+// CONTAINER FUNCTIONS
+// shared by all containers (aka lists and dictionaries)
+
+/**
+ * This is an internal method for getting the value from an index in a container.
+ * For lists, it simply returns the value at the index.
+ * For dictionaries, it retrieves the nth key value.
+ */
+Value internalIndexNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_CONTAINER(args[0]) || !IS_NUMBER(args[1])) {
+        printf("__index__() must be called on a container with a number argument.\n");
+        return NIL_VAL;
+    }
+    switch (OBJ_TYPE(args[0])) {
+        case OBJ_LIST: {
+            int idx = (int)AS_NUMBER(args[1]);
+            ObjList* list = AS_LIST(args[0]);
+            return list->values.values[idx];
+        }
+        case OBJ_DICT: {
+            int idx = (int)AS_NUMBER(args[1]);
+            ObjDict* dict = AS_DICT(args[0]);
+            int found = 0;
+            for (int i = 0; i < dict->data.capacity; i++) {
+                Entry* entry = &dict->data.entries[i];
+                if (!IS_EMPTY(entry->key) && !IS_NIL(entry->value)) {
+                    if (found == idx) {
+                        return entry->key;
+                    }
+                    found++;
+                }
+            }
+            break;
+        }
+        default:
+            return NIL_VAL;
+    }
+    return NIL_VAL; // If not found, return NIL_VAL
+}
+
+/**
+ * Clear native function.
+ * Removes all elements from the list.
+ */
+Value clearNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_CONTAINER(args[0])) {
+        printf("clear() must be called on a list.\n");
+        return NIL_VAL;
+    }
+
+    switch (OBJ_TYPE(args[0]))
+    {
+    case OBJ_LIST:
+        ObjList* list = AS_LIST(args[0]);
+        // Set all elements to NIL_VAL to avoid holding references
+        for (int i = 0; i < list->count; i++) {
+            list->values.values[i] = NIL_VAL;
+        }
+        if (list->values.capacity > 8 && list->count < list->values.capacity / 4) {
+            shrinkValueArray(&list->values);
+        }
+        list->count = 0;
+        list->values.count = 0;
+        break;
+    case OBJ_DICT:
+        ObjDict* dict = AS_DICT(args[0]);
+        tableClear(&dict->data);
+        break;
+    default:
+        break;
+    }
+    return NIL_VAL;
+}
+
+/**
+ * Pop native function.
+ */
+Value popNative(int argCount, Value *args) {
+    if (argCount == 0 || !IS_CONTAINER(args[0])) {
+        printf("pop() must be called on a container.");
+        return NIL_VAL;
+    }
+    switch (OBJ_TYPE(args[0])) {
+        case OBJ_LIST:
+            if (argCount != 1) {
+                printf("pop() must be called on a list with no arguments.\n");
+                return NIL_VAL;
+            }
+            ObjList* list = AS_LIST(args[0]);
+            if (list->count == 0) {
+                // popping an empty list returns nil
+                return NIL_VAL;
+            }
+            Value val = list->values.values[list->count - 1];
+            list->values.values[list->count - 1] = NIL_VAL; // Clear the popped value
+            if (list->values.capacity > 8 && list->count < list->values.capacity / 4) {
+                shrinkValueArray(&list->values);
+            }
+            list->count--;
+            list->values.count = list->count;
+            return val;
+        case OBJ_DICT:
+            if (argCount < 2) {
+                printf("pop() must be called on a dict with the key to pop.\n");
+                return NIL_VAL;
+            }
+            ObjDict* dict = AS_DICT(args[0]);
+            if (dict->data.count == 0) {
+                // popping an empty dict returns nil
+                return NIL_VAL;
+            }
+            Value key = args[1];
+            Value value;
+            if (tableGet(&dict->data, key, &value)) {
+                // remove the key-value pair from the dict
+                tableDelete(&dict->data, key);
+                return value; // return the found value
+            } else {
+                if (argCount == 3) {
+                    // if a default value is provided, return it
+                    return args[2];
+                }
+                return NIL_VAL; // key not found, return nil
+            }
+            return NIL_VAL;
+        default:
+            return NIL_VAL;
+    }
+}
+
+/**
+ * Clone native function.
+ * Shallow clones/copies a container.
+ */
+Value cloneNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_CONTAINER(args[0])) {
+        printf("clone() must be called on a container.\n");
+        return NIL_VAL;
+    }
+    switch (OBJ_TYPE(args[0])) {
+    case OBJ_LIST:
+        ObjList* list = AS_LIST(args[0]);
+        ObjList* clone = newList();
+        if (list->count > 0) {
+            while (clone->values.capacity < list->count) {
+                growValueArray(&clone->values);
+            }
+            // copying memory blocks is faster than copying each element
+            memcpy(clone->values.values, list->values.values, sizeof(Value) * list->count);
+            clone->count = list->count;
+            clone->values.count = clone->count;
+        }
+        return OBJ_VAL(clone);
+    case OBJ_DICT:
+        ObjDict* dict = AS_DICT(args[0]);
+        ObjDict* cloneD = newDict();
+        if (dict->data.count > 0) {
+            // ensure the clone has enough capacity
+            tableAddAll(&dict->data, &cloneD->data);
+            cloneD->data.count = dict->data.count;
+        }
+        return OBJ_VAL(cloneD);
+    default:
+        return NIL_VAL;
     }
 }
 
@@ -166,29 +335,6 @@ Value appendNative(int argCount, Value *args) {
     list->count++;
     list->values.count = list->count;
     return NIL_VAL;
-}
-
-/**
- * Pop native function.
- */
-Value popNative(int argCount, Value *args) {
-    if (argCount != 1 || !IS_LIST(args[0])) {
-        printf("pop() must be called on a list.");
-        return NIL_VAL;
-    }
-    ObjList* list = AS_LIST(args[0]);
-    if (list->count == 0) {
-        // popping an empty list returns nil
-        return NIL_VAL;
-    }
-    Value val = list->values.values[list->count - 1];
-    list->values.values[list->count - 1] = NIL_VAL; // Clear the popped value
-    if (list->values.capacity > 8 && list->count < list->values.capacity / 4) {
-        shrinkValueArray(&list->values);
-    }
-    list->count--;
-    list->values.count = list->count;
-    return val;
 }
 
 /**
@@ -337,51 +483,6 @@ Value countNative(int argCount, Value* args) {
 }
 
 /**
- * Clear native function.
- * Removes all elements from the list.
- */
-Value clearNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_LIST(args[0])) {
-        printf("clear() must be called on a list.\n");
-        return NIL_VAL;
-    }
-    ObjList* list = AS_LIST(args[0]);
-    // Set all elements to NIL_VAL to avoid holding references
-    for (int i = 0; i < list->count; i++) {
-        list->values.values[i] = NIL_VAL;
-    }
-    if (list->values.capacity > 8 && list->count < list->values.capacity / 4) {
-        shrinkValueArray(&list->values);
-    }
-    list->count = 0;
-    list->values.count = 0;
-    return NIL_VAL;
-}
-
-/**
- * Clone native function.
- * Shallow clones/copies a list.
- */
-Value cloneNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_LIST(args[0])) {
-        printf("clone() must be called on a list.\n");
-        return NIL_VAL;
-    }
-    ObjList* list = AS_LIST(args[0]);
-    ObjList* clone = newList();
-    if (list->count > 0) {
-        while (clone->values.capacity < list->count) {
-            growValueArray(&clone->values);
-        }
-        // copying memory blocks is faster than copying each element
-        memcpy(clone->values.values, list->values.values, sizeof(Value) * list->count);
-        clone->count = list->count;
-        clone->values.count = clone->count;
-    }
-    return OBJ_VAL(clone);
-}
-
-/**
  * Extends native function.
  * Extends a list with another list.
  */
@@ -428,6 +529,132 @@ Value sortNative(int argCount, Value* args) {
     qsort(list->values.values, list->count, sizeof(Value), valueCompare);
 
     return NIL_VAL;
+}
+
+/// DICT FUNCTIONS
+
+/**
+ * keys native function.
+ * Returns the keys of a dictionary as a list.
+ */
+Value keysNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_DICT(args[0])) {
+        printf("keys() must be called on a dict.\n");
+        return NIL_VAL;
+    }
+    ObjDict* dict = AS_DICT(args[0]);
+    ObjList* keys = newList();
+    for (int i = 0; i < dict->data.capacity; i++) {
+        Entry* entry = &dict->data.entries[i];
+        if (!IS_EMPTY(entry->key) && !IS_NIL(entry->value)) {
+            if (keys->count >= keys->values.capacity) {
+                growValueArray(&keys->values);
+            }
+            keys->values.values[keys->count++] = entry->key;
+        }
+    }
+    return OBJ_VAL(keys);
+}
+
+/**
+ * values native function.
+ * Returns the values of a dictionary as a list.
+ */
+Value valuesNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_DICT(args[0])) {
+        printf("values() must be called on a dict.\n");
+        return NIL_VAL;
+    }
+    ObjDict* dict = AS_DICT(args[0]);
+    ObjList* values = newList();
+    for (int i = 0; i < dict->data.capacity; i++) {
+        Entry* entry = &dict->data.entries[i];
+        if (!IS_EMPTY(entry->key) && !IS_NIL(entry->value)) {
+            if (values->count >= values->values.capacity) {
+                growValueArray(&values->values);
+            }
+            values->values.values[values->count++] = entry->value;
+        }
+    }
+    return OBJ_VAL(values);
+}
+
+/**
+ * get native function.
+ * Retrieves a value from a dictionary by its key.
+ * Returns the value if found, or NIL_VAL if not found.
+ * Optionally, returns a default if not found instead of NIL_VAL.
+ */
+Value getNative(int argCount, Value* args) {
+    if (argCount < 2 || !IS_DICT(args[0])) {
+        printf("get() must be called on a dict with a key.\n");
+        return NIL_VAL;
+    }
+    ObjDict* dict = AS_DICT(args[0]);
+    Value key = args[1];
+    Value value;
+    if (tableGet(&dict->data, key, &value)) {
+        return value; // return the found value
+    } else {
+        if (argCount == 3) {
+            // if a default value is provided, return it
+            return args[2];
+        }
+        return NIL_VAL; // key not found, return nil
+    }
+}
+
+/**
+ * update native function.
+ * Updates a dict with another dict.
+ * If the key already exists, it updates the value.
+ * If the key does not exist, it adds the key-value pair.
+ */
+Value updateNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_DICT(args[0]) || !IS_DICT(args[1])) {
+        printf("update() must be called on a dict with another dict.\n");
+        return NIL_VAL;
+    }
+    ObjDict* target = AS_DICT(args[0]);
+    ObjDict* source = AS_DICT(args[1]);
+
+    for (int i = 0; i < source->data.capacity; i++) {
+        Entry* entry = &source->data.entries[i];
+        if (!IS_EMPTY(entry->key) && !IS_NIL(entry->value)) {
+            // Set the key-value pair in the target dict
+            tableSet(&target->data, entry->key, entry->value);
+        }
+    }
+    return NIL_VAL;
+}
+
+/**
+ * items native method.
+ * Returns a list of key-value pairs from a dict.
+ */
+Value itemsNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_DICT(args[0])) {
+        printf("items() must be called on a dict.\n");
+        return NIL_VAL;
+    }
+    ObjDict* dict = AS_DICT(args[0]);
+    ObjList* items = newList();
+    for (int i = 0; i < dict->data.capacity; i++) {
+        Entry* entry = &dict->data.entries[i];
+        if (!IS_EMPTY(entry->key) && !IS_NIL(entry->value)) {
+            ObjList* pair = newList();
+            growValueArray(&pair->values);
+            pair->values.values[0] = entry->key; // key
+            pair->values.values[1] = entry->value; // value
+            pair->count = 2;
+            pair->values.count = 2;
+            if (items->values.capacity < items->count + 1) {
+                growValueArray(&items->values);
+            }
+            items->values.values[items->count++] = OBJ_VAL(pair);
+        }
+    }
+    return OBJ_VAL(items);
 }
 
 // MATH FUNCTIONS

@@ -1,0 +1,6 @@
+var alpha = {"a": 1, "b": 2, "c": 3};
+var alpha_more = {"d": 4, "e": 5, "f": 6};
+
+print(alpha);
+alpha.update(alpha_more);
+print(alpha);

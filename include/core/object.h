@@ -40,8 +40,17 @@
 /** Macro for checking the given object is an ObjString. */
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 
+/** Macro for checking the given object is a container. */
+#define IS_CONTAINER(value)    (isObjType(value, OBJ_LIST) || isObjType(value, OBJ_DICT))
+
 /** Macro for checking the given object is an ObjList. */
 #define IS_LIST(value)         isObjType(value, OBJ_LIST)
+
+/** Macro for checking the given object is an ObjDict. */
+#define IS_DICT(value)        isObjType(value, OBJ_DICT)
+
+/** Macro for checking the given object is an ObjEnum. */
+#define IS_ENUM(value)        isObjType(value, OBJ_ENUM)
 
 /**
  * Macros for converting values to objects.
@@ -74,6 +83,12 @@
 /** Macro for converting a Value to an ObjList. */
 #define AS_LIST(value)        ((ObjList*)AS_OBJ(value))
 
+/** Macro for convering a Value to an ObjDict. */
+#define AS_DICT(value)        ((ObjDict*)AS_OBJ(value))
+
+/** Macro for converting a Value to an ObjEnum. */
+#define AS_ENUM(value)        ((ObjEnum*)AS_OBJ(value))
+
 /**
  * @enum ObjType
  */
@@ -87,6 +102,8 @@ typedef enum ObjType {
     OBJ_STRING,
     OBJ_UPVALUE,
     OBJ_LIST,
+    OBJ_DICT,
+    OBJ_ENUM,
 } ObjType;
 
 /**
@@ -168,6 +185,7 @@ typedef struct ObjClosure {
 typedef struct ObjClass{
     Obj obj;
     ObjString* name;
+    struct ObjClass* superclass;
     Table methods;
 } ObjClass;
 
@@ -201,6 +219,24 @@ typedef struct {
 } ObjList;
 
 /**
+ * @struct ObjDict
+ */
+typedef struct {
+    Obj obj;
+    ObjClass* sClass;
+    Table data;
+} ObjDict;
+
+/**
+ * @struct ObjEnum
+ */
+typedef struct {
+    Obj obj;
+    ObjString* name;
+    Table values;
+} ObjEnum;
+
+/**
  * Method for creating a new bound method.
  */
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
@@ -208,7 +244,7 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 /**
  * Method for creating a new ObjClass.
  */
-ObjClass* newClass(ObjString* name);
+ObjClass* newClass(ObjString* name, ObjClass* superClass);
 
 /**
  * Method for creating a ObjClosure.
@@ -249,6 +285,16 @@ ObjUpvalue* newUpvalue(Value* slot);
  * Method for creating a new ObjList.
  */
 ObjList* newList();
+
+/**
+ * Method for creating a new ObjDict.
+ */
+ObjDict* newDict();
+
+/**
+ * Method for creating a new ObjEnum.
+ */
+ObjEnum* newEnum(ObjString* name);
 
 /**
  * Method for printing an object.

@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "core/object.h"
@@ -187,7 +188,16 @@ uint32_t hashValue(Value value) {
         case VAL_NUMBER:
             return hashDouble(AS_NUMBER(value));
         case VAL_OBJ:
-            return AS_STRING(value)->hash;
+            Obj* obj = value.as.obj;
+            switch (obj->type) {
+                case OBJ_STRING:
+                    return AS_STRING(value)->hash;
+                case OBJ_LIST:
+                case OBJ_DICT:
+                    return (uint32_t)(uintptr_t)obj; // Use pointer as hash for lists and dicts
+                default:
+                    return (uint32_t)(uintptr_t)obj; // Use pointer as hash for other objects
+            }
         case VAL_EMPTY:
             return 0;
         default:
@@ -212,6 +222,8 @@ char* valueTypeToString(Value value) {
                 case OBJ_INSTANCE: return "instance";
                 case OBJ_FUNCTION: return "function";
                 case OBJ_NATIVE: return "native function";
+                case OBJ_DICT: return "dict";
+                case OBJ_ENUM: return "enum";
                 default: return "object";
             }
         }
