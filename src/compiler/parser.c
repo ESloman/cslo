@@ -165,6 +165,8 @@ void parseDeclaration() {
         funDeclaration();
     } else if (matchToken(TOKEN_VAR)) {
         varDeclaration();
+    } else if (matchToken(TOKEN_ENUM)) {
+        enumDeclaration();
     } else {
         parseStatement();
     }

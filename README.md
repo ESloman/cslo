@@ -152,3 +152,20 @@ map has not "bar";  # true
 map.get("foo");  # nil
 map.get("foo", "bar");  # bar
 ```
+
+### enums
+
+Support for enums:
+
+```slo
+enum Colours {
+  RED,     # 0
+  ORANGE,  # 1
+  BLUE,    # 2
+  BLACK    # 3
+}
+
+print(Colours);
+print(Colours.RED);
+print(Colours.BLUE == 2);
+```

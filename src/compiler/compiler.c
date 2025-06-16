@@ -459,6 +459,37 @@ void varDeclaration() {
 }
 
 /**
+ * Method for compiling an enum declaration.
+ */
+void enumDeclaration() {
+    uint8_t global = parseVariable("Expected enum name.");
+    markInitialized();
+
+    uint8_t count = 0;
+    consumeToken(TOKEN_LEFT_BRACE, "Expected '{' before enum body.");
+
+    if (!checkToken(TOKEN_RIGHT_BRACE)) {
+        do {
+            consumeToken(TOKEN_IDENTIFIER, "Expected enum member name.");
+            emitConstant(OBJ_VAL(copyString(parser.previous.start, parser.previous.length)));
+            emitConstant(NUMBER_VAL(count));
+            count++;
+        } while (matchToken(TOKEN_COMMA));
+    }
+
+    consumeToken(TOKEN_RIGHT_BRACE, "Expected '}' after enum body.");
+
+    emitByte(OP_ENUM, parser.previous.line);
+    emitByte(count, parser.previous.line);
+    // emitByte((count >> 8) & 0xff, parser.previous.line);
+    // emitByte(count & 0xff, parser.previous.line);
+
+    emitByte(global, parser.previous.line);
+
+    defineVariable(global);
+}
+
+/**
  * Method for synchronizing after an error.
  */
 void synchronize() {

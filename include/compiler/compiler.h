@@ -168,6 +168,11 @@ void classDeclaration();
 void funDeclaration();
 
 /**
+ * Method for compiling an enum declaration.
+ */
+void enumDeclaration();
+
+/**
  * Method for synchronizing after an error.
  */
 void synchronize();

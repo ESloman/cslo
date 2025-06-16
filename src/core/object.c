@@ -126,6 +126,13 @@ ObjDict* newDict() {
     return dict;
 }
 
+ObjEnum* newEnum(ObjString* name) {
+    ObjEnum* sEnum = ALLOCATE_OBJ(ObjEnum, OBJ_ENUM);
+    initTable(&sEnum->values);
+    sEnum->name = name;
+    return sEnum;
+}
+
 /**
  * Method for creating an ObjString.
  *
@@ -256,6 +263,24 @@ void printObject(Value value) {
                     if (i < dict->data.capacity - 1) {
                         printf(", ");
                     }
+                }
+            }
+            printf("}");
+            break;
+        }
+        case OBJ_ENUM: {
+            ObjEnum* sEnum = AS_ENUM(value);
+            printf("enum %s: {", sEnum->name->chars);
+            int first = 1;
+            for (Entry* entry = sEnum->values.entries; entry < sEnum->values.entries + sEnum->values.capacity; entry++) {
+                if (entry->key.type != VAL_NIL && entry->key.type != VAL_EMPTY) {
+                    if (!first) {
+                        printf(", ");
+                    }
+                    first = 0;
+                    printValue(entry->key);
+                    printf(": ");
+                    printValue(entry->value);
                 }
             }
             printf("}");

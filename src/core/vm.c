@@ -909,21 +909,36 @@ static InterpretResult run() {
                 break;
             }
             case OP_GET_PROPERTY: {
-                if (!IS_INSTANCE(peek(0))) {
+                if (!IS_INSTANCE(peek(0)) && !IS_ENUM(peek(0))) {
                     frame->ip = ip;
                     runtimeError("Only instances have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjInstance* instance = AS_INSTANCE(peek(0));
-                ObjString* name = READ_STRING();
-                Value value;
-                if (tableGet(&instance->fields, OBJ_VAL(name), &value)) {
-                    pop();
-                    push(value);
-                    break;
-                }
+                if (IS_INSTANCE(peek(0))) {
+                    ObjInstance* instance = AS_INSTANCE(peek(0));
+                    ObjString* name = READ_STRING();
+                    Value value;
+                    if (tableGet(&instance->fields, OBJ_VAL(name), &value)) {
+                        pop();
+                        push(value);
+                        break;
+                    }
 
-                if (!bindMethod(instance->sClass, name)) {
+                    if (!bindMethod(instance->sClass, name)) {
+                        frame->ip = ip;
+                        runtimeError("Undefined property '%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else if (IS_ENUM(peek(0))) {
+                    ObjEnum* sEnum = AS_ENUM(peek(0));
+                    ObjString* name = READ_STRING();
+                    Value value;
+                    if (tableGet(&sEnum->values, OBJ_VAL(name), &value)) {
+                        pop();
+                        push(value);
+                        break;
+                    }
+
                     frame->ip = ip;
                     runtimeError("Undefined property '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
@@ -1248,6 +1263,24 @@ static InterpretResult run() {
                 FREE_ARRAY(Value, keys, count);
                 FREE_ARRAY(Value, values, count);
                 push(OBJ_VAL(dict));
+                break;
+            }
+            case OP_ENUM: {
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: OP_ENUM - reading enum with name: ");
+                #endif
+                int count = READ_BYTE();
+                ObjEnum* sEnum = newEnum(READ_STRING());
+                Value* keys = ALLOCATE(Value, count);
+                Value* values = ALLOCATE(Value, count);
+                for (int i = count - 1; i >= 0; i--) {
+                    values[i] = pop();
+                    keys[i] = pop();
+                }
+                for (int i = 0; i < count; i++) {
+                    tableSet(&sEnum->values, keys[i], values[i]);
+                }
+                push(OBJ_VAL(sEnum));
                 break;
             }
             case OP_RETURN: {

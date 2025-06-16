@@ -49,6 +49,9 @@
 /** Macro for checking the given object is an ObjDict. */
 #define IS_DICT(value)        isObjType(value, OBJ_DICT)
 
+/** Macro for checking the given object is an ObjEnum. */
+#define IS_ENUM(value)        isObjType(value, OBJ_ENUM)
+
 /**
  * Macros for converting values to objects.
  */
@@ -83,6 +86,9 @@
 /** Macro for convering a Value to an ObjDict. */
 #define AS_DICT(value)        ((ObjDict*)AS_OBJ(value))
 
+/** Macro for converting a Value to an ObjEnum. */
+#define AS_ENUM(value)        ((ObjEnum*)AS_OBJ(value))
+
 /**
  * @enum ObjType
  */
@@ -97,6 +103,7 @@ typedef enum ObjType {
     OBJ_UPVALUE,
     OBJ_LIST,
     OBJ_DICT,
+    OBJ_ENUM,
 } ObjType;
 
 /**
@@ -221,6 +228,15 @@ typedef struct {
 } ObjDict;
 
 /**
+ * @struct ObjEnum
+ */
+typedef struct {
+    Obj obj;
+    ObjString* name;
+    Table values;
+} ObjEnum;
+
+/**
  * Method for creating a new bound method.
  */
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
@@ -274,6 +290,11 @@ ObjList* newList();
  * Method for creating a new ObjDict.
  */
 ObjDict* newDict();
+
+/**
+ * Method for creating a new ObjEnum.
+ */
+ObjEnum* newEnum(ObjString* name);
 
 /**
  * Method for printing an object.

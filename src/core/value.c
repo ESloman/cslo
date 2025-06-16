@@ -222,6 +222,8 @@ char* valueTypeToString(Value value) {
                 case OBJ_INSTANCE: return "instance";
                 case OBJ_FUNCTION: return "function";
                 case OBJ_NATIVE: return "native function";
+                case OBJ_DICT: return "dict";
+                case OBJ_ENUM: return "enum";
                 default: return "object";
             }
         }

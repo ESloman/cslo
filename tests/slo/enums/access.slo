@@ -1,0 +1,12 @@
+enum Colours {
+    BLACK,
+    BLUE,
+    YELLOW,
+    ORANGE
+}
+
+print(Colours.BLACK);        # 0
+print(Colours.YELLOW == 2);  # true
+
+var yellow = Colours.YELLOW;
+print(yellow);               # 2
