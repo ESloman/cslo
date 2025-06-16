@@ -160,31 +160,6 @@ Value minNative(int argCount, Value* args);
 Value maxNative(int argCount, Value* args);
 
 
-
-// RANDOM NATIVES
-
-/**
- * Generates a random number between 0 and 1.
- */
-Value randomNative(int argCount, Value* args);
-
-/**
- * Generates a random integer between the given range.
- * If the arguments are not numbers, returns NIL_VAL or throws an error.
- */
-Value randomIntNative(int argCount, Value* args);
-
-/**
- * Generates a random number between the given range.
- * If the arguments are not numbers, returns NIL_VAL or throws an error.
- */
-Value randomRangeNative(int argCount, Value* args);
-
-/**
- * Sets the seed for the random number generator.
- */
-Value randomSeedNative(int argCount, Value* args);
-
 // OS NATIVES
 
 /**

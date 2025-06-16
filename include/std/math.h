@@ -3,8 +3,8 @@
  * @brief Header file for math-related functions and constants.
  */
 
-#ifndef cslo_math_h
-#define cslo_math_h
+#ifndef cslo_std_math_h
+#define cslo_std_math_h
 
 #include "core/object.h"
 #include "core/value.h"
@@ -48,4 +48,4 @@ Value cosNative(int argCount, Value* args);
 Value tanNative(int argCount, Value* args);
 
 
-#endif  // cslo_math_h
+#endif  // cslo_std_math_h

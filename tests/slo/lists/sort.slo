@@ -1,6 +1,8 @@
+import random;
+
 var x = [];
 for (var count = 0; count < 10; count++) {
-    x.append(random());
+    x.append(random.randint(0, 20));
 }
 print(x);
 

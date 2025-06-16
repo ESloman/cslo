@@ -224,6 +224,11 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 printf("\n");
                 #endif
                 Value result = native(argCount, vm.stackTop - argCount);
+                if (IS_ERROR(result)) {
+                    // If the native function returns an error, we don't pop the stack.
+                    runtimeError("Native function returned an error.");
+                    return false;
+                }
                 vm.stackTop -= argCount + 1;
                 push(result);
                 return true;

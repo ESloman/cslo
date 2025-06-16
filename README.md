@@ -25,8 +25,8 @@ any particular order and are subject to change.
 - everything as an object á la Python
 - more builtin methods like ~~`len`~~, `str`, ~~`max`~~, ~~`min`~~, etc
 - string formatting
-- standard library (and some `namespace`, `import`, `include` system)
-  - things like a `math`, `io`, etc
+- standard library (~~and some `namespace`, `import`, `include` system~~)
+  - things like a ~~`math`~~, `io`, `os`, ~~`random`~~, etc
 
 I would like to eventually add type hints or some kind of type system but that's very much a stretch goal.
 
@@ -43,11 +43,14 @@ This is a non-exhaustive list of things that have been added / are different to 
 - prefix and postfix increment / decrement (`--`, `++`)
 - compound assignment operators (`+=`, `-=`, `*=`, `/=`)
 - `len` native function for length of strings/lists/dicts
-- math native functions, things like: `min`, `max`, `sin` / `cos` / `tan`, `ceil` / `floor`, `abs`, `sqrt`, etc
+- native functions like: `min`, `max`, `abs`, etc
 - environment variable handling with `setenv` and `getenv`
 - `time()` to get current now
 - `exit()` to exit with optional status code
-- random native functions: `random()`, `randomInt()`, `randomRange()`
+- beginnings of an import system with `import math;`
+- stdlib modules:
+  - `math` module for things like `sin`, `cos`, `tan`, `ceil`, `floor`, `abs`, `sqrt`, etc
+  - `random` module for things like `random`, `randint`, `randrange`, `choice`, `shuffle`, `gauss`, etc
 
 ### Lists
 

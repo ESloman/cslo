@@ -13,14 +13,14 @@
  * @return A pointer to the ObjDict containing math functions.
  */
 ObjModule* getMathModule() {
-    ObjModule* mathModule = newModule();
-    tableSet(&mathModule->methods, OBJ_VAL(copyString("ceil", 4)), OBJ_VAL(newNative(ceilNative)));
-    tableSet(&mathModule->methods, OBJ_VAL(copyString("floor", 5)), OBJ_VAL(newNative(floorNative)));
-    tableSet(&mathModule->methods, OBJ_VAL(copyString("sqrt", 4)), OBJ_VAL(newNative(sqrtNative)));
-    tableSet(&mathModule->methods, OBJ_VAL(copyString("sin", 3)), OBJ_VAL(newNative(sinNative)));
-    tableSet(&mathModule->methods, OBJ_VAL(copyString("cos", 3)), OBJ_VAL(newNative(cosNative)));
-    tableSet(&mathModule->methods, OBJ_VAL(copyString("tan", 3)), OBJ_VAL(newNative(tanNative)));
-    return mathModule;
+    ObjModule* module = newModule();
+    tableSet(&module->methods, OBJ_VAL(copyString("ceil", 4)), OBJ_VAL(newNative(ceilNative)));
+    tableSet(&module->methods, OBJ_VAL(copyString("floor", 5)), OBJ_VAL(newNative(floorNative)));
+    tableSet(&module->methods, OBJ_VAL(copyString("sqrt", 4)), OBJ_VAL(newNative(sqrtNative)));
+    tableSet(&module->methods, OBJ_VAL(copyString("sin", 3)), OBJ_VAL(newNative(sinNative)));
+    tableSet(&module->methods, OBJ_VAL(copyString("cos", 3)), OBJ_VAL(newNative(cosNative)));
+    tableSet(&module->methods, OBJ_VAL(copyString("tan", 3)), OBJ_VAL(newNative(tanNative)));
+    return module;
 }
 
 /**

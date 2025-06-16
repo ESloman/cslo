@@ -33,12 +33,6 @@ void defineNatives() {
     defineNative("min", minNative);
     defineNative("max", maxNative);
 
-    // random functions
-    defineNative("random", randomNative);
-    defineNative("randomInt", randomIntNative);
-    defineNative("randomRange", randomRangeNative);
-    defineNative("randomSeed", randomSeedNative);
-
     // os functions
     defineNative("getenv", getEnvNative);
     defineNative("setenv", setEnvNative);
@@ -689,64 +683,6 @@ Value maxNative(int argCount, Value* args) {
     double a = AS_NUMBER(args[0]);
     double b = AS_NUMBER(args[1]);
     return NUMBER_VAL(a > b ? a : b);
-}
-
-// RANDOM FUNCTIONS
-
-/**
- * Generates a random number between 0 and 1.
- */
-Value randomNative(int argCount, Value* args) {
-    if (argCount != 0) {
-        return ERROR_VAL;
-    }
-    return NUMBER_VAL((double)rand() / RAND_MAX);
-}
-
-/**
- * Generates a random integer between the given range.
- * If the arguments are not numbers, returns ERROR_VAL or throws an error.
- */
-Value randomIntNative(int argCount, Value* args) {
-    if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
-    }
-    double min = AS_NUMBER(args[0]);
-    double max = AS_NUMBER(args[1]);
-    if (min > max) {
-        return ERROR_VAL; // or handle error
-    }
-    int range = (int)(max - min + 1);
-    return NUMBER_VAL(min + (rand() % range));
-}
-
-/**
- * Generates a random number between the given range.
- * If the arguments are not numbers, returns ERROR_VAL or throws an error.
- */
-Value randomRangeNative(int argCount, Value* args) {
-    if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
-    }
-    double min = AS_NUMBER(args[0]);
-    double max = AS_NUMBER(args[1]);
-    if (min > max) {
-        return ERROR_VAL; // or handle error
-    }
-    double range = max - min;
-    return NUMBER_VAL(min + ((double)rand() / RAND_MAX) * range);
-}
-
-/**
- * Sets the seed for the random number generator.
- */
-Value randomSeedNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
-    }
-    unsigned int seed = (unsigned int)AS_NUMBER(args[0]);
-    srand(seed);
-    return NIL_VAL;
 }
 
 /**
