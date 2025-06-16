@@ -18,6 +18,8 @@
 #include "core/natives.h"
 #include "core/vm.h"
 
+#include "objects/string_methods.h"
+
 VM vm;
 
 /**
@@ -101,6 +103,10 @@ void initVM() {
     tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("get", 3)), OBJ_VAL(newNative(getNative)));
     tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("update", 6)), OBJ_VAL(newNative(updateNative)));
     tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("items", 5)), OBJ_VAL(newNative(itemsNative)));
+
+    ObjString* stringName = copyString("string", 6);
+    vm.stringClass = newClass(stringName, NULL);
+    registerStringMethods(vm.stringClass);
 
     defineNatives();
 }
@@ -291,6 +297,26 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             return callValue(value, argCount, ip);
         }
         return invokeFromClass(instance->sClass, name, argCount);
+    } else if (IS_STRING(receiver)) {
+        Value method;
+        if (tableGet(&vm.stringClass->methods, OBJ_VAL(name), &method)) {
+            if (IS_NATIVE(method)) {
+                NativeFn native = AS_NATIVE(method);
+                Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+                vm.stackTop -= argCount + 1;
+                push(result);
+                return true;
+            } else if (IS_CLOSURE(method)) {
+                // If you support closures/methods on containers, handle here
+                return call(AS_CLOSURE(method), argCount);
+            } else {
+                runtimeError("Method '%s' is not callable.", name->chars);
+                return false;
+            }
+        } else {
+            runtimeError("Undefined method '%s' for string.", name->chars);
+            return false;
+        }
     } else if (IS_CONTAINER(receiver)) {
         Value method = getContainerMethod(receiver, name);
         if (IS_NIL(method)) {

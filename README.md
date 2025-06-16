@@ -47,10 +47,24 @@ This is a non-exhaustive list of things that have been added / are different to 
 - environment variable handling with `setenv` and `getenv`
 - `time()` to get current now
 - `exit()` to exit with optional status code
-- beginnings of an import system with `import math;`
+- beginnings of an import system with `import math;` syntax
 - stdlib modules:
   - `math` module for things like `sin`, `cos`, `tan`, `ceil`, `floor`, `abs`, `sqrt`, etc
-  - `random` module for things like `random`, `randint`, `randrange`, `choice`, `shuffle`, `gauss`, etc
+  - `random` module for things like `random`, `randint`, `randrange`, `choice`, `shuffle`, `gauss`, `sample`, etc
+
+### Strings
+
+Added support for standard string methods:
+
+```slo
+"hello world!".upper()             # HELLO WORLD!
+"HELLO WORLD!".lower()             # hello world!
+"hello world!".title()             # Hello World!
+"hello, world!".split(",")         # list [2]: ['hello', ' world!']
+" hello, world!   ".strip()        # hello, world!
+"Hello world".startswith("Hello")  # true
+"Hello world".endswith("Hello")    # false
+```
 
 ### Lists
 

@@ -40,6 +40,7 @@ typedef struct VM {
     ObjClass* containerClass;
     ObjClass* listClass;
     ObjClass* dictClass;
+    ObjClass* stringClass;
 
     size_t bytesAllocated;
     size_t nextGC;
