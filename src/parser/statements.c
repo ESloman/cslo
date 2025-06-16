@@ -121,7 +121,11 @@ void forStatement() {
         // we can then pop the value safely as the original stack slot has been updated
         emitBytes(OP_GET_LOCAL, iterableSlot);
         emitBytes(OP_GET_LOCAL, indexSlot);
-        emitByte(OP_GET_INDEX, parser.previous.line);
+
+        emitBytes(OP_INVOKE, makeConstant(OBJ_VAL(copyString("__index__", 9))));
+        emitByte(1, parser.previous.line);
+        // emitByte(OP_GET_INDEX, parser.previous.line);
+
         emitBytes(OP_SET_LOCAL, varSlot);
         emitByte(OP_POP, parser.previous.line);
 

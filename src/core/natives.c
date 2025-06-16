@@ -154,6 +154,43 @@ Value lenNative(int argCount, Value* args) {
 // shared by all containers (aka lists and dictionaries)
 
 /**
+ * This is an internal method for getting the value from an index in a container.
+ * For lists, it simply returns the value at the index.
+ * For dictionaries, it retrieves the nth key value.
+ */
+Value internalIndexNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_CONTAINER(args[0]) || !IS_NUMBER(args[1])) {
+        printf("__index__() must be called on a container with a number argument.\n");
+        return NIL_VAL;
+    }
+    switch (OBJ_TYPE(args[0])) {
+        case OBJ_LIST: {
+            int idx = (int)AS_NUMBER(args[1]);
+            ObjList* list = AS_LIST(args[0]);
+            return list->values.values[idx];
+        }
+        case OBJ_DICT: {
+            int idx = (int)AS_NUMBER(args[1]);
+            ObjDict* dict = AS_DICT(args[0]);
+            int found = 0;
+            for (int i = 0; i < dict->data.capacity; i++) {
+                Entry* entry = &dict->data.entries[i];
+                if (!IS_EMPTY(entry->key) && !IS_NIL(entry->value)) {
+                    if (found == idx) {
+                        return entry->key;
+                    }
+                    found++;
+                }
+            }
+            break;
+        }
+        default:
+            return NIL_VAL;
+    }
+    return NIL_VAL; // If not found, return NIL_VAL
+}
+
+/**
  * Clear native function.
  * Removes all elements from the list.
  */

@@ -77,6 +77,8 @@ void initVM() {
     tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
     tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
 
+    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("__index__", 9)), OBJ_VAL(newNative(internalIndexNative)));
+
     // Create the list class and its methods.
     ObjString* listName = copyString("list", 4);
     vm.listClass = newClass(listName, vm.containerClass);

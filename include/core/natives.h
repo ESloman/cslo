@@ -47,6 +47,10 @@ Value exitNative(int argCount, Value* args);
  */
 Value lenNative(int argCount, Value* args);
 
+// CONTAINER NATIVES
+
+Value internalIndexNative(int argCount, Value* args);
+
 // LIST NATIVES
 
 /**
