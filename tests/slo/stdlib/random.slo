@@ -22,3 +22,6 @@ print(random.randbool());
 print(random.randbytes(5));
 
 print(random.gauss(0, 1));
+
+var sample = random.sample(list, 3);
+print(sample);

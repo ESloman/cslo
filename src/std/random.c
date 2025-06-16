@@ -31,6 +31,7 @@ ObjModule* getRandomModule() {
     tableSet(&module->methods, OBJ_VAL(copyString("randbool", 8)), OBJ_VAL(newNative(randomBoolNative)));
     tableSet(&module->methods, OBJ_VAL(copyString("randbytes", 9)), OBJ_VAL(newNative(randomBytesNative)));
     tableSet(&module->methods, OBJ_VAL(copyString("gauss", 5)), OBJ_VAL(newNative(randomGaussNative)));
+    tableSet(&module->methods, OBJ_VAL(copyString("sample", 6)), OBJ_VAL(newNative(randomSampleNative)));
     return module;
 }
 
@@ -193,4 +194,35 @@ Value randomGaussNative(int argCount, Value* args) {
     double u2 = (double)rand() / RAND_MAX;
     double z0 = sqrt(-2.0 * log(u1)) * cos(2 * M_PI * u2);
     return NUMBER_VAL(mu + z0 * sigma);
+}
+
+/**
+ * @brief Samples a list in place using the Fisher-Yates algorithm.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The sampled list or an error if the arguments are invalid.
+ */
+Value randomSampleNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
+        return ERROR_VAL;
+    }
+    ObjList* list = AS_LIST(args[0]);
+    int sampleSize = (int)AS_NUMBER(args[1]);
+    if (sampleSize < 0 || sampleSize > list->count) {
+        return ERROR_VAL; // or handle error
+    }
+    ObjList* sample = newList();
+    while (sample->values.capacity < sampleSize) {
+        growValueArray(&sample->values);
+    }
+    for (int i = 0; i < sampleSize; i++) {
+        int index = rand() % list->count;
+        sample->values.values[i] = list->values.values[index];
+        // Remove the sampled element from the original list
+        list->values.values[index] = list->values.values[list->count - 1];
+        list->count--;
+    }
+    sample->count = sampleSize;
+    sample->values.count = sampleSize;
+    return OBJ_VAL(sample);
 }

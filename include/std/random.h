@@ -88,4 +88,12 @@ Value randomBytesNative(int argCount, Value* args);
  */
 Value randomGaussNative(int argCount, Value* args);
 
+/**
+ * @brief Samples a list in place using the Fisher-Yates algorithm.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The sampled list or an error if the arguments are invalid.
+ */
+Value randomSampleNative(int argCount, Value* args);
+
 #endif // cslo_std_random_h
