@@ -12,6 +12,8 @@
 #include "parser/rules.h"
 #include "compiler/scanner.h"
 
+#define MAX_LOOKAHEAD 4
+
 /**
  * @struct Parser
  *
@@ -21,6 +23,8 @@
 typedef struct Parser {
     Token current;
     Token previous;
+    Token lookahead[MAX_LOOKAHEAD];
+    int lookaheadCount;
     bool hadError;
     bool panicMode;
 } Parser;
@@ -31,6 +35,11 @@ typedef struct Parser {
 extern Parser parser;
 
 // define all the functions here
+
+/**
+ * Method for initialising the parser.
+ */
+void initParser();
 
 /**
  * Method for advancing the parser's token.
@@ -54,6 +63,11 @@ void parsePrecedence(Precedence precedence);
  * Will return the ParseRule for the given token type.
  */
 ParseRule* getRule(TokenType type);
+
+/**
+ * Method for peeking at the nth token without consuming it.
+ */
+Token peekToken(int n);
 
 /**
  * Method for consuming a given token type.

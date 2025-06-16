@@ -42,14 +42,109 @@ This is a non-exhaustive list of things that have been added / are different to 
 - `extends` for inheritance rather than `<`
 - prefix and postfix increment / decrement (`--`, `++`)
 - compound assignment operators (`+=`, `-=`, `*=`, `/=`)
-- `len` native function for length of strings/lists
+- `len` native function for length of strings/lists/dicts
 - math native functions, things like: `min`, `max`, `sin` / `cos` / `tan`, `ceil` / `floor`, `abs`, `sqrt`, etc
 - environment variable handling with `setenv` and `getenv`
 - `time()` to get current now
 - `exit()` to exit with optional status code
 - random native functions: `random()`, `randomInt()`, `randomRange()`
-- lists declared like: `var x = [1, 2, 3];` and accessed like: `print(x[0]);` or `x[0] = 99`
-- list slicing and support for negative indices
-- list methods like: `insert`, `pop`, `remove`, `append`, `reverse`, `count`, `clear`, `clone`, `extend`, `sort`
-- membership checks with `has` and `has not` (ie `[1, 2, 3, 4] has 2  # true`)
-- `for (item in my_list) {}` syntax for lists
+
+### Lists
+
+Support for lists:
+
+```slo
+var mylist = [1, 2, 3, 4, 5];
+for (var item in mylist) {
+  print(item);
+}
+```
+
+With slicing and negative indexing:
+
+```slo
+var x = [10, 20, 30, 40, 50];
+print(x[1:4]);
+print(x[:3]);
+print(x[2:]);
+print(x[-3:-1]);
+```
+
+List methods:
+
+```slo
+var x = [1, 2, 3, 4, 5];
+x.append(6);
+x.pop();
+x.insert(0, 0);
+x.remove(0);
+x.reverse();
+x.count(1);
+var y = x.clone();
+y.clear();
+x.extend(y);
+x.sort();
+```
+
+Membership checks:
+
+```slo
+var x = [1, 2, 3, 4, 6];
+x has 6  # true
+x has not 5  # true
+```
+
+### Dicts
+
+Support for dictionaries:
+
+```slo
+var map = {
+    "key": "value",
+    "key1": "value1",
+    "key2": "value2",
+    "key": 1
+};
+print(map);
+
+map["foo"] = "bar";
+print(map["foo"]);
+```
+
+Dict methods:
+
+```slo
+var map = {"a": 1, "b": 2, "c": 3};
+print(map.keys());
+print(map.values());
+
+for (var val in map.values()) {
+  print(val);
+}
+
+map.clear();
+map.pop("a");  # 1
+var new_map = map.clone();
+
+var new = {"e": 5, "f": 6};
+map.update(new);
+```
+
+Membership checks:
+
+```slo
+var map = {
+    "key": "value",
+    "key1": "value1",
+    "key2": "value2",
+    "key": 1
+};
+
+map has "key";  # true
+map has "foo";  # false
+map has not "bar";  # true
+
+
+map.get("foo");  # nil
+map.get("foo", "bar");  # bar
+```

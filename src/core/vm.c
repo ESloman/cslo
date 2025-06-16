@@ -71,24 +71,33 @@ void initVM() {
     vm.initString = NULL;
     vm.initString = copyString("__init__", 8);
 
+    ObjString* containerName = copyString("container", 8);
+    vm.containerClass = newClass(containerName, NULL);
+    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
+    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
+    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
+
     // Create the list class and its methods.
     ObjString* listName = copyString("list", 4);
-    vm.listClass = newClass(listName);
+    vm.listClass = newClass(listName, vm.containerClass);
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("insert", 6)), OBJ_VAL(newNative(insertNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("remove", 6)), OBJ_VAL(newNative(removeNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("reverse", 7)), OBJ_VAL(newNative(reverseNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(indexNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(countNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("extend", 6)), OBJ_VAL(newNative(extendNative)));
     tableSet(&vm.listClass->methods, OBJ_VAL(copyString("sort", 4)), OBJ_VAL(newNative(sortNative)));
 
     // Create the dict class and its methods.
     ObjString* dictName = copyString("dict", 4);
-    vm.dictClass = newClass(dictName);
+    vm.dictClass = newClass(dictName, vm.containerClass);
+
+    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("keys", 4)), OBJ_VAL(newNative(keysNative)));
+    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("values", 6)), OBJ_VAL(newNative(valuesNative)));
+    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("get", 3)), OBJ_VAL(newNative(getNative)));
+    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("update", 6)), OBJ_VAL(newNative(updateNative)));
+    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("items", 5)), OBJ_VAL(newNative(itemsNative)));
 
     defineNatives();
 }
@@ -111,8 +120,27 @@ void freeVM() {
  * Increments the pointer to point to the next unused element in the array.
  */
 void push(Value value) {
+    #ifdef DEBUG_LOGGING
+    printf("Before push: stackTop=%ld\n", vm.stackTop - vm.stack);
+    for (Value* v = vm.stack; v < vm.stackTop; v++) {
+        printf("  [%ld] ", v - vm.stack);
+        printValue(*v);
+        printf("\n");
+    }
+    printf("Pushing to stack[%ld]: ", vm.stackTop - vm.stack);
+    printValue(value);
+    printf("\n");
+    #endif
     *vm.stackTop = value;
     vm.stackTop++;
+    #ifdef DEBUG_LOGGING
+    printf("After push: stackTop=%ld\n", vm.stackTop - vm.stack);
+    for (Value* v = vm.stack; v < vm.stackTop; v++) {
+        printf("  [%ld] ", v - vm.stack);
+        printValue(*v);
+        printf("\n");
+    }
+    #endif
 }
 
 /**
@@ -219,6 +247,28 @@ static bool invokeFromClass(ObjClass* sClass, ObjString* name, int argCount) {
 }
 
 /**
+ * Method for invoking a method on a container.
+ */
+static Value getContainerMethod(Value receiver, ObjString* name) {
+    // check parent container first
+    Value method;
+    if (tableGet(&vm.containerClass->methods, OBJ_VAL(name), &method)) {
+        return method;
+    }
+    Table* methods;
+    if (IS_DICT(receiver)) {
+        methods = &AS_DICT(receiver)->sClass->methods;
+    } else if (IS_LIST(receiver)) {
+        methods = &AS_LIST(receiver)->sClass->methods;
+    } else {
+        runtimeError("Only containers have methods.");
+        return NIL_VAL;
+    }
+    return tableGet(methods, OBJ_VAL(name), &method) ? method : NIL_VAL;
+
+}
+
+/**
  * Method for invoking a method.
  */
 static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
@@ -233,30 +283,26 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             return callValue(value, argCount, ip);
         }
         return invokeFromClass(instance->sClass, name, argCount);
-    } else if (IS_LIST(receiver)) {
-        // implementation if receiver is a list
-        ObjList* list = AS_LIST(receiver);
-        Value method;
-        if (tableGet(&list->sClass->methods, OBJ_VAL(name), &method)) {
-            // For native methods, pass the list as the first argument
-            if (IS_NATIVE(method)) {
-                // Shift arguments up by one to make room for the receiver
-                // for (int i = 0; i < argCount; i++) {
-                //     vm.stackTop[-argCount - 1 + i] = vm.stackTop[-argCount + i];
-                // }
-                // vm.stackTop[-argCount - 1] = receiver; // list as self
-                NativeFn native = AS_NATIVE(method);
-                Value result = native(argCount + 1, vm.stackTop - argCount - 1);
-                vm.stackTop -= argCount + 1;
-                push(result);
-                return true;
-            } else {
-                // If you support closures/methods on lists, handle here
-                return call(AS_CLOSURE(method), argCount);
-            }
+    } else if (IS_CONTAINER(receiver)) {
+        Value method = getContainerMethod(receiver, name);
+        if (IS_NIL(method)) {
+            runtimeError("Undefined method '%s'.", name->chars);
+            return false;
         }
-        runtimeError("Undefined method '%s' for list.", name->chars);
-        return false;
+        // For native methods, pass the container as the first argument
+        if (IS_NATIVE(method)) {
+            NativeFn native = AS_NATIVE(method);
+            Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+            vm.stackTop -= argCount + 1;
+            push(result);
+            return true;
+        } else if (IS_CLOSURE(method)) {
+            // If you support closures/methods on containers, handle here
+            return call(AS_CLOSURE(method), argCount);
+        } else {
+            runtimeError("Method '%s' is not callable.", name->chars);
+            return false;
+        }
     } else {
         runtimeError("Only instances and lists have methods.");
         return false;
@@ -408,7 +454,7 @@ static InterpretResult run() {
         printValue(*slot);
         printf(" ]");
     }
-    printf("\n");
+    printf("  <-- stack size: %ld\n", (long)(vm.stackTop - vm.stack));
     disassembleInstruction(&frame->closure->function->chunk, (int)(frame->ip - frame->closure->function->chunk.code));
 #endif
 
@@ -445,15 +491,93 @@ static InterpretResult run() {
             }
             case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
+                #ifdef DEBUG_LOGGING
+                printf("OP_GET_LOCAL: slot: %d, value: ", slot);
+                printValue(frame->slots[slot]);
+                printf("\n");
+                printf("DEBUG: Stack before OP_GET_LOCAL: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 push(frame->slots[slot]);
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Stack after OP_GET_LOCAL: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 break;
             }
             case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
+                #ifdef DEBUG_LOGGING
+                printf("OP_SET_LOCAL: slot: %d, value: ", slot);
+                printValue(peek(0));
+                printf("\n");
+                printf("DEBUG: Stack before OP_SET_LOCAL: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 frame->slots[slot] = peek(0);
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Stack after OP_SET_LOCAL: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 break;
             }
             case OP_GET_GLOBAL: {
+                #ifdef DEBUG_LOGGING
+                // Debug: Print stack and slots before the call
+                printf("== Before OP_GET_GLOBAL ==\n");
+                printf("StackTop: %ld\n", vm.stackTop - vm.stack);
+                for (Value* v = vm.stack; v < vm.stackTop; v++) {
+                    printf("  [%ld] ", v - vm.stack);
+                    printValue(*v);
+                    printf("\n");
+                }
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 ObjString* name = READ_STRING();
                 Value value;
                 if (!tableGet(&vm.globals, OBJ_VAL(name), &value)) {
@@ -462,6 +586,22 @@ static InterpretResult run() {
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(value);
+                #ifdef DEBUG_LOGGING
+                // Debug: Print stack and slots before the call
+                printf("== After OP_GET_GLOBAL ==\n");
+                printf("StackTop: %ld\n", vm.stackTop - vm.stack);
+                for (Value* v = vm.stack; v < vm.stackTop; v++) {
+                    printf("  [%ld] ", v - vm.stack);
+                    printValue(*v);
+                    printf("\n");
+                }
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 break;
             }
             case OP_SET_GLOBAL: {
@@ -507,23 +647,59 @@ static InterpretResult run() {
                 break;
             }
             case OP_GREATER_EQUAL: {
-                if (valuesEqual(peek(0), peek(1))) {
-                    push(BOOL_VAL(true));
-                    break;
+                if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
+                    runtimeError("Operands must be numbers.");
+                    return INTERPRET_RUNTIME_ERROR;
                 }
-                BINARY_OP(BOOL_VAL, >);
+                double b = AS_NUMBER(pop());
+                double a = AS_NUMBER(pop());
+                push(BOOL_VAL(a >= b));
                 break;
             }
             case OP_LESS: {
+                #ifdef DEBUG_LOGGING
+                // Debug: Print stack and slots before the call
+                printf("== Before OP_LESS ==\n");
+                printf("StackTop: %ld\n", vm.stackTop - vm.stack);
+                for (Value* v = vm.stack; v < vm.stackTop; v++) {
+                    printf("  [%ld] ", v - vm.stack);
+                    printValue(*v);
+                    printf("\n");
+                }
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 BINARY_OP(BOOL_VAL, <);
+                #ifdef DEBUG_LOGGING
+                // Debug: Print stack and slots before the call
+                printf("== After OP_LESS ==\n");
+                printf("StackTop: %ld\n", vm.stackTop - vm.stack);
+                for (Value* v = vm.stack; v < vm.stackTop; v++) {
+                    printf("  [%ld] ", v - vm.stack);
+                    printValue(*v);
+                    printf("\n");
+                }
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 break;
             }
             case OP_LESS_EQUAL: {
-                if (valuesEqual(peek(0), peek(1))) {
-                    push(BOOL_VAL(true));
-                    break;
+                if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
+                    runtimeError("Operands must be numbers.");
+                    return INTERPRET_RUNTIME_ERROR;
                 }
-                BINARY_OP(BOOL_VAL, <);
+                double b = AS_NUMBER(pop());
+                double a = AS_NUMBER(pop());
+                push(BOOL_VAL(a <= b));
                 break;
             }
             case OP_ADD: {
@@ -665,9 +841,43 @@ static InterpretResult run() {
             case OP_CALL: {
                 int argCount = READ_BYTE();
                 frame->ip = ip;
+
+                #ifdef DEBUG_LOGGING
+                // Debug: Print stack and slots before the call
+                printf("== Before OP_CALL ==\n");
+                printf("StackTop: %ld\n", vm.stackTop - vm.stack);
+                for (Value* v = vm.stack; v < vm.stackTop; v++) {
+                    printf("  [%ld] ", v - vm.stack);
+                    printValue(*v);
+                    printf("\n");
+                }
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 if (!callValue(peek(argCount), argCount, ip)) {
                     return INTERPRET_RUNTIME_ERROR;
                 }
+
+                #ifdef DEBUG_LOGGING
+                // Debug: Print stack and slots after the call
+                printf("== After OP_CALL ==\n");
+                printf("StackTop: %ld\n", vm.stackTop - vm.stack);
+                for (Value* v = vm.stack; v < vm.stackTop; v++) {
+                    printf("  [%ld] ", v - vm.stack);
+                    printValue(*v);
+                    printf("\n");
+                }
+                printf("All slots: ");
+                for (Value* slot = frame->slots; slot < vm.stackTop; slot++) {
+                    printValue(*slot);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
                 frame = &vm.frames[vm.frameCount - 1];
                 ip = frame->ip;
                 break;
@@ -693,7 +903,7 @@ static InterpretResult run() {
                 break;
             }
             case OP_CLASS: {
-                push(OBJ_VAL(newClass(READ_STRING())));
+                push(OBJ_VAL(newClass(READ_STRING(), NULL)));
                 break;
             }
             case OP_GET_PROPERTY: {
@@ -805,62 +1015,78 @@ static InterpretResult run() {
             }
             case OP_GET_INDEX: {
                 Value index = pop();
-                Value listValue = pop();
+                Value indexable = pop();
                 #ifdef DEBUG_LOGGING
-                printf("DEBUG: OP_GET_INDEX types: index=%d, value=%d\n", index.type, listValue.type);
+                printf("DEBUG: OP_GET_INDEX types: index=%d, value=%d\n", index.type, indexable.type);
                 #endif
-                if (!IS_LIST(listValue)) {
+                if (IS_LIST(indexable)) {
+                    ObjList* list = AS_LIST(indexable);
+                    if (!IS_NUMBER(index)) {
+                        frame->ip = ip;
+                        runtimeError("Index must be a number.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    int idx = (int)AS_NUMBER(index);
+                    if (idx < 0) {
+                        idx += list->count; // allow negative indexing
+                    }
+                    if (idx < 0 || idx >= list->count) {
+                        frame->ip = ip;
+                        runtimeError("Index out of bounds.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    push(list->values.values[idx]);
+                } else if (IS_DICT(indexable)) {
+                    ObjDict* dict = AS_DICT(indexable);
+                    Value value;
+                    if (tableGet(&dict->data, index, &value)) {
+                        push(value);
+                    } else {
+                        frame->ip = ip;
+                        runtimeError("Key not found in dictionary.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else {
                     frame->ip = ip;
                     runtimeError("Expected a list.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjList* list = AS_LIST(listValue);
-                if (!IS_NUMBER(index)) {
-                    frame->ip = ip;
-                    runtimeError("Index must be a number.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                int idx = (int)AS_NUMBER(index);
-                if (idx < 0) {
-                    idx += list->count; // allow negative indexing
-                }
-                if (idx < 0 || idx >= list->count) {
-                    frame->ip = ip;
-                    runtimeError("Index out of bounds.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                push(list->values.values[idx]);
                 break;
             }
             case OP_SET_INDEX: {
                 Value value = pop();
                 Value index = pop();
-                Value listValue = pop();
+                Value indexable = pop();
                 #ifdef DEBUG_LOGGING
-                printf("DEBUG: OP_SET_INDEX types: list=%d, index=%d, value=%d\n", listValue.type, index.type, value.type);
+                printf("DEBUG: OP_SET_INDEX types: list=%d, index=%d, value=%d\n", indexable.type, index.type, value.type);
                 #endif
-                if (!IS_LIST(listValue)) {
+                if (IS_LIST(indexable)) {
+                    ObjList* list = AS_LIST(indexable);
+                    if (!IS_NUMBER(index)) {
+                        frame->ip = ip;
+                        runtimeError("Index must be a number.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    int idx = (int)AS_NUMBER(index);
+                    if (idx < 0) {
+                        idx += list->count; // allow negative indexing
+                    }
+                    if (idx < 0 || idx >= list->count) {
+                        frame->ip = ip;
+                        runtimeError("Index out of bounds.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    list->values.values[idx] = value;
+                    push(value);
+                } else if (IS_DICT(indexable)) {
+                    ObjDict* dict = AS_DICT(indexable);
+                    tableSet(&dict->data, index, value);
+                    push(value);
+                } else {
                     frame->ip = ip;
-                    runtimeError("Expected a list.");
+                    runtimeError("Expected a list or dictionary.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjList* list = AS_LIST(listValue);
-                if (!IS_NUMBER(index)) {
-                    frame->ip = ip;
-                    runtimeError("Index must be a number.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                int idx = (int)AS_NUMBER(index);
-                if (idx < 0) {
-                    idx += list->count; // allow negative indexing
-                }
-                if (idx < 0 || idx >= list->count) {
-                    frame->ip = ip;
-                    runtimeError("Index out of bounds.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                list->values.values[idx] = value;
-                push(value);
                 break;
             }
             case OP_SLICE: {
@@ -929,6 +1155,14 @@ static InterpretResult run() {
                         runtimeError("Can only check for strings in strings.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
+                } else if (IS_DICT(container)) {
+                    ObjDict* dict = AS_DICT(container);
+                    Value val;
+                    if (tableGet(&dict->data, value, &val)) {
+                        push(BOOL_VAL(true));
+                    } else {
+                        push(BOOL_VAL(false));
+                    }
                 } else {
                     frame->ip = ip;
                     runtimeError("'has' not supported for this type.");
@@ -959,6 +1193,14 @@ static InterpretResult run() {
                         runtimeError("Can only check for strings in strings.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
+                } else if (IS_DICT(container)) {
+                    ObjDict* dict = AS_DICT(container);
+                    Value val;
+                    if (tableGet(&dict->data, value, &val)) {
+                        push(BOOL_VAL(false));
+                    } else {
+                        push(BOOL_VAL(true));
+                    }
                 } else {
                     frame->ip = ip;
                     runtimeError("'has' not supported for this type.");
@@ -967,6 +1209,11 @@ static InterpretResult run() {
                 break;
             }
             case OP_LEN: {
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Value before OP_LEN: ");
+                printValue(peek(0));
+                printf("\n");
+                #endif
                 Value container = pop();
                 if (IS_LIST(container)) {
                     ObjList* list = AS_LIST(container);

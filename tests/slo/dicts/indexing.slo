@@ -1,0 +1,5 @@
+var d = {"a": 1, "b": 2};
+print(d["a"]); // should print 1
+
+d["a"] = 23;
+print(d["a"]);  // should print 23

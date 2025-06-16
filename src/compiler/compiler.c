@@ -121,6 +121,9 @@ static ObjFunction* endCompiler() {
  */
 void beginScope() {
     current->scopeDepth++;
+    #ifdef DEBUG_LOGGING
+    printf("beginScope: scopeDepth now %d\n", current->scopeDepth);
+    #endif
 }
 
 /**
@@ -128,8 +131,20 @@ void beginScope() {
  */
 void endScope() {
     current->scopeDepth--;
-
+    #ifdef DEBUG_LOGGING
+    printf("endScope: scopeDepth now %d\n", current->scopeDepth);
+    #endif
+    #ifdef DEBUG_LOGGING
+    printf("== Locals at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
+    for (int i = 0; i < current->localCount; i++) {
+        printf("  [%d] %.*s (depth=%d)\n", i, current->locals[i].name.length, current->locals[i].name.start, current->locals[i].depth);
+    }
+    #endif
     while (current->localCount > 0 && current->locals[current->localCount - 1].depth > current->scopeDepth) {
+        #ifdef DEBUG_LOGGING
+        printf("Popping local: %.*s", current->locals[current->localCount - 1].name.length, current->locals[current->localCount - 1].name.start);
+        printf("  (depth=%d, scopeDepth now=%d)\n", current->locals[current->localCount - 1].depth, current->scopeDepth);
+        #endif
         if (current->locals[current->localCount - 1].isCaptured) {
             emitByte(OP_CLOSE_UPVALUE, parser.previous.line);
         } else {
@@ -224,6 +239,9 @@ int resolveUpvalue(Compiler* compiler, Token* name) {
  * Method for adding a local.
  */
 void addLocal(Token name) {
+    #ifdef DEBUG_LOGGING
+    printf("addLocal: %.*s (localCount=%d, scopeDepth=%d)\n", name.length, name.start, current->localCount, current->scopeDepth);
+    #endif
     if (current->localCount == UINT8_COUNT) {
         error("Too many local variables in function.");
         return;
@@ -278,6 +296,13 @@ void markInitialized() {
     if (current->scopeDepth == 0) {
         return;
     }
+    #ifdef DEBUG_LOGGING
+    printf("markInitialized: %.*s (localCount=%d, setting depth=%d)\n",
+        current->locals[current->localCount - 1].name.length,
+        current->locals[current->localCount - 1].name.start,
+        current->localCount,
+        current->scopeDepth);
+    #endif
     current->locals[current->localCount - 1].depth = current->scopeDepth;
 }
 
@@ -513,6 +538,7 @@ Token syntheticToken(const char* text) {
  */
 ObjFunction* compile(const char* source) {
     initScanner(source);
+    initParser();
 
     Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT);

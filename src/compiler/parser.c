@@ -5,6 +5,7 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include <string.h>
 
 #include "compiler/codegen.h"
 #include "compiler/scanner.h"
@@ -14,6 +15,20 @@
 #include "parser/rules.h"
 
 /**
+ * Method for initialising the parser.
+ */
+void initParser() {
+    parser.hadError = false;
+    parser.panicMode = false;
+    parser.previous = (Token){0};
+    parser.current = (Token){0};
+    // Initialize lookahead buffer if you add one
+    for (int i = 0; i < MAX_LOOKAHEAD; i++) {
+        parser.lookahead[i] = scanToken();
+    }
+}
+
+/**
  * Method for advancing the parser's token.
  *
  * Sets the previous token to the current and retrieves the next
@@ -21,14 +36,20 @@
  */
 void parserAdvance() {
     parser.previous = parser.current;
+    parser.current = parser.lookahead[0];
+
+    // Shift lookahead tokens left and fill the last slot
+    for (int i = 0; i < MAX_LOOKAHEAD - 1; i++) {
+        parser.lookahead[i] = parser.lookahead[i + 1];
+    }
 
     for (;;) {
-        parser.current = scanToken();
-        if (parser.current.type != TOKEN_ERROR) {
+        parser.lookahead[MAX_LOOKAHEAD - 1] = scanToken();
+        if (parser.lookahead[MAX_LOOKAHEAD - 1].type != TOKEN_ERROR) {
             break;
         }
 
-        errorAtCurrent(parser.current.start);
+        errorAtCurrent(parser.lookahead[MAX_LOOKAHEAD - 1].start);
     }
 }
 
@@ -67,6 +88,29 @@ void parsePrecedence(Precedence precedence) {
  */
 ParseRule* getRule(TokenType type) {
     return &rules[type];
+}
+
+
+/**
+ * Method for peeking at the nth token without consuming it.
+ */
+Token peekToken(int n) {
+    if (n == 0) {
+        return parser.current;
+    }
+    if (n == -1 ) {
+        return parser.previous;
+    }
+    if (n < -1 || n > MAX_LOOKAHEAD) {
+        // Return an error token or handle as needed
+        Token error;
+        error.type = TOKEN_ERROR;
+        error.start = "Lookahead out of range";
+        error.length = strlen(error.start);
+        error.line = parser.current.line;
+        return error;
+    }
+    return parser.lookahead[n - 1];
 }
 
 /**
@@ -474,6 +518,9 @@ void binary(bool canAssign) {
  */
 void parseCall(bool canAssign) {
     uint8_t argCount = argumentList();
+    #ifdef DEBUG_LOGGING
+    printf("Emitting OP_CALL with %d args. Locals: %d\n", argCount, current->localCount);
+    #endif
     emitBytes(OP_CALL, argCount);
 }
 

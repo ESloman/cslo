@@ -37,6 +37,7 @@ typedef struct VM {
 
     ObjUpvalue* openUpvalues;
 
+    ObjClass* containerClass;
     ObjClass* listClass;
     ObjClass* dictClass;
 

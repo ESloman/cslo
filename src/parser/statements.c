@@ -3,6 +3,8 @@
  * This file contains the declarations for the statements in the CSLO language.
  */
 
+#include <stdio.h>
+
 #include "compiler/codegen.h"
 #include "compiler/scanner.h"
 #include "compiler/parser.h"
@@ -44,70 +46,122 @@ void parseExpressionStatement() {
  * Method for compiling for statements.
  */
 void forStatement() {
+    #ifdef DEBUG_LOGGING
+    printf("== Locals at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
+    for (int i = 0; i < current->localCount; i++) {
+        printf("  [%d] %.*s (depth=%d)\n", i, current->locals[i].name.length, current->locals[i].name.start, current->locals[i].depth);
+    }
+    #endif
+    #ifdef DEBUG_LOGGING
+    printf("Scope depth before loop %d\n", current->scopeDepth);
+    #endif
     beginScope();
+    #ifdef DEBUG_LOGGING
+    printf("Scope depth increased to %d\n", current->scopeDepth);
+    #endif
     consumeToken(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
 
-    // check and handle 'for (x in list)' syntax
-    if (checkToken(TOKEN_IDENTIFIER)) {
+    #ifdef DEBUG_LOGGING
+    printf("== Locals at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
+    for (int i = 0; i < current->localCount; i++) {
+        printf("  [%d] %.*s (depth=%d)\n", i, current->locals[i].name.length, current->locals[i].name.start, current->locals[i].depth);
+    }
+    #endif
+    // check and handle 'for (var x in list)' syntax
+    if (checkToken(TOKEN_VAR) && peekToken(1).type == TOKEN_IDENTIFIER && peekToken(2).type == TOKEN_IN) {
+        parserAdvance();  // consume 'var'
         Token varName = parser.current;
         parserAdvance();  // consume identifier
-        if (checkToken(TOKEN_IN)) {
-            parserAdvance();
-            parseExpression();
-            consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after 'for' clauses.");
+        parserAdvance();  // consume 'in'
+        parseExpression();
+        consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after 'for' clauses.");
 
-            // store iterable locally
-            addLocal(syntheticToken("__iterable"));
-            uint8_t iterableSlot = current->localCount - 1;
-            emitBytes(OP_SET_LOCAL, iterableSlot);
+        // store iterable locally
+        addLocal(syntheticToken("__iterable"));
+        markInitialized();
+        uint8_t iterableSlot = current->localCount - 1;
+        emitBytes(OP_SET_LOCAL, iterableSlot);
+        // this is the initial value of the iterable variable
+        // do not pop it!
 
-            // create index variable
-            addLocal(syntheticToken("__idx"));
-            uint8_t indexSlot = current->localCount - 1;
-            emitConstant(NUMBER_VAL(0));
-            emitBytes(OP_SET_LOCAL, indexSlot);
+        // create index variable
+        addLocal(syntheticToken("__idx"));
+        markInitialized();
+        uint8_t indexSlot = current->localCount - 1;
+        emitConstant(NUMBER_VAL(0));
+        emitBytes(OP_SET_LOCAL, indexSlot);
+        // this is the initial value of the index variable
+        // do not pop it!
 
-            int loopStart = currentChunk()->count;
+        addLocal(varName);
+        markInitialized();
+        uint8_t varSlot = current->localCount - 1;
+        // set the loop variable to a random initial value on the stack for now
+        // this value will be overwritten on each loop
+        emitConstant(NUMBER_VAL(-1));
+        emitBytes(OP_SET_LOCAL, varSlot);
+        // this is the initial value of the loop variable
+        // do not pop it!
 
-            // check we're still in range
-            emitBytes(OP_GET_LOCAL, indexSlot);
-            emitBytes(OP_GET_LOCAL, iterableSlot);
+        int loopStart = currentChunk()->count;
 
-            emitByte(OP_LEN, parser.previous.line);
-            emitByte(OP_GREATER_EQUAL, parser.previous.line);
+        // check we're still in range
+        emitBytes(OP_GET_LOCAL, indexSlot);  // push index
+        emitBytes(OP_GET_LOCAL, iterableSlot);     // push iterable
+        emitByte(OP_LEN, parser.previous.line); // pop iterable, push length
+        emitByte(OP_GREATER_EQUAL, parser.previous.line); // compare index >= length
 
-            int exitJump = emitJump(OP_JUMP_IF_TRUE);
+        int exitJump = emitJump(OP_JUMP_IF_TRUE);
+        emitByte(OP_POP, parser.previous.line); // pop the condition only
 
-            // get the current index and iterable
-            emitBytes(OP_GET_LOCAL, iterableSlot);
-            emitBytes(OP_GET_LOCAL, indexSlot);
-            emitByte(OP_GET_INDEX, parser.previous.line);
-            addLocal(varName);
-            markInitialized();
-            uint8_t varSlot = current->localCount - 1;
-            emitBytes(OP_SET_LOCAL, varSlot);
+        // get the current index and iterable
+        // the iterable first, and then the index second
+        // OP_GET_INDEX will then pop both and push the value at that index
+        // OP_SET_LOCAL will then update varSlot with the correct value - note that this won't pop the value
+        // we can then pop the value safely as the original stack slot has been updated
+        emitBytes(OP_GET_LOCAL, iterableSlot);
+        emitBytes(OP_GET_LOCAL, indexSlot);
+        emitByte(OP_GET_INDEX, parser.previous.line);
+        emitBytes(OP_SET_LOCAL, varSlot);
+        emitByte(OP_POP, parser.previous.line);
 
-            parseStatement();
+        parseStatement();
 
-            // increment index
-            emitBytes(OP_GET_LOCAL, indexSlot);
-            emitConstant(NUMBER_VAL(1));
-            emitByte(OP_ADD, parser.previous.line);
-            emitBytes(OP_SET_LOCAL, indexSlot);
+        // increment index
+        emitBytes(OP_GET_LOCAL, indexSlot);
+        emitConstant(NUMBER_VAL(1));
+        emitByte(OP_ADD, parser.previous.line);
+        emitBytes(OP_SET_LOCAL, indexSlot);
+        emitByte(OP_POP, parser.previous.line); // Pop the value after assignment
 
-            emitLoop(loopStart);
-            patchJump(exitJump);
-            emitByte(OP_POP, parser.previous.line);
-            endScope();
-            return;
+        emitLoop(loopStart);
+        patchJump(exitJump);
+        emitByte(OP_POP, parser.previous.line); // pop the condition only
+        // No OP_POP here! endScope() will clean up all locals and stack values for the for-in loop.
+        #ifdef DEBUG_LOGGING
+        printf("== Locals at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
+        for (int i = 0; i < current->localCount; i++) {
+            printf("  [%d] %.*s (depth=%d)\n", i, current->locals[i].name.length, current->locals[i].name.start, current->locals[i].depth);
         }
+        #endif
+        endScope();
+        #ifdef DEBUG_LOGGING
+        printf("== Locals after endscope at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
+        for (int i = 0; i < current->localCount; i++) {
+            printf("  [%d] %.*s (depth=%d)\n", i, current->locals[i].name.length, current->locals[i].name.start, current->locals[i].depth);
+        }
+        #endif
+        return;
     }
 
     // handle traditional style for loop syntax
-    if (matchToken(TOKEN_VAR)) {
-        varDeclaration();
-    } else if (matchToken(TOKEN_SEMICOLON)) {
+    if (matchToken(TOKEN_SEMICOLON)) {
         // nothing
+    } else if (matchToken(TOKEN_VAR)) {
+        #ifdef DEBUG_LOGGING
+        printf("For loop with variable declaration.\n");
+        #endif
+        varDeclaration();
     } else {
         parseExpressionStatement();
     }
@@ -115,15 +169,24 @@ void forStatement() {
     int loopStart = currentChunk()->count;
     int exitJump = -1;
     if(!matchToken(TOKEN_SEMICOLON)) {
+        #ifdef DEBUG_LOGGING
+        printf("Parsing for loop condition.\n");
+        #endif
         parseExpression();
         consumeToken(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
 
         exitJump = emitJump(OP_JUMP_IF_FALSE);
-        // needed to pop the condition
-        emitByte(OP_POP, parser.previous.line);
+        emitByte(OP_POP, parser.previous.line); // pop the condition only
+    } else {
+        #ifdef DEBUG_LOGGING
+        printf("No condition in for loop.\n");
+        #endif
     }
 
     if (!matchToken(TOKEN_RIGHT_PAREN)) {
+        #ifdef DEBUG_LOGGING
+        printf("Parsing for loop increment.\n");
+        #endif
         int bodyJump = emitJump(OP_JUMP);
         int incrementStart = currentChunk()->count;
         parseExpression();
@@ -140,10 +203,15 @@ void forStatement() {
 
     if (exitJump != -1) {
         patchJump(exitJump);
-        // needed to pop the condition
-        emitByte(OP_POP, parser.previous.line);
+        emitByte(OP_POP, parser.previous.line); // pop the condition only
     }
     endScope();
+    #ifdef DEBUG_LOGGING
+    printf("== Locals at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
+    for (int i = 0; i < current->localCount; i++) {
+        printf("  [%d] %.*s (depth=%d)\n", i, current->locals[i].name.length, current->locals[i].name.start, current->locals[i].depth);
+    }
+    #endif
 }
 
 /**

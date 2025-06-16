@@ -46,6 +46,11 @@ bool tableSet(Table* table, Value key, Value value);
 bool tableDelete(Table* table, Value key);
 
 /**
+ * Method for clearing a table.
+ */
+void tableClear(Table* table);
+
+/**
  * Method for copying all of one table's entries into another.
  */
 void tableAddAll(Table* from, Table* to);

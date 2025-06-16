@@ -45,9 +45,10 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
 /**
  * Method for creating a new ObjClass.
  */
-ObjClass* newClass(ObjString* name) {
+ObjClass* newClass(ObjString* name, ObjClass* superClass) {
     ObjClass* sClass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
     sClass->name = name;
+    sClass->superclass = superClass;
     initTable(&sClass->methods);
     return sClass;
 }

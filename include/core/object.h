@@ -40,6 +40,9 @@
 /** Macro for checking the given object is an ObjString. */
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 
+/** Macro for checking the given object is a container. */
+#define IS_CONTAINER(value)    (isObjType(value, OBJ_LIST) || isObjType(value, OBJ_DICT))
+
 /** Macro for checking the given object is an ObjList. */
 #define IS_LIST(value)         isObjType(value, OBJ_LIST)
 
@@ -175,6 +178,7 @@ typedef struct ObjClosure {
 typedef struct ObjClass{
     Obj obj;
     ObjString* name;
+    struct ObjClass* superclass;
     Table methods;
 } ObjClass;
 
@@ -224,7 +228,7 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 /**
  * Method for creating a new ObjClass.
  */
-ObjClass* newClass(ObjString* name);
+ObjClass* newClass(ObjString* name, ObjClass* superClass);
 
 /**
  * Method for creating a ObjClosure.

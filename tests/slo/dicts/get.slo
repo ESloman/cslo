@@ -1,0 +1,4 @@
+var map = {"a": 1, "b": 2, "c": 3};
+print(map.get("a"));     # 1
+print(map.get("d"));     # nil
+print(map.get("d", 4));  # 4
