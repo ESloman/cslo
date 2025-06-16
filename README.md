@@ -109,6 +109,10 @@ print(map);
 
 map["foo"] = "bar";
 print(map["foo"]);
+
+for (var key in map) {
+  print(key, map[key]);
+}
 ```
 
 Dict methods:
