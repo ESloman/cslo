@@ -17,3 +17,10 @@ print(string.startswith("Hello"));  # true
 print(string.startswith("foo"));    # false
 print(string.endswith("world!"));   # true
 print(string.endswith("foo"));      # false
+
+print(string.isalpha());         # false
+print(string.isdigit());         # false
+print(string.isalphanum());      # false
+print("hello".isalpha());        # true
+print("12345".isdigit());        # true
+print("hello123".isalphanum());  # true

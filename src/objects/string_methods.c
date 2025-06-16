@@ -24,6 +24,9 @@ void registerStringMethods(ObjClass* stringClass) {
     tableSet(&stringClass->methods, OBJ_VAL(copyString("strip", 5)), OBJ_VAL(newNative(strip)));
     tableSet(&stringClass->methods, OBJ_VAL(copyString("startswith", 10)), OBJ_VAL(newNative(startsWith)));
     tableSet(&stringClass->methods, OBJ_VAL(copyString("endswith", 8)), OBJ_VAL(newNative(endsWith)));
+    tableSet(&stringClass->methods, OBJ_VAL(copyString("isalpha", 7)), OBJ_VAL(newNative(isAlpha)));
+    tableSet(&stringClass->methods, OBJ_VAL(copyString("isdigit", 7)), OBJ_VAL(newNative(isDigit)));
+    tableSet(&stringClass->methods, OBJ_VAL(copyString("isalphanum", 10)), OBJ_VAL(newNative(isAlphaNumeric)));
 }
 
 /**
@@ -253,5 +256,62 @@ Value endsWith(int argCount, Value* args) {
         }
     }
 
+    return BOOL_VAL(true);
+}
+
+/**
+ * @brief Checks if the string only contains alpha characters.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return True if the string contains only alpha characters, false otherwise.
+ */
+Value isAlpha(int argCount, Value* args) {
+    if (argCount != 1 || IS_STRING(args[0]) == false) {
+        return ERROR_VAL;
+    }
+    ObjString* str = AS_STRING(args[0]);
+    for (int i = 0; i < str->length; i++) {
+        if (!isalpha((unsigned char)str->chars[i])) {
+            return BOOL_VAL(false);
+        }
+    }
+    return BOOL_VAL(true);
+}
+
+/**
+ * @brief Checks if the string only contains alphanumeric characters.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return True if the string contains only alphanumeric characters, false otherwise.
+ */
+Value isAlphaNumeric(int argCount, Value* args) {
+    if (argCount != 1 || IS_STRING(args[0]) == false) {
+        return ERROR_VAL;
+    }
+    ObjString* str = AS_STRING(args[0]);
+    for (int i = 0; i < str->length; i++) {
+        if (!isalpha((unsigned char)str->chars[i]) && !isdigit((unsigned char)str->chars[i])) {
+            return BOOL_VAL(false);
+        }
+    }
+    return BOOL_VAL(true);
+}
+
+/**
+ * @brief Checks if the string only contains numeric characters.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return True if the string contains only numeric characters, false otherwise.
+ */
+Value isDigit(int argCount, Value* args) {
+    if (argCount != 1 || IS_STRING(args[0]) == false) {
+        return ERROR_VAL;
+    }
+    ObjString* str = AS_STRING(args[0]);
+    for (int i = 0; i < str->length; i++) {
+        if (!isdigit((unsigned char)str->chars[i])) {
+            return BOOL_VAL(false);
+        }
+    }
     return BOOL_VAL(true);
 }

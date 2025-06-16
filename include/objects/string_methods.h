@@ -71,4 +71,28 @@ Value startsWith(int argCount, Value* args);
  */
 Value endsWith(int argCount, Value* args);
 
+/**
+ * @brief Checks if the string only contains alpha characters.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return True if the string contains only alpha characters, false otherwise.
+ */
+Value isAlpha(int argCount, Value* args);
+
+/**
+ * @brief Checks if the string only contains alphanumeric characters.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return True if the string contains only alphanumeric characters, false otherwise.
+ */
+Value isAlphaNumeric(int argCount, Value* args);
+
+/**
+ * @brief Checks if the string only contains numeric characters.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return True if the string contains only numeric characters, false otherwise.
+ */
+Value isDigit(int argCount, Value* args);
+
 #endif  // cslo_string_methods_h
