@@ -52,6 +52,9 @@
 /** Macro for checking the given object is an ObjEnum. */
 #define IS_ENUM(value)        isObjType(value, OBJ_ENUM)
 
+/** Macro for checking the given object is an ObjModule. */
+#define IS_MODULE(value)      isObjType(value, OBJ_MODULE)
+
 /**
  * Macros for converting values to objects.
  */
@@ -89,6 +92,9 @@
 /** Macro for converting a Value to an ObjEnum. */
 #define AS_ENUM(value)        ((ObjEnum*)AS_OBJ(value))
 
+/** Macro for convering a Value to an ObjModule. */
+#define AS_MODULE(value)      ((ObjModule*)AS_OBJ(value))
+
 /**
  * @enum ObjType
  */
@@ -103,6 +109,7 @@ typedef enum ObjType {
     OBJ_UPVALUE,
     OBJ_LIST,
     OBJ_DICT,
+    OBJ_MODULE,
     OBJ_ENUM,
 } ObjType;
 
@@ -228,6 +235,15 @@ typedef struct {
 } ObjDict;
 
 /**
+ * @struct ObjModule
+ */
+typedef struct {
+    Obj obj;
+    ObjClass* sClass;
+    Table methods;
+} ObjModule;
+
+/**
  * @struct ObjEnum
  */
 typedef struct {
@@ -290,6 +306,11 @@ ObjList* newList();
  * Method for creating a new ObjDict.
  */
 ObjDict* newDict();
+
+/**
+ * Method for creating a new ObjModule.
+ */
+ObjModule* newModule();
 
 /**
  * Method for creating a new ObjEnum.

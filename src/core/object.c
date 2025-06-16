@@ -126,6 +126,13 @@ ObjDict* newDict() {
     return dict;
 }
 
+ObjModule* newModule() {
+    ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE);
+    initTable(&module->methods);
+    module->sClass = NULL;
+    return module;
+}
+
 ObjEnum* newEnum(ObjString* name) {
     ObjEnum* sEnum = ALLOCATE_OBJ(ObjEnum, OBJ_ENUM);
     initTable(&sEnum->values);

@@ -342,3 +342,14 @@ void returnStatement() {
         emitByte(OP_RETURN, parser.previous.line);
     }
 }
+
+
+/**
+ * Method for compiling an import statement.
+ */
+void parseImportStatement() {
+    consumeToken(TOKEN_IDENTIFIER, "Expected module name after 'import'.");
+    ObjString* moduleName = copyString(parser.previous.start, parser.previous.length);
+    emitBytes(OP_IMPORT, makeConstant(OBJ_VAL(moduleName)));
+    consumeToken(TOKEN_SEMICOLON, "Expected ';' after import statement.");
+}

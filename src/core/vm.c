@@ -13,6 +13,7 @@
 #include "compiler/compiler.h"
 #include "core/debug.h"
 #include "core/object.h"
+#include "core/loader.h"
 #include "core/memory.h"
 #include "core/natives.h"
 #include "core/vm.h"
@@ -303,6 +304,16 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             return call(AS_CLOSURE(method), argCount);
         } else {
             runtimeError("Method '%s' is not callable.", name->chars);
+            return false;
+        }
+    } else if (IS_MODULE(receiver)) {
+        ObjModule* module = AS_MODULE(receiver);
+        Value method;
+        if (tableGet(&module->methods, OBJ_VAL(name), &method)) {
+            vm.stackTop[-argCount - 1] = method;
+            return callValue(method, argCount, ip);
+        } else {
+            runtimeError("Undefined method '%s' in module.", name->chars);
             return false;
         }
     } else {
@@ -1281,6 +1292,16 @@ static InterpretResult run() {
                     tableSet(&sEnum->values, keys[i], values[i]);
                 }
                 push(OBJ_VAL(sEnum));
+                break;
+            }
+            case OP_IMPORT: {
+                ObjString* moduleName = READ_STRING();
+                bool result = loadModule(moduleName->chars);
+                if (!result) {
+                    frame->ip = ip;
+                    runtimeError("Failed to import module '%s'.", moduleName->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 break;
             }
             case OP_RETURN: {

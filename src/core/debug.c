@@ -227,6 +227,9 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         case OP_ENUM: {
             return simpleInstruction("OP_ENUM", offset);
         }
+        case OP_IMPORT: {
+            return constantInstruction("OP_IMPORT", chunk, offset);
+        }
         case OP_RETURN: {
             return simpleInstruction("OP_RETURN", offset);
         }

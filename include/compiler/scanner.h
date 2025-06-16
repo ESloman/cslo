@@ -45,6 +45,8 @@ typedef enum TokenType {
     TOKEN_HAS, TOKEN_HAS_NOT, TOKEN_IN,
     TOKEN_ENUM,
 
+    TOKEN_IMPORT,
+
     // special
     TOKEN_ERROR, TOKEN_EOF
 } TokenType;

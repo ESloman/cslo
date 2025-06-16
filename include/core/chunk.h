@@ -66,6 +66,7 @@
      OP_LEN,
      OP_DICT,
      OP_ENUM,
+     OP_IMPORT,
  } OpCode;
 
  /**

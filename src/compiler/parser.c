@@ -159,7 +159,10 @@ void parseExpression() {
  * Method for compiling a declaration.
  */
 void parseDeclaration() {
-    if (matchToken(TOKEN_CLASS)) {
+    if (matchToken(TOKEN_IMPORT)) {
+        parseImportStatement();
+    }
+    else if (matchToken(TOKEN_CLASS)) {
         classDeclaration();
     } else if (matchToken(TOKEN_FUN)) {
         funDeclaration();

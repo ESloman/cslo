@@ -30,12 +30,6 @@ void defineNatives() {
 
     // math functions
     defineNative("abs", absNative);
-    defineNative("ceil", ceilNative);
-    defineNative("floor", floorNative);
-    defineNative("sqrt", sqrtNative);
-    defineNative("sin", sinNative);
-    defineNative("cos", cosNative);
-    defineNative("tan", tanNative);
     defineNative("min", minNative);
     defineNative("max", maxNative);
 
@@ -669,81 +663,6 @@ Value absNative(int argCount, Value* args) {
     }
     double value = AS_NUMBER(args[0]);
     return NUMBER_VAL(value < 0 ? -value : value);
-}
-
-/**
- * Calculates the ceil of a number.
- * If the argument is not a number, returns NIL_VAL or throws an error.
- */
-Value ceilNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
-    }
-    double value = AS_NUMBER(args[0]);
-    return NUMBER_VAL(ceil(value));
-}
-
-/**
- * Calculates the floor of a number.
- * If the argument is not a number, returns NIL_VAL or throws an error.
- */
-Value floorNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
-    }
-    double value = AS_NUMBER(args[0]);
-    return NUMBER_VAL(floor(value));
-}
-
-/**
- * Calculates the square root of a number.
- * If the argument is not a number, returns NIL_VAL or throws an error.
- */
-Value sqrtNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
-    }
-    double value = AS_NUMBER(args[0]);
-    if (value < 0) {
-        return ERROR_VAL;
-    }
-    return NUMBER_VAL(sqrt(value));
-}
-
-/**
- * Calculates the sine of a number.
- * If the argument is not a number, returns NIL_VAL or throws an error.
- */
-Value sinNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
-    }
-    double value = AS_NUMBER(args[0]);
-    return NUMBER_VAL(sin(value));
-}
-
-/**
- * Calculates the cosine of a number.
- * If the argument is not a number, returns NIL_VAL or throws an error.
- */
-Value cosNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
-    }
-    double value = AS_NUMBER(args[0]);
-    return NUMBER_VAL(cos(value));
-}
-
-/**
- * Calculates the tangent of a number.
- * If the argument is not a number, returns NIL_VAL or throws an error.
- */
-Value tanNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
-    }
-    double value = AS_NUMBER(args[0]);
-    return NUMBER_VAL(tan(value));
 }
 
 /**

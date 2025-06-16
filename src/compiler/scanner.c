@@ -121,8 +121,10 @@ static TokenType identifierType() {
         case 'i':
             if (scanner.start[1] == 'f') {
                 return checkKeyword(1, 1, "f", TOKEN_IF);
-            } else {
+            } else if (scanner.start[1] == 'n') {
                 return checkKeyword(1, 1, "n", TOKEN_IN);
+            } else {
+                return checkKeyword(1, 5, "mport", TOKEN_IMPORT);
             }
         case 'n':
             return checkKeyword(1, 2, "il", TOKEN_NIL);

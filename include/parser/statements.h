@@ -39,5 +39,9 @@ void forStatement();
  */
 void returnStatement();
 
+/**
+ * Method for compiling an import statement.
+ */
+void parseImportStatement();
 
 #endif
