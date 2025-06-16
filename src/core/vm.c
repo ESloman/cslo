@@ -18,6 +18,7 @@
 #include "core/natives.h"
 #include "core/vm.h"
 
+#include "objects/dict_methods.h"
 #include "objects/string_methods.h"
 
 VM vm;
@@ -97,12 +98,7 @@ void initVM() {
     // Create the dict class and its methods.
     ObjString* dictName = copyString("dict", 4);
     vm.dictClass = newClass(dictName, vm.containerClass);
-
-    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("keys", 4)), OBJ_VAL(newNative(keysNative)));
-    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("values", 6)), OBJ_VAL(newNative(valuesNative)));
-    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("get", 3)), OBJ_VAL(newNative(getNative)));
-    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("update", 6)), OBJ_VAL(newNative(updateNative)));
-    tableSet(&vm.dictClass->methods, OBJ_VAL(copyString("items", 5)), OBJ_VAL(newNative(itemsNative)));
+    registerDictMethods(vm.dictClass);
 
     ObjString* stringName = copyString("string", 6);
     vm.stringClass = newClass(stringName, NULL);
@@ -231,7 +227,6 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 #endif
                 Value result = native(argCount, vm.stackTop - argCount);
                 if (IS_ERROR(result)) {
-                    // If the native function returns an error, we don't pop the stack.
                     runtimeError("Native function returned an error.");
                     return false;
                 }
@@ -303,6 +298,10 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             if (IS_NATIVE(method)) {
                 NativeFn native = AS_NATIVE(method);
                 Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+                if (IS_ERROR(result)) {
+                    runtimeError("Native function returned an error.");
+                    return false;
+                }
                 vm.stackTop -= argCount + 1;
                 push(result);
                 return true;
@@ -327,6 +326,10 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
         if (IS_NATIVE(method)) {
             NativeFn native = AS_NATIVE(method);
             Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+            if (IS_ERROR(result)) {
+                runtimeError("Native function returned an error.");
+                return false;
+            }
             vm.stackTop -= argCount + 1;
             push(result);
             return true;
