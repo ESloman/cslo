@@ -19,11 +19,11 @@ any particular order and are subject to change.
 
 - ~~additional operands like `+=`, `++`, `--`~~
 - ~~adding a `list` type~~
-- adding a `dict` type for maps
-- adding `enums`
+- ~~adding a `dict` type for maps~~
+- ~~adding `enums`~~
 - better error reporting
 - everything as an object á la Python
-- more builtin methods like `size`, `str`, ~~`max`~~, ~~`min`~~, etc
+- more builtin methods like ~~`len`~~, `str`, ~~`max`~~, ~~`min`~~, etc
 - string formatting
 - standard library (and some `namespace`, `import`, `include` system)
   - things like a `math`, `io`, etc
