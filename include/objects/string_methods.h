@@ -95,4 +95,36 @@ Value isAlphaNumeric(int argCount, Value* args);
  */
 Value isDigit(int argCount, Value* args);
 
+/**
+ * @brief Finds the index of the first occurrence of a substring in a string.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The index of the first occurrence of the substring or -1 if not found.
+ */
+Value find(int argCount, Value* args);
+
+/**
+ * @brief Replaces all occurrences of a substring in a string with another substring.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return A new string with the replacements made or an error if the arguments are invalid.
+ */
+Value replace(int argCount, Value* args);
+
+/**
+ * @brief Counts the occurrences of a substring in a string.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The number of occurrences of the substring or an error if the arguments are invalid.
+ */
+Value count(int argCount, Value* args);
+
+/**
+ * @brief Gets the index of a character in a string.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The index of the character or -1 if not found.
+ */
+Value strIndex(int argCount, Value* args);
+
 #endif  // cslo_string_methods_h

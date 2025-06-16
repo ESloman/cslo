@@ -64,6 +64,11 @@ Added support for standard string methods:
 " hello, world!   ".strip()        # hello, world!
 "Hello world".startswith("Hello")  # true
 "Hello world".endswith("Hello")    # false
+
+"Hello, world!".replace("world", "mum");  # Hello, mum!
+"Hello, world!".count("l");               # 3
+"Hello, world!".find("o");                # 4
+"Hello, world!".index("w");               # 7
 ```
 
 ### Lists

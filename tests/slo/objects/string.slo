@@ -24,3 +24,8 @@ print(string.isalphanum());      # false
 print("hello".isalpha());        # true
 print("12345".isdigit());        # true
 print("hello123".isalphanum());  # true
+
+print(string.replace("world", "mum"));  # Hello, mum!
+print(string.count("l"));               # 3
+print(string.find("o"));                # 4
+print(string.index("w"));               # 7

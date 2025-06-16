@@ -27,6 +27,10 @@ void registerStringMethods(ObjClass* stringClass) {
     tableSet(&stringClass->methods, OBJ_VAL(copyString("isalpha", 7)), OBJ_VAL(newNative(isAlpha)));
     tableSet(&stringClass->methods, OBJ_VAL(copyString("isdigit", 7)), OBJ_VAL(newNative(isDigit)));
     tableSet(&stringClass->methods, OBJ_VAL(copyString("isalphanum", 10)), OBJ_VAL(newNative(isAlphaNumeric)));
+    tableSet(&stringClass->methods, OBJ_VAL(copyString("find", 4)), OBJ_VAL(newNative(find)));
+    tableSet(&stringClass->methods, OBJ_VAL(copyString("replace", 7)), OBJ_VAL(newNative(replace)));
+    tableSet(&stringClass->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(count)));
+    tableSet(&stringClass->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(strIndex)));
 }
 
 /**
@@ -266,7 +270,7 @@ Value endsWith(int argCount, Value* args) {
  * @return True if the string contains only alpha characters, false otherwise.
  */
 Value isAlpha(int argCount, Value* args) {
-    if (argCount != 1 || IS_STRING(args[0]) == false) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL;
     }
     ObjString* str = AS_STRING(args[0]);
@@ -285,7 +289,7 @@ Value isAlpha(int argCount, Value* args) {
  * @return True if the string contains only alphanumeric characters, false otherwise.
  */
 Value isAlphaNumeric(int argCount, Value* args) {
-    if (argCount != 1 || IS_STRING(args[0]) == false) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL;
     }
     ObjString* str = AS_STRING(args[0]);
@@ -304,7 +308,7 @@ Value isAlphaNumeric(int argCount, Value* args) {
  * @return True if the string contains only numeric characters, false otherwise.
  */
 Value isDigit(int argCount, Value* args) {
-    if (argCount != 1 || IS_STRING(args[0]) == false) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL;
     }
     ObjString* str = AS_STRING(args[0]);
@@ -314,4 +318,158 @@ Value isDigit(int argCount, Value* args) {
         }
     }
     return BOOL_VAL(true);
+}
+
+/**
+ * @brief Finds the index of the first occurrence of a substring in a string.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The index of the first occurrence of the substring or -1 if not found.
+ */
+Value find(int argCount, Value* args) {
+    if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
+        return ERROR_VAL;
+    }
+    ObjString* original = AS_STRING(args[0]);
+    ObjString* sub = AS_STRING(args[1]);
+
+    if (sub->length > original->length) {
+        return NUMBER_VAL(-1.0);
+    }
+
+    for (int i = 0; i <= original->length - sub->length; i++) {
+        bool match = true;
+        for (int j = 0; j < sub->length; j++) {
+            if (original->chars[i + j] != sub->chars[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match) {
+            return NUMBER_VAL((double)i);
+        }
+    }
+    return NUMBER_VAL(-1.0);
+}
+
+/**
+ * @brief Replaces all occurrences of a substring in a string with another substring.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return A new string with the replacements made or an error if the arguments are invalid.
+ */
+Value replace(int argCount, Value* args) {
+    if (argCount != 3 || !IS_STRING(args[0]) || !IS_STRING(args[1]) || !IS_STRING(args[2])) {
+        return ERROR_VAL;
+    }
+    ObjString* original = AS_STRING(args[0]);
+    ObjString* oldSub = AS_STRING(args[1]);
+    ObjString* newSub = AS_STRING(args[2]);
+
+    if (oldSub->length == 0) {
+        return OBJ_VAL(copyString(original->chars, original->length));
+    }
+
+    int count = 0;
+    for (int i = 0; i <= original->length - oldSub->length; i++) {
+        bool match = true;
+        for (int j = 0; j < oldSub->length; j++) {
+            if (original->chars[i + j] != oldSub->chars[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match) {
+            count++;
+            i += oldSub->length - 1;
+        }
+    }
+
+    if (count == 0) {
+        return OBJ_VAL(copyString(original->chars, original->length));
+    }
+
+    int newLength = original->length + count * (newSub->length - oldSub->length);
+    char* newChars = ALLOCATE(char, newLength + 1);
+    int newIndex = 0;
+
+    for (int i = 0; i < original->length;) {
+        bool match = true;
+        for (int j = 0; j < oldSub->length && i + j < original->length; j++) {
+            if (original->chars[i + j] != oldSub->chars[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match) {
+            memcpy(newChars + newIndex, newSub->chars, newSub->length);
+            newIndex += newSub->length;
+            i += oldSub->length;
+        } else {
+            newChars[newIndex++] = original->chars[i++];
+        }
+    }
+    newChars[newIndex] = '\0';
+
+    ObjString* resultString = takeString(newChars, newLength);
+    return OBJ_VAL(resultString);
+}
+
+/**
+ * @brief Counts the occurrences of a substring in a string.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The number of occurrences of the substring or an error if the arguments are invalid.
+ */
+Value count(int argCount, Value* args) {
+    if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
+        return ERROR_VAL;
+    }
+    ObjString* original = AS_STRING(args[0]);
+    ObjString* sub = AS_STRING(args[1]);
+
+    if (sub->length == 0) {
+        return NUMBER_VAL((double)(original->length + 1));
+    }
+
+    int count = 0;
+    for (int i = 0; i <= original->length - sub->length; i++) {
+        bool match = true;
+        for (int j = 0; j < sub->length; j++) {
+            if (original->chars[i + j] != sub->chars[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match) {
+            count++;
+            i += sub->length - 1;
+        }
+    }
+    return NUMBER_VAL((double)count);
+}
+
+/**
+ * @brief Gets the index of a character in a string.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The index of the character or -1 if not found.
+ */
+Value strIndex(int argCount, Value* args) {
+    if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
+        return ERROR_VAL;
+    }
+    ObjString* str = AS_STRING(args[0]);
+    ObjString* index = AS_STRING(args[1]);
+
+    if (index->length != 1) {
+        return ERROR_VAL;
+    }
+
+    for (int i = 0; i < str->length; i++) {
+        if (str->chars[i] == index->chars[0]) {
+            return NUMBER_VAL((double)i);
+        }
+    }
+    return ERROR_VAL;
 }
