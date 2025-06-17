@@ -5,3 +5,34 @@ print(path);
 
 os.setenv("TEST", "somevalue");
 print(os.getenv("TEST"));
+
+var original_dir = os.getcwd();
+
+os.chdir("/tmp/");
+print(os.getcwd());
+
+print(os.getpid());
+print(os.getuid());
+
+if (!os.exists("/tmp/test")) {
+    os.mkdir("/tmp/test");
+}
+
+os.chdir(original_dir);
+var path = os.getcwd();
+var count = 0;
+for (var obj in os.listdir(path)) {
+    count++;
+    print("Found: ", obj);
+    if (os.isfile(obj)) {
+        print("It's a file!");
+    } elif (os.isdir(obj)) {
+        print("It's a directory!");
+    } else {
+        print("uhoh");
+    }
+}
+
+print("Found ", count, " things in ", path);
+
+os.rmdir("/tmp/test");

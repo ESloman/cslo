@@ -5,10 +5,12 @@
 
 #define _POSIX_C_SOURCE 200112L
 
+#include <dirent.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "builtins/util.h"
@@ -16,11 +18,31 @@
 #include "core/value.h"
 #include "std/os.h"
 
-
 // forward declarations of native functions
+
+// env stuff
 static Value getEnvNative(int argCount, Value* args);
 static Value setEnvNative(int argCount, Value* args);
 static Value unsetEnvNative(int argCount, Value* args);
+
+// system info
+static Value getCWD(int argCount, Value* args);
+static Value getPID(int argCount, Value* args);
+static Value getUID(int argCount, Value* args);
+
+// file / directory stuff
+static Value changeDir(int argCount, Value* args);
+static Value makeDir(int argCount, Value* args);
+static Value rmDir(int argCount, Value* args);
+static Value removeFile(int argCount, Value* args);
+static Value listDir(int argCount, Value* args);
+static Value existsNtv(int argCount, Value* args);
+static Value isFile(int argCount, Value* args);
+static Value isDir(int argCount, Value* args);
+static Value absPath(int argCount, Value* args);
+static Value joinPath(int argCount, Value* args);
+static Value baseName(int argCount, Value* args);
+static Value dirName(int argCount, Value* args);
 
 /**
  * @brief Gets the random module with all its functions.
@@ -31,6 +53,22 @@ ObjModule* getOSModule() {
     defineBuiltIn(&module->methods, "getenv", getEnvNative);
     defineBuiltIn(&module->methods, "setenv", setEnvNative);
     defineBuiltIn(&module->methods, "unsetenv", unsetEnvNative);
+
+    defineBuiltIn(&module->methods, "getcwd", getCWD);
+    defineBuiltIn(&module->methods, "getpid", getPID);
+    defineBuiltIn(&module->methods, "getuid", getUID);
+    defineBuiltIn(&module->methods, "chdir", changeDir);
+    defineBuiltIn(&module->methods, "mkdir", makeDir);
+    defineBuiltIn(&module->methods, "rmdir", rmDir);
+    defineBuiltIn(&module->methods, "remove", removeFile);
+    defineBuiltIn(&module->methods, "listdir", listDir);
+    defineBuiltIn(&module->methods, "exists", existsNtv);
+    defineBuiltIn(&module->methods, "isfile", isFile);
+    defineBuiltIn(&module->methods, "isdir", isDir);
+    defineBuiltIn(&module->methods, "abspath", absPath);
+    defineBuiltIn(&module->methods, "join", joinPath);
+    defineBuiltIn(&module->methods, "basename", baseName);
+    defineBuiltIn(&module->methods, "dirname", dirName);
     return module;
 }
 
@@ -93,4 +131,286 @@ static Value unsetEnvNative(int argCount, Value* args) {
         return ERROR_VAL;
     }
     return NIL_VAL;
+}
+
+/**
+ * @brief Gets the current working directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The current working directory as a string or an error if the arguments are invalid.
+ */
+static Value getCWD(int argCount, Value* args) {
+    if (argCount != 0) {
+        return ERROR_VAL;
+    }
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        return ERROR_VAL;
+    }
+    return OBJ_VAL(copyString(cwd, (int)strlen(cwd)));
+}
+
+/**
+ * @brief Gets the process ID of the current process.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The process ID as a number or an error if the arguments are invalid.
+ */
+static Value getPID(int argCount, Value* args) {
+    if (argCount != 0) {
+        return ERROR_VAL;
+    }
+    pid_t pid = getpid();
+    return NUMBER_VAL((double)pid);
+}
+
+/**
+ * @brief Gets the user ID of the current process.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The user ID as a number or an error if the arguments are invalid.
+ */
+static Value getUID(int argCount, Value* args) {
+    if (argCount != 0) {
+        return ERROR_VAL;
+    }
+    uid_t uid = getuid();
+    return NUMBER_VAL((double)uid);
+}
+
+/**
+ * @brief Changes the current working directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return NIL_VAL on success or an error if the arguments are invalid.
+ */
+static Value changeDir(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    if (chdir(path) != 0) {
+        return ERROR_VAL;
+    }
+    return NIL_VAL;
+}
+
+/**
+ * @brief Creates a new directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return NIL_VAL on success or an error if the arguments are invalid.
+ */
+static Value makeDir(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    if (mkdir(path, 0755) != 0) {
+        return ERROR_VAL;
+    }
+    return NIL_VAL;
+}
+
+/**
+ * @brief Removes a directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return NIL_VAL on success or an error if the arguments are invalid.
+ */
+static Value rmDir(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    if (rmdir(path) != 0) {
+        return ERROR_VAL;
+    }
+    return NIL_VAL;
+}
+
+/**
+ * @brief Removes a file.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return NIL_VAL on success or an error if the arguments are invalid.
+ */
+static Value removeFile(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    if (unlink(path) != 0) {
+        return ERROR_VAL;
+    }
+    return NIL_VAL;
+}
+
+
+/**
+ * @brief Lists the contents of a directory.
+ */
+static Value listDir(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    DIR* dir = opendir(path);
+    if (dir == NULL) {
+        return ERROR_VAL;
+    }
+
+    ObjList* list = newList();
+    int idx = 0;
+    while (true) {
+        struct dirent* entry = readdir(dir);
+        if (entry == NULL) {
+            break;
+        }
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+            Value name = OBJ_VAL(copyString(entry->d_name, (int)strlen(entry->d_name)));
+            if (list->values.capacity <= idx) {
+                growValueArray(&list->values);
+            }
+            list->values.values[idx++] = name;
+            list->count++;
+            list->values.count++;
+        }
+    }
+    closedir(dir);
+    return OBJ_VAL(list);
+}
+
+/**
+ * @brief Checks if a file or directory exists.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return true if the file or directory exists, false otherwise.
+ */
+static Value existsNtv(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    struct stat buffer;
+    int exist = stat(path, &buffer);
+    return BOOL_VAL(exist == 0);
+}
+
+/**
+ * @brief Checks if a path is a file.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return true if the path is a file, false otherwise.
+ */
+static Value isFile(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    struct stat buffer;
+    if (stat(path, &buffer) != 0) {
+        return ERROR_VAL;
+    }
+    return BOOL_VAL(S_ISREG(buffer.st_mode));
+}
+
+/**
+ * @brief Checks if a path is a directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return true if the path is a directory, false otherwise.
+ */
+static Value isDir(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    struct stat buffer;
+    if (stat(path, &buffer) != 0) {
+        return ERROR_VAL;
+    }
+    return BOOL_VAL(S_ISDIR(buffer.st_mode));
+}
+
+/**
+ * @brief Gets the absolute path of a file or directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The absolute path as a string or an error if the arguments are invalid.
+ */
+static Value absPath(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    char absPath[1024];
+    if (realpath(path, absPath) == NULL) {
+        return ERROR_VAL;
+    }
+    return OBJ_VAL(copyString(absPath, (int)strlen(absPath)));
+}
+
+/**
+ * @brief Joins multiple path components into a single path.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The joined path as a string or an error if the arguments are invalid.
+ */
+static Value joinPath(int argCount, Value* args) {
+    if (argCount < 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    char path[1024] = {0};
+    const char* sep = "/";
+    for (int i = 0; i < argCount; i++) {
+        if (!IS_STRING(args[i])) {
+            return ERROR_VAL;
+        }
+        const char* part = AS_CSTRING(args[i]);
+        if (i > 0) {
+            strncat(path, sep, sizeof(path) - strlen(path) - 1);
+        }
+        strncat(path, part, sizeof(path) - strlen(path) - 1);
+    }
+    return OBJ_VAL(copyString(path, (int)strlen(path)));
+}
+
+/**
+ * @brief Gets the base name of a file or directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The base name as a string or an error if the arguments are invalid.
+ */
+static Value baseName(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    const char* base = strrchr(path, '/');
+    if (base == NULL) {
+        return OBJ_VAL(copyString(path, (int)strlen(path)));
+    }
+    return OBJ_VAL(copyString(base + 1, (int)strlen(base + 1)));
+}
+
+/**
+ * @brief Gets the directory name of a file or directory.
+ * @param argCount The number of arguments passed to the function.
+ * @param args The arguments passed to the function.
+ * @return The directory name as a string or an error if the arguments are invalid.
+ */
+static Value dirName(int argCount, Value* args) {
+    if (argCount != 1 || !IS_STRING(args[0])) {
+        return ERROR_VAL;
+    }
+    const char* path = AS_CSTRING(args[0]);
+    char dir[1024];
+    strncpy(dir, path, sizeof(dir) - 1);
+    char* lastSlash = strrchr(dir, '/');
+    if (lastSlash == NULL) {
+        return OBJ_VAL(copyString(".", 1)); // Current directory
+    }
+    *lastSlash = '\0'; // Remove the last part
+    return OBJ_VAL(copyString(dir, (int)strlen(dir)));
 }
