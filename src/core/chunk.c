@@ -90,3 +90,13 @@ int getLine(Chunk chunk, size_t instruction) {
         }
     }
 }
+
+int getColumn(Chunk chunk, size_t instruction) {
+    int line = getLine(chunk, instruction);
+    for (int i = 0; i < chunk.lineCount; i++) {
+        if (chunk.lines[i].line == line) {
+            return instruction - chunk.lines[i].offset;
+        }
+    }
+    return -1; // Not found
+}

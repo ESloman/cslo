@@ -34,7 +34,7 @@ void repl() {
             exit(0);
         }
 
-        interpret(line);
+        interpret(line, NULL);
 
     }
 }

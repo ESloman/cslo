@@ -8,6 +8,7 @@ expected_errors = [
     "mismatched.slo",
     "for_in_iterating.slo",
     "locals.slo",
+    "errors.slo",
 ]
 
 if __name__ == "__main__":

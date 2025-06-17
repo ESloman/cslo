@@ -65,6 +65,7 @@ typedef struct Token {
     const char* start;
     int length;
     int line;
+    int column;
 } Token;
 
 /**

@@ -86,6 +86,7 @@ ObjFunction* newFunction() {
     ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
     function->arity = 0;
     function->name = NULL;
+    function->file = NULL;
     function->upvalueCount = 0;
     initChunk(&function->chunk);
     return function;

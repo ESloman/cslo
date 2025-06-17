@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "core/common.h"
+#include "core/errors.h"
 #include "compiler/compiler.h"
 #include "core/debug.h"
 #include "compiler/codegen.h"
@@ -26,19 +27,16 @@ static void errorAt(Token* token, const char* message) {
         return;
     }
 
+    Exception exc = {
+        .type = ERROR_SYNTAX,
+        .message = message,
+        .line = token->line,
+        .column = token->column,
+        .file = current->function->file,
+        .stacktrace = NULL
+    };
+    reportError(&exc);
     parser.panicMode = true;
-
-    fprintf(stderr, "[line %d] Error", token->line);
-
-    if (token->type == TOKEN_EOF) {
-        fprintf(stderr, " at end");
-    } else if (token->type == TOKEN_ERROR) {
-        // ?
-    } else {
-        fprintf(stderr, " at '%.*s'", token->length, token->start);
-    }
-
-    fprintf(stderr, ": %s\n", message);
     parser.hadError = true;
 }
 
@@ -75,13 +73,16 @@ void patchJump(int offset) {
 /**
  * Method for initialising our compiler.
  */
-static void initCompiler(Compiler* compiler, FunctionType type) {
+static void initCompiler(Compiler* compiler, FunctionType type, const char* file) {
     compiler->enclosing = current;
     compiler->function = NULL;
     compiler->type = type;
     compiler->localCount = 0;
     compiler->scopeDepth = 0;
     compiler->function = newFunction();
+    if (file != NULL) {
+        compiler->function->file = copyString(file, (int)strlen(file));
+    }
     current = compiler;
 
     if (type != TYPE_SCRIPT) {
@@ -340,7 +341,7 @@ uint8_t argumentList() {
  */
 void function(FunctionType type) {
     Compiler compiler;
-    initCompiler(&compiler, type);
+    initCompiler(&compiler, type, current->function->file);
     beginScope();
 
     consumeToken(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
@@ -567,12 +568,12 @@ Token syntheticToken(const char* text) {
  *
  * Will fill up the given chunk with the bytecode.
  */
-ObjFunction* compile(const char* source) {
+ObjFunction* compile(const char* source, const char* file) {
     initScanner(source);
     initParser();
 
     Compiler compiler;
-    initCompiler(&compiler, TYPE_SCRIPT);
+    initCompiler(&compiler, TYPE_SCRIPT, file);
 
     parser.hadError = false;
     parser.panicMode = false;
@@ -584,5 +585,8 @@ ObjFunction* compile(const char* source) {
     }
 
     ObjFunction* function = endCompiler();
+    if (file != NULL) {
+        function->file = copyString(file, (int)strlen(file));
+    }
     return parser.hadError ? NULL : function;
 }

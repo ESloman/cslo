@@ -77,7 +77,7 @@ void freeVM();
 /**
  * Method for executing a string of slo code.
  */
-InterpretResult interpret(const char* source);
+InterpretResult interpret(const char* source, const char* file);
 
 /**
  * Method for pushing a value onto the stack.

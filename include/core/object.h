@@ -135,6 +135,7 @@ typedef struct ObjFunction {
     int arity;
     int upvalueCount;
     Chunk chunk;
+    ObjString* file;
     ObjString* name;
 } ObjFunction;
 

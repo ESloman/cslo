@@ -220,6 +220,7 @@ static Token makeToken(TokenType type) {
     token.start = scanner.start;
     token.length = (int)(scanner.current - scanner.start);
     token.line = scanner.line;
+    token.column = (int)scanner.current;
     return token;
 }
 

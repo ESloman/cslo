@@ -14,6 +14,7 @@
 #include "core/common.h"
 #include "compiler/compiler.h"
 #include "core/debug.h"
+#include "core/errors.h"
 #include "core/object.h"
 #include "core/loader.h"
 #include "core/memory.h"
@@ -39,24 +40,49 @@ static void resetStack() {
 /**
  * Method for reporting a runtime error.
  */
-static void runtimeError(const char* format, ...) {
+static void runtimeError(enum ErrorType errorType, const char* format, ...) {
+    char message[512];
     va_list args;
     va_start(args, format);
-    vfprintf(stderr, format, args);
+    vsnprintf(message, sizeof(message), format, args);
     va_end(args);
-    fputs("\n", stderr);
 
+    // Get current frame for line info
+    int line = -1;
+    int column = -1;
+    const char* file = "<script>";
+    if (vm.frameCount > 0) {
+        CallFrame* frame = &vm.frames[vm.frameCount - 1];
+        ObjFunction* function = frame->closure->function;
+        size_t instruction = frame->ip - function->chunk.code - 1;
+        line = getLine(function->chunk, instruction);
+        column = getColumn(function->chunk, instruction);
+        if (function->file && function->file->chars) {
+            file = function->file->chars;
+        }
+    }
+
+    char stacktrace[1024] = {0};
+    size_t offset = 0;
     for (int i = vm.frameCount - 1; i >= 0; i--) {
         CallFrame* frame = &vm.frames[i];
         ObjFunction* function = frame->closure->function;
-        size_t instruction = frame->ip - function->chunk.code - 1;
-        fprintf(stderr, "[line %d] in ", getLine(function->chunk, instruction));
-        if (function->name == NULL) {
-            fprintf(stderr, "script\n");
-        } else {
-            fprintf(stderr, "%s()\n", function->name->chars);
-        }
+        int line = getLine(function->chunk, frame->ip - function->chunk.code - 1);
+        int column = getColumn(function->chunk, frame->ip - function->chunk.code - 1);
+        const char* funcName = function->name ? function->name->chars : "<script>";
+        offset += snprintf(stacktrace + offset, sizeof(stacktrace) - offset,
+                        "  at %s (%s:%d:%d)\n", funcName, "<script>", line, column);
     }
+
+    Exception exc = {
+        .type = errorType,
+        .message = message,
+        .line = line,
+        .column = column,
+        .file = file,
+        .stacktrace = stacktrace
+    };
+    reportError(&exc);
 
     resetStack();
 }
@@ -165,12 +191,12 @@ Value peek(int distance) {
  */
 static bool call(ObjClosure* closure, int argCount) {
     if(argCount != closure->function->arity) {
-        runtimeError("Expected %d arguments but got %d.", closure->function->arity, argCount);
+        runtimeError(ERROR_TYPE, "Expected %d arguments but got %d.", closure->function->arity, argCount);
         return false;
     }
 
     if (vm.frameCount == FRAMES_MAX) {
-        runtimeError("Stack overflow.");
+        runtimeError(ERROR_RUNTIME, "Stack overflow.");
         return false;
     }
 
@@ -201,7 +227,7 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 } else if (argCount != 0) {
                     CallFrame* frame = &vm.frames[vm.frameCount - 1];
                     frame->ip = _ip;
-                    runtimeError("Expected 0 arguments but got %d.", argCount);
+                    runtimeError(ERROR_TYPE, "Expected 0 arguments but got %d.", argCount);
                     return false;
                 }
                 return true;
@@ -221,7 +247,8 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 #endif
                 Value result = native(argCount, vm.stackTop - argCount);
                 if (IS_ERROR(result)) {
-                    runtimeError("Native function returned an error.");
+                    // todo: handle native errors
+                    runtimeError(ERROR_RUNTIME, "Native function returned an error.");
                     return false;
                 }
                 vm.stackTop -= argCount + 1;
@@ -232,7 +259,7 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 break;
         }
     }
-    runtimeError("Can only call functions and classes.");
+    runtimeError(ERROR_TYPE, "Can only call functions and classes.");
     return false;
 }
 
@@ -242,7 +269,7 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
 static bool invokeFromClass(ObjClass* sClass, ObjString* name, int argCount) {
     Value method;
     if (!tableGet(&sClass->methods, OBJ_VAL(name), &method)) {
-        runtimeError("Undefined property '%s'.", name->chars);
+        runtimeError(ERROR_ATTRIBUTE, "Undefined property '%s'.", name->chars);
         return false;
     }
 
@@ -273,7 +300,7 @@ static Value getContainerMethod(Value receiver, ObjString* name) {
     } else if (IS_LIST(receiver)) {
         methods = &AS_LIST(receiver)->sClass->methods;
     } else {
-        runtimeError("Only containers have methods.");
+        runtimeError(ERROR_TYPE, "Only containers have methods.");
         return NIL_VAL;
     }
     #ifdef DEBUG_LOGGING
@@ -311,7 +338,8 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
                 NativeFn native = AS_NATIVE(method);
                 Value result = native(argCount + 1, vm.stackTop - argCount - 1);
                 if (IS_ERROR(result)) {
-                    runtimeError("Native function returned an error.");
+                    // todo: add native error handling
+                    runtimeError(ERROR_RUNTIME, "Native function returned an error.");
                     return false;
                 }
                 vm.stackTop -= argCount + 1;
@@ -321,17 +349,17 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
                 // If you support closures/methods on containers, handle here
                 return call(AS_CLOSURE(method), argCount);
             } else {
-                runtimeError("Method '%s' is not callable.", name->chars);
+                runtimeError(ERROR_TYPE, "Method '%s' is not callable.", name->chars);
                 return false;
             }
         } else {
-            runtimeError("Undefined method '%s' for string.", name->chars);
+            runtimeError(ERROR_ATTRIBUTE, "Undefined method '%s' for string.", name->chars);
             return false;
         }
     } else if (IS_CONTAINER(receiver)) {
         Value method = getContainerMethod(receiver, name);
         if (IS_NIL(method)) {
-            runtimeError("Undefined method '%s'.", name->chars);
+            runtimeError(ERROR_ATTRIBUTE, "Undefined method '%s'.", name->chars);
             return false;
         }
         // For native methods, pass the container as the first argument
@@ -339,7 +367,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             NativeFn native = AS_NATIVE(method);
             Value result = native(argCount + 1, vm.stackTop - argCount - 1);
             if (IS_ERROR(result)) {
-                runtimeError("Native function returned an error.");
+                runtimeError(ERROR_RUNTIME, "Native function returned an error.");
                 return false;
             }
             vm.stackTop -= argCount + 1;
@@ -349,7 +377,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             // If you support closures/methods on containers, handle here
             return call(AS_CLOSURE(method), argCount);
         } else {
-            runtimeError("Method '%s' is not callable.", name->chars);
+            runtimeError(ERROR_TYPE, "Method '%s' is not callable.", name->chars);
             return false;
         }
     } else if (IS_MODULE(receiver)) {
@@ -359,11 +387,11 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             vm.stackTop[-argCount - 1] = method;
             return callValue(method, argCount, ip);
         } else {
-            runtimeError("Undefined method '%s' in module.", name->chars);
+            runtimeError(ERROR_ATTRIBUTE, "Undefined method '%s' in module.", name->chars);
             return false;
         }
     } else {
-        runtimeError("Only instances and lists have methods.");
+        runtimeError(ERROR_TYPE, "Only instances and lists have methods.");
         return false;
     }
 }
@@ -496,7 +524,7 @@ static InterpretResult run() {
     do { \
         if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
             frame->ip = ip; \
-            runtimeError("Operands must be numbers."); \
+            runtimeError(ERROR_TYPE, "Operands must be numbers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
         double b = AS_NUMBER(pop()); \
@@ -641,7 +669,7 @@ static InterpretResult run() {
                 Value value;
                 if (!tableGet(&vm.globals, OBJ_VAL(name), &value)) {
                     frame->ip = ip;
-                    runtimeError("Undefined variable '%s'", name->chars);
+                    runtimeError(ERROR_NAME, "Undefined variable '%s'", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(value);
@@ -668,7 +696,7 @@ static InterpretResult run() {
                 if (tableSet(&vm.globals, OBJ_VAL(name), peek(0))) {
                     tableDelete(&vm.globals, OBJ_VAL(name));
                     frame->ip = ip;
-                    runtimeError("Undefined variable '%s'.", name->chars);
+                    runtimeError(ERROR_NAME, "Undefined variable '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -707,7 +735,7 @@ static InterpretResult run() {
             }
             case OP_GREATER_EQUAL: {
                 if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
-                    runtimeError("Operands must be numbers.");
+                    runtimeError(ERROR_TYPE, "Operands must be numbers.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 double b = AS_NUMBER(pop());
@@ -753,7 +781,7 @@ static InterpretResult run() {
             }
             case OP_LESS_EQUAL: {
                 if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
-                    runtimeError("Operands must be numbers.");
+                    runtimeError(ERROR_TYPE, "Operands must be numbers.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 double b = AS_NUMBER(pop());
@@ -801,13 +829,14 @@ static InterpretResult run() {
                     frame->ip = ip;
                     if (peek(0).type != peek(1).type) {
                         runtimeError(
+                            ERROR_TYPE,
                             "Mismatched types: %s and %s.",
                             valueTypeToString(peek(0)),
                             valueTypeToString(peek(1))
                         );
                         return INTERPRET_RUNTIME_ERROR;
                     }
-                    runtimeError("Addition not support for %s.", valueTypeToString(peek(0)));
+                    runtimeError(ERROR_TYPE, "Addition not support for %s.", valueTypeToString(peek(0)));
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -827,7 +856,7 @@ static InterpretResult run() {
             case OP_MODULO: {
                 if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
                     frame->ip = ip;
-                    runtimeError("Operands must be numbers.");
+                    runtimeError(ERROR_TYPE, "Operands must be numbers.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 double b = AS_NUMBER(pop());
@@ -838,7 +867,7 @@ static InterpretResult run() {
             case OP_POW: {
                 if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
                     frame->ip = ip;
-                    runtimeError("Operands must be numbers.");
+                    runtimeError(ERROR_TYPE, "Operands must be numbers.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 double b = AS_NUMBER(pop());
@@ -853,7 +882,7 @@ static InterpretResult run() {
             case OP_NEGATE: {
                 if (!IS_NUMBER(peek(0))) {
                     frame->ip = ip;
-                    runtimeError("Operand must be a number.");
+                    runtimeError(ERROR_TYPE, "Operand must be a number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(NUMBER_VAL(-AS_NUMBER(pop())));
@@ -968,7 +997,7 @@ static InterpretResult run() {
             case OP_GET_PROPERTY: {
                 if (!IS_INSTANCE(peek(0)) && !IS_ENUM(peek(0))) {
                     frame->ip = ip;
-                    runtimeError("Only instances have properties.");
+                    runtimeError(ERROR_ATTRIBUTE, "Only instances have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (IS_INSTANCE(peek(0))) {
@@ -983,7 +1012,7 @@ static InterpretResult run() {
 
                     if (!bindMethod(instance->sClass, name)) {
                         frame->ip = ip;
-                        runtimeError("Undefined property '%s'.", name->chars);
+                        runtimeError(ERROR_ATTRIBUTE, "Undefined property '%s'.", name->chars);
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else if (IS_ENUM(peek(0))) {
@@ -997,7 +1026,7 @@ static InterpretResult run() {
                     }
 
                     frame->ip = ip;
-                    runtimeError("Undefined property '%s'.", name->chars);
+                    runtimeError(ERROR_ATTRIBUTE, "Undefined property '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1005,7 +1034,7 @@ static InterpretResult run() {
             case OP_SET_PROPERTY: {
                 if (!IS_INSTANCE(peek(1))) {
                     frame->ip = ip;
-                    runtimeError("Only instances have fields.");
+                    runtimeError(ERROR_ATTRIBUTE, "Only instances have fields.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 ObjInstance* instance = AS_INSTANCE(peek(1));
@@ -1019,7 +1048,7 @@ static InterpretResult run() {
                 Value super = peek(1);
                 if (!IS_CLASS(super)) {
                     frame->ip = ip;
-                    runtimeError("Superclass must be a class.");
+                    runtimeError(ERROR_TYPE, "Superclass must be a class.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 ObjClass* subClass = AS_CLASS(peek(0));
@@ -1097,7 +1126,7 @@ static InterpretResult run() {
                     ObjList* list = AS_LIST(indexable);
                     if (!IS_NUMBER(index)) {
                         frame->ip = ip;
-                        runtimeError("Index must be a number.");
+                        runtimeError(ERROR_TYPE, "Index must be a number.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                     int idx = (int)AS_NUMBER(index);
@@ -1106,7 +1135,7 @@ static InterpretResult run() {
                     }
                     if (idx < 0 || idx >= list->count) {
                         frame->ip = ip;
-                        runtimeError("Index out of bounds.");
+                        runtimeError(ERROR_INDEX, "Index out of bounds.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                     push(list->values.values[idx]);
@@ -1117,12 +1146,12 @@ static InterpretResult run() {
                         push(value);
                     } else {
                         frame->ip = ip;
-                        runtimeError("Key not found in dictionary.");
+                        runtimeError(ERROR_INDEX, "Key not found in dictionary.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else {
                     frame->ip = ip;
-                    runtimeError("Expected a list.");
+                    runtimeError(ERROR_TYPE, "Expected a list.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1138,7 +1167,7 @@ static InterpretResult run() {
                     ObjList* list = AS_LIST(indexable);
                     if (!IS_NUMBER(index)) {
                         frame->ip = ip;
-                        runtimeError("Index must be a number.");
+                        runtimeError(ERROR_TYPE, "Index must be a number.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                     int idx = (int)AS_NUMBER(index);
@@ -1147,7 +1176,7 @@ static InterpretResult run() {
                     }
                     if (idx < 0 || idx >= list->count) {
                         frame->ip = ip;
-                        runtimeError("Index out of bounds.");
+                        runtimeError(ERROR_INDEX, "Index out of bounds.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                     list->values.values[idx] = value;
@@ -1158,7 +1187,7 @@ static InterpretResult run() {
                     push(value);
                 } else {
                     frame->ip = ip;
-                    runtimeError("Expected a list or dictionary.");
+                    runtimeError(ERROR_TYPE, "Expected a list or dictionary.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1169,7 +1198,7 @@ static InterpretResult run() {
                 Value listValue = pop();
                 if (!IS_LIST(listValue)) {
                     frame->ip = ip;
-                    runtimeError("Expected a list.");
+                    runtimeError(ERROR_TYPE, "Expected a list.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 ObjList* list = AS_LIST(listValue);
@@ -1226,7 +1255,7 @@ static InterpretResult run() {
                         push(BOOL_VAL(strstr(str->chars, valStr->chars) != NULL));
                     } else {
                         frame->ip = ip;
-                        runtimeError("Can only check for strings in strings.");
+                        runtimeError(ERROR_TYPE, "Can only check for strings in strings.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else if (IS_DICT(container)) {
@@ -1239,7 +1268,7 @@ static InterpretResult run() {
                     }
                 } else {
                     frame->ip = ip;
-                    runtimeError("'has' not supported for this type.");
+                    runtimeError(ERROR_TYPE, "'has' not supported for this type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1264,7 +1293,7 @@ static InterpretResult run() {
                         push(BOOL_VAL(!(strstr(str->chars, valStr->chars) != NULL)));
                     } else {
                         frame->ip = ip;
-                        runtimeError("Can only check for strings in strings.");
+                        runtimeError(ERROR_TYPE, "Can only check for strings in strings.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else if (IS_DICT(container)) {
@@ -1277,7 +1306,7 @@ static InterpretResult run() {
                     }
                 } else {
                     frame->ip = ip;
-                    runtimeError("'has' not supported for this type.");
+                    runtimeError(ERROR_TYPE, "'has' not supported for this type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1300,7 +1329,7 @@ static InterpretResult run() {
                     push(NUMBER_VAL((double)dict->data.count));
                 } else {
                     frame->ip = ip;
-                    runtimeError("Length only supported for lists and strings.");
+                    runtimeError(ERROR_TYPE, "Length only supported for lists and strings.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1345,7 +1374,7 @@ static InterpretResult run() {
                 bool result = loadModule(moduleName->chars);
                 if (!result) {
                     frame->ip = ip;
-                    runtimeError("Failed to import module '%s'.", moduleName->chars);
+                    runtimeError(ERROR_IMPORT, "Failed to import module '%s'.", moduleName->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1386,8 +1415,8 @@ static InterpretResult run() {
  * will fill up with bytecode. The chunk is passed to the VM
  * and then it's executed in 'run()'.
  */
-InterpretResult interpret(const char* source) {
-    ObjFunction* function = compile(source);
+InterpretResult interpret(const char* source, const char* file) {
+    ObjFunction* function = compile(source, file);
     if (function == NULL) {
         return INTERPRET_COMPILE_ERROR;
     }

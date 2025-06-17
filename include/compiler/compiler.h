@@ -66,7 +66,7 @@ extern Token lastVariableToken;
 /**
  * Method for compiling slo code into bytecode.
  */
-ObjFunction* compile(const char* source);
+ObjFunction* compile(const char* source, const char* file);
 
 Token syntheticToken(const char* text);
 void namedVariable(Token name, bool canAssign);
