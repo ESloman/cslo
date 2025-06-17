@@ -399,7 +399,6 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             return false;
         }
     } else if (IS_FILE(receiver)) {
-        ObjFile* sFile = AS_FILE(receiver);
         Value method;
         if (tableGet(&vm.fileClass->methods, OBJ_VAL(name), &method)) {
             if (IS_NATIVE(method)) {

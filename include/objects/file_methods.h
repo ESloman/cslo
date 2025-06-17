@@ -3,8 +3,8 @@
  * @brief Header file for file methods in CSLO.
  */
 
-#ifndef cslo_file_methods_h
-#define cslo_file_methods_h
+#ifndef cslo_obj_file_methods_h
+#define cslo_obj_file_methods_h
 
 #include "core/object.h"
 #include "core/value.h"

@@ -45,7 +45,11 @@ static Value fileRead(int argCount, Value* args) {
     long size = ftell(sFile->file);
     rewind(sFile->file);
     char* buffer = (char*)malloc(size + 1);
-    fread(buffer, 1, size, sFile->file);
+    size_t bytesRead = fread(buffer, 1, size, sFile->file);
+    if (bytesRead != (size_t)size) {
+        free(buffer);
+        return ERROR_VAL;
+    }
     buffer[size] = '\0';
 
     Value result = OBJ_VAL(copyString(buffer, size));

@@ -195,7 +195,7 @@ Value strip(int argCount, Value* args) {
     ObjString* original = AS_STRING(args[0]);
 
     if (original->length == 0) {
-        return OBJ_VAL(takeString("", 0));
+        return OBJ_VAL(copyString("", 0));
     }
 
     int start = 0;
@@ -213,7 +213,7 @@ Value strip(int argCount, Value* args) {
 
     // If the string is empty after stripping, return an empty string
     if (start > end) {
-        return OBJ_VAL(takeString("", 0));
+        return OBJ_VAL(copyString("", 0));
     }
 
     int length = end - start + 1;

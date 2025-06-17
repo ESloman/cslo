@@ -4,8 +4,10 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _XOPEN_SOURCE 700
 
 #include <dirent.h>
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -344,11 +346,13 @@ static Value absPath(int argCount, Value* args) {
         return ERROR_VAL;
     }
     const char* path = AS_CSTRING(args[0]);
-    char absPath[1024];
-    if (realpath(path, absPath) == NULL) {
+    char* resolved = realpath(path, NULL);
+    if (resolved == NULL) {
         return ERROR_VAL;
     }
-    return OBJ_VAL(copyString(absPath, (int)strlen(absPath)));
+    Value result = OBJ_VAL(copyString(resolved, (int)strlen(resolved)));
+    free(resolved);
+    return result;
 }
 
 /**
