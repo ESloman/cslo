@@ -41,7 +41,7 @@ void registerListMethods(ObjClass* cls) {
 Value appendNative(int argCount, Value *args) {
     if (argCount != 2 || !IS_LIST(args[0])) {
         printf("append() must be called on a list with one argument.");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count + 1 > list->values.capacity) {
@@ -59,7 +59,7 @@ Value appendNative(int argCount, Value *args) {
 Value insertNative(int argCount, Value* args) {
     if (argCount != 3 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
         printf("insert() must be called on a list with an index and a value.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
     int idx = (int)AS_NUMBER(args[1]);
@@ -81,17 +81,6 @@ Value insertNative(int argCount, Value* args) {
         growValueArray(&list->values);
     }
 
-    // Shift elements to the right
-    // #ifdef DEBUG_LOGGING
-    // printf("Inserting at idx=%d, count=%d\n", idx, list->count);
-    // #endif
-    // for (int i = list->count; i > idx; i--) {
-    //     #ifdef DEBUG_LOGGING
-    //     printf("shifting %d to %d\n", i-1, i);
-    //     #endif
-    //     list->values.values[i] = list->values.values[i - 1];
-    // }
-
     memmove(&list->values.values[idx + 1], &list->values.values[idx], sizeof(Value) * (list->count - idx));
     list->values.values[idx] = args[2];
     list->count++;
@@ -105,21 +94,16 @@ Value insertNative(int argCount, Value* args) {
 Value removeNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
         printf("remove() must be called on a list with an index.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
     int idx = (int)AS_NUMBER(args[1]);
     if (idx < 0 || idx >= list->count) {
         printf("Index out of bounds for remove().\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
 
     Value removed = list->values.values[idx];
-
-    // Shift elements to the left
-    // for (int i = idx; i < list->count - 1; i++) {
-    //     list->values.values[i] = list->values.values[i + 1];
-    // }
     memmove(&list->values.values[idx], &list->values.values[idx + 1], sizeof(Value) * (list->count - idx - 1));
     list->count--;
     list->values.count = list->count;
@@ -136,7 +120,7 @@ Value removeNative(int argCount, Value* args) {
 Value reverseNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         printf("reverse() must be called on a list.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count == 0 || list->count == 1) {
@@ -159,7 +143,7 @@ Value reverseNative(int argCount, Value* args) {
 Value indexNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0])) {
         printf("index() must be called on a list with a value.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count == 0) {
@@ -181,7 +165,7 @@ Value indexNative(int argCount, Value* args) {
 Value countNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0])) {
         printf("count() must be called on a list with a value.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count == 0) {
@@ -205,7 +189,7 @@ Value countNative(int argCount, Value* args) {
 Value extendNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_LIST(args[1])) {
         printf("extend() must be called on a list with a list.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
     ObjList* other = AS_LIST(args[1]);
@@ -232,7 +216,7 @@ Value extendNative(int argCount, Value* args) {
 Value sortNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         printf("sort() must be called on a list.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     ObjList* list = AS_LIST(args[0]);
 

@@ -41,7 +41,7 @@ void registerContainerMethods(ObjClass* cls) {
 Value internalIndexNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_CONTAINER(args[0]) || !IS_NUMBER(args[1])) {
         printf("__index__() must be called on a container with a number argument.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     switch (OBJ_TYPE(args[0])) {
         case OBJ_LIST: {
@@ -77,7 +77,7 @@ Value internalIndexNative(int argCount, Value* args) {
 Value clearNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_CONTAINER(args[0])) {
         printf("clear() must be called on a list.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
 
     switch (OBJ_TYPE(args[0]))
@@ -110,13 +110,13 @@ Value clearNative(int argCount, Value* args) {
 Value popNative(int argCount, Value *args) {
     if (argCount == 0 || !IS_CONTAINER(args[0])) {
         printf("pop() must be called on a container.");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     switch (OBJ_TYPE(args[0])) {
         case OBJ_LIST:
             if (argCount != 1) {
                 printf("pop() must be called on a list with no arguments.\n");
-                return NIL_VAL;
+                return ERROR_VAL;
             }
             ObjList* list = AS_LIST(args[0]);
             if (list->count == 0) {
@@ -134,7 +134,7 @@ Value popNative(int argCount, Value *args) {
         case OBJ_DICT:
             if (argCount < 2) {
                 printf("pop() must be called on a dict with the key to pop.\n");
-                return NIL_VAL;
+                return ERROR_VAL;
             }
             ObjDict* dict = AS_DICT(args[0]);
             if (dict->data.count == 0) {
@@ -167,7 +167,7 @@ Value popNative(int argCount, Value *args) {
 Value cloneNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_CONTAINER(args[0])) {
         printf("clone() must be called on a container.\n");
-        return NIL_VAL;
+        return ERROR_VAL;
     }
     switch (OBJ_TYPE(args[0])) {
     case OBJ_LIST:
