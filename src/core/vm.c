@@ -18,7 +18,9 @@
 #include "core/natives.h"
 #include "core/vm.h"
 
+#include "objects/collection_methods.h"
 #include "objects/dict_methods.h"
+#include "objects/list_methods.h"
 #include "objects/string_methods.h"
 
 VM vm;
@@ -77,23 +79,12 @@ void initVM() {
 
     ObjString* containerName = copyString("container", 8);
     vm.containerClass = newClass(containerName, NULL);
-    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
-    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
-    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
-
-    tableSet(&vm.containerClass->methods, OBJ_VAL(copyString("__index__", 9)), OBJ_VAL(newNative(internalIndexNative)));
+    registerContainerMethods(vm.containerClass);
 
     // Create the list class and its methods.
     ObjString* listName = copyString("list", 4);
     vm.listClass = newClass(listName, vm.containerClass);
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("insert", 6)), OBJ_VAL(newNative(insertNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("remove", 6)), OBJ_VAL(newNative(removeNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("reverse", 7)), OBJ_VAL(newNative(reverseNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(indexNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(countNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("extend", 6)), OBJ_VAL(newNative(extendNative)));
-    tableSet(&vm.listClass->methods, OBJ_VAL(copyString("sort", 4)), OBJ_VAL(newNative(sortNative)));
+    registerListMethods(vm.listClass);
 
     // Create the dict class and its methods.
     ObjString* dictName = copyString("dict", 4);

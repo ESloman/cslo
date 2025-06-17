@@ -12,25 +12,41 @@
 #include "core/value.h"
 #include "objects/string_methods.h"
 
+// forward declarations of native functions
+Value upper(int argCount, Value* args);
+Value lower(int argCount, Value* args);
+Value title(int argCount, Value* args);
+Value split(int argCount, Value* args);
+Value strip(int argCount, Value* args);
+Value startsWith(int argCount, Value* args);
+Value endsWith(int argCount, Value* args);
+Value isAlpha(int argCount, Value* args);
+Value isAlphaNumeric(int argCount, Value* args);
+Value isDigit(int argCount, Value* args);
+Value find(int argCount, Value* args);
+Value replace(int argCount, Value* args);
+Value count(int argCount, Value* args);
+Value strIndex(int argCount, Value* args);
+
 /**
  * @brief Registers string methods for the given ObjClass.
- * @param stringClass The ObjClass representing the string type.
+ * @param cls The ObjClass representing the string type.
  */
-void registerStringMethods(ObjClass* stringClass) {
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("upper", 5)), OBJ_VAL(newNative(upper)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("lower", 5)), OBJ_VAL(newNative(lower)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("title", 5)), OBJ_VAL(newNative(title)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("split", 5)), OBJ_VAL(newNative(split)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("strip", 5)), OBJ_VAL(newNative(strip)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("startswith", 10)), OBJ_VAL(newNative(startsWith)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("endswith", 8)), OBJ_VAL(newNative(endsWith)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("isalpha", 7)), OBJ_VAL(newNative(isAlpha)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("isdigit", 7)), OBJ_VAL(newNative(isDigit)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("isalphanum", 10)), OBJ_VAL(newNative(isAlphaNumeric)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("find", 4)), OBJ_VAL(newNative(find)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("replace", 7)), OBJ_VAL(newNative(replace)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(count)));
-    tableSet(&stringClass->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(strIndex)));
+void registerStringMethods(ObjClass* cls) {
+    tableSet(&cls->methods, OBJ_VAL(copyString("upper", 5)), OBJ_VAL(newNative(upper)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("lower", 5)), OBJ_VAL(newNative(lower)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("title", 5)), OBJ_VAL(newNative(title)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("split", 5)), OBJ_VAL(newNative(split)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("strip", 5)), OBJ_VAL(newNative(strip)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("startswith", 10)), OBJ_VAL(newNative(startsWith)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("endswith", 8)), OBJ_VAL(newNative(endsWith)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("isalpha", 7)), OBJ_VAL(newNative(isAlpha)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("isdigit", 7)), OBJ_VAL(newNative(isDigit)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("isalphanum", 10)), OBJ_VAL(newNative(isAlphaNumeric)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("find", 4)), OBJ_VAL(newNative(find)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("replace", 7)), OBJ_VAL(newNative(replace)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(count)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(strIndex)));
 }
 
 /**

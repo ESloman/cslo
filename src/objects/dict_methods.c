@@ -13,16 +13,25 @@
 #include "core/value.h"
 #include "objects/dict_methods.h"
 
+
+// forward declarations of native functions
+Value keysNative(int argCount, Value* args);
+Value valuesNative(int argCount, Value* args);
+Value getNative(int argCount, Value* args);
+Value updateNative(int argCount, Value* args);
+Value itemsNative(int argCount, Value* args);
+
+
 /**
  * @brief Registers dict methods for the given ObjClass.
  * @param dictClass The ObjClass representing the string type.
  */
-void registerDictMethods(ObjClass* dictClass) {
-    tableSet(&dictClass->methods, OBJ_VAL(copyString("keys", 4)), OBJ_VAL(newNative(keysNative)));
-    tableSet(&dictClass->methods, OBJ_VAL(copyString("values", 6)), OBJ_VAL(newNative(valuesNative)));
-    tableSet(&dictClass->methods, OBJ_VAL(copyString("get", 3)), OBJ_VAL(newNative(getNative)));
-    tableSet(&dictClass->methods, OBJ_VAL(copyString("update", 6)), OBJ_VAL(newNative(updateNative)));
-    tableSet(&dictClass->methods, OBJ_VAL(copyString("items", 5)), OBJ_VAL(newNative(itemsNative)));
+void registerDictMethods(ObjClass* cls) {
+    tableSet(&cls->methods, OBJ_VAL(copyString("keys", 4)), OBJ_VAL(newNative(keysNative)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("values", 6)), OBJ_VAL(newNative(valuesNative)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("get", 3)), OBJ_VAL(newNative(getNative)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("update", 6)), OBJ_VAL(newNative(updateNative)));
+    tableSet(&cls->methods, OBJ_VAL(copyString("items", 5)), OBJ_VAL(newNative(itemsNative)));
 }
 
 /**

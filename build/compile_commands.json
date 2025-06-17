@@ -296,6 +296,63 @@
             "-O3",
             "-flto",
             "-o",
+            "build/release/cslo/objects/collecion_methods.o",
+            "src/objects/collecion_methods.c"
+        ],
+        "directory": "/home/esloman/gitwork/cslo",
+        "file": "/home/esloman/gitwork/cslo/src/objects/collecion_methods.c",
+        "output": "/home/esloman/gitwork/cslo/build/release/cslo/objects/collecion_methods.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wno-unused-parameter",
+            "-Iinclude",
+            "-O3",
+            "-flto",
+            "-o",
+            "build/release/cslo/objects/dict_methods.o",
+            "src/objects/dict_methods.c"
+        ],
+        "directory": "/home/esloman/gitwork/cslo",
+        "file": "/home/esloman/gitwork/cslo/src/objects/dict_methods.c",
+        "output": "/home/esloman/gitwork/cslo/build/release/cslo/objects/dict_methods.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wno-unused-parameter",
+            "-Iinclude",
+            "-O3",
+            "-flto",
+            "-o",
+            "build/release/cslo/objects/list_methods.o",
+            "src/objects/list_methods.c"
+        ],
+        "directory": "/home/esloman/gitwork/cslo",
+        "file": "/home/esloman/gitwork/cslo/src/objects/list_methods.c",
+        "output": "/home/esloman/gitwork/cslo/build/release/cslo/objects/list_methods.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wno-unused-parameter",
+            "-Iinclude",
+            "-O3",
+            "-flto",
+            "-o",
             "build/release/cslo/objects/string_methods.o",
             "src/objects/string_methods.c"
         ],
