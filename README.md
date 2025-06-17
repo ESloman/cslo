@@ -21,7 +21,7 @@ any particular order and are subject to change.
 - ~~adding a `list` type~~
 - ~~adding a `dict` type for maps~~
 - ~~adding `enums`~~
-- better error reporting
+- ~~better error reporting~~
 - everything as an object á la Python
 - more builtin methods like ~~`len`~~, ~~`str`~~, ~~`max`~~, ~~`min`~~, etc
 - string formatting

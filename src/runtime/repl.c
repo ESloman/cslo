@@ -4,37 +4,73 @@
  * Methods for handling cslo's REPL
  */
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(_WIN32)
+    #include <windows.h>
+#else
+    #include <sys/utsname.h>
+#endif
+
 #include "core/vm.h"
+#include "linenoise.h"
+
+#define SLO_VERSION "0.1.0"  // todo: have this update dynamically and versioned by the build system
+
+
+static const char* get_history_path() {
+    const char* home = getenv("HOME");
+    if (!home) home = ".";
+    static char path[512];
+    snprintf(path, sizeof(path), "%s/.cslo_history", home);
+    return path;
+}
 
 /**
  * Main REPL method.
  */
 void repl() {
-    char line[1024];
+    char* line;
+    const char* historyPath = get_history_path();
+
+    linenoiseHistoryLoad(historyPath);
 
     /** TODO: print out environment, version, etc here. */
+    printf("Welcome to cslo!\n");
+#if defined(_WIN32)
+    printf("Running on: Windows\n");
+#else
+    struct utsname sysinfo;
+    if (uname(&sysinfo) == 0) {
+        printf("Running on: %s %s\n", sysinfo.sysname, sysinfo.release);
+    } else {
+        printf("Running on: Unknown OS\n");
+    }
+#endif
+    printf("slo version %s.\n", SLO_VERSION);
+    printf("Type 'exit' to quit.\n\n");
 
     for (;;) {
-        printf("> ");
-
-        if (!fgets(line, sizeof(line), stdin)) {
+        line = linenoise(">> ");
+        if (line == NULL) {
             printf("\n");
             break;
         }
-
-        /**
-         * Special exit handling for REPL.
-         * Prevents having to write out fully 'exit();'.
-         */
-        if (strcmp(line, "exit\n") == 0) {
+        // Special exit handling for REPL.
+        if (strcmp(line, "exit") == 0) {
+            linenoiseHistorySave(historyPath);
+            linenoiseFree(line);
             exit(0);
         }
-
-        interpret(line, NULL);
-
+        if (line[0] != '\0') {
+            linenoiseHistoryAdd(line);
+            linenoiseHistorySave(historyPath);
+            interpret(line, NULL);
+        }
+        linenoiseFree(line);
     }
 }

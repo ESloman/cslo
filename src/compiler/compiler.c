@@ -32,7 +32,7 @@ static void errorAt(Token* token, const char* message) {
         .message = message,
         .line = token->line,
         .column = token->column,
-        .file = current->function->file,
+        .file = current->function->file->chars,
         .stacktrace = NULL
     };
     reportError(&exc);
@@ -341,7 +341,7 @@ uint8_t argumentList() {
  */
 void function(FunctionType type) {
     Compiler compiler;
-    initCompiler(&compiler, type, current->function->file);
+    initCompiler(&compiler, type, current->function->file->chars);
     beginScope();
 
     consumeToken(TOKEN_LEFT_PAREN, "Expect '(' after function name.");

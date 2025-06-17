@@ -18,7 +18,7 @@ endif
 CFLAGS += -Wall -Wextra -Wno-unused-parameter
 
 # include include directory for headers
-CFLAGS += -Iinclude
+CFLAGS += -Iinclude -Ithird_party
 
 # If we're building at a point in the middle of a chapter, don't fail if there
 # are functions that aren't used yet.
@@ -46,6 +46,13 @@ HEADERS := $(call rwildcard,$(SOURCE_DIR)/,*.h)
 SOURCES := $(call rwildcard,$(SOURCE_DIR)/,*.c)
 OBJECTS := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_DIR)/$(NAME)/%.o,$(SOURCES))
 
+# third party
+LINENOISE_SRC := third_party/linenoise.c
+LINENOISE_OBJ := $(BUILD_DIR)/$(NAME)/third_party/linenoise.o
+
+SOURCES += $(LINENOISE_SRC)
+OBJECTS += $(LINENOISE_OBJ)
+
 # Targets ---------------------------------------------------------------------
 
 # Link the interpreter.
@@ -59,5 +66,11 @@ $(BUILD_DIR)/$(NAME)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)
 	@ printf "%8s %-40s %s\n" $(CC) $< "$(CFLAGS)"
 	mkdir -p $(dir $@)
 	@ $(CC) -c $(C_LANG) $(CFLAGS) -o $@ $<
+
+# Compile third_party object files.
+$(BUILD_DIR)/$(NAME)/third_party/%.o: third_party/%.c $(HEADERS)
+	@ printf "%8s %-40s %s\n" $(CC) $< "$(CFLAGS)"
+	mkdir -p $(dir $@)
+	@ $(CC) -c $(C_LANG) $(CFLAGS) -w -o $@ $<
 
 .PHONY: default
