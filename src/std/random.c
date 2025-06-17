@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "builtins/util.h"
 #include "core/object.h"
 #include "core/value.h"
 #include "std/random.h"
@@ -15,6 +16,17 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// forward declarations
+static Value randomSeedNative(int argCount, Value* args);
+static Value randomNative(int argCount, Value* args);
+static Value randomIntNative(int argCount, Value* args);
+static Value randomRangeNative(int argCount, Value* args);
+static Value randomChoiceNative(int argCount, Value* args);
+static Value randomShuffleNative(int argCount, Value* args);
+static Value randomBoolNative(int argCount, Value* args);
+static Value randomBytesNative(int argCount, Value* args);
+static Value randomGaussNative(int argCount, Value* args);
+static Value randomSampleNative(int argCount, Value* args);
 
 /**
  * @brief Gets the random module with all its functions.
@@ -22,23 +34,23 @@
  */
 ObjModule* getRandomModule() {
     ObjModule* module = newModule();
-    tableSet(&module->methods, OBJ_VAL(copyString("seed", 4)), OBJ_VAL(newNative(randomSeedNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("random", 6)), OBJ_VAL(newNative(randomNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("randint", 7)), OBJ_VAL(newNative(randomIntNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("randrange", 9)), OBJ_VAL(newNative(randomRangeNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("choice", 6)), OBJ_VAL(newNative(randomChoiceNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("shuffle", 7)), OBJ_VAL(newNative(randomShuffleNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("randbool", 8)), OBJ_VAL(newNative(randomBoolNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("randbytes", 9)), OBJ_VAL(newNative(randomBytesNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("gauss", 5)), OBJ_VAL(newNative(randomGaussNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("sample", 6)), OBJ_VAL(newNative(randomSampleNative)));
+    defineBuiltIn(&module->methods, "seed", randomSeedNative);
+    defineBuiltIn(&module->methods, "random", randomNative);
+    defineBuiltIn(&module->methods, "randint", randomIntNative);
+    defineBuiltIn(&module->methods, "randrange", randomRangeNative);
+    defineBuiltIn(&module->methods, "choice", randomChoiceNative);
+    defineBuiltIn(&module->methods, "shuffle", randomShuffleNative);
+    defineBuiltIn(&module->methods, "randbool", randomBoolNative);
+    defineBuiltIn(&module->methods, "randbytes", randomBytesNative);
+    defineBuiltIn(&module->methods, "gauss", randomGaussNative);
+    defineBuiltIn(&module->methods, "sample", randomSampleNative);
     return module;
 }
 
 /**
  * Sets the seed for the random number generator.
  */
-Value randomSeedNative(int argCount, Value* args) {
+static Value randomSeedNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
@@ -50,7 +62,7 @@ Value randomSeedNative(int argCount, Value* args) {
 /**
  * Generates a random number between 0 and 1.
  */
-Value randomNative(int argCount, Value* args) {
+static Value randomNative(int argCount, Value* args) {
     if (argCount != 0) {
         return ERROR_VAL;
     }
@@ -61,7 +73,7 @@ Value randomNative(int argCount, Value* args) {
  * Generates a random integer between the given range.
  * If the arguments are not numbers, returns ERROR_VAL or throws an error.
  */
-Value randomIntNative(int argCount, Value* args) {
+static Value randomIntNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL;
     }
@@ -78,7 +90,7 @@ Value randomIntNative(int argCount, Value* args) {
  * Generates a random number between the given range.
  * If the arguments are not numbers, returns ERROR_VAL or throws an error.
  */
-Value randomRangeNative(int argCount, Value* args) {
+static Value randomRangeNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL;
     }
@@ -97,7 +109,7 @@ Value randomRangeNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A random choice from the list or an error if the arguments are invalid.
  */
-Value randomChoiceNative(int argCount, Value* args) {
+static Value randomChoiceNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         return ERROR_VAL;
     }
@@ -115,7 +127,7 @@ Value randomChoiceNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The shuffled list or an error if the arguments are invalid.
  */
-Value randomShuffleNative(int argCount, Value* args) {
+static Value randomShuffleNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         return ERROR_VAL;
     }
@@ -140,7 +152,7 @@ Value randomShuffleNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A random boolean value or an error if the arguments are invalid.
  */
-Value randomBoolNative(int argCount, Value* args) {
+static Value randomBoolNative(int argCount, Value* args) {
     if (argCount != 0) {
         return ERROR_VAL;
     }
@@ -154,7 +166,7 @@ Value randomBoolNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A byte array containing random bytes or an error if the arguments are invalid.
  */
-Value randomBytesNative(int argCount, Value* args) {
+static Value randomBytesNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
@@ -180,7 +192,7 @@ Value randomBytesNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A random Gaussian distributed number or an error if the arguments are invalid.
  */
-Value randomGaussNative(int argCount, Value* args) {
+static Value randomGaussNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL;
     }
@@ -202,7 +214,7 @@ Value randomGaussNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The sampled list or an error if the arguments are invalid.
  */
-Value randomSampleNative(int argCount, Value* args) {
+static Value randomSampleNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL;
     }

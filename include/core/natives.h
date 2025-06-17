@@ -63,24 +63,3 @@ Value minNative(int argCount, Value* args);
  * Calculates the maximum of two numbers.
  */
 Value maxNative(int argCount, Value* args);
-
-
-// OS NATIVES
-
-/**
- * Gets an environment variable.
- * If the variable does not exist, returns NIL_VAL.
- */
-Value getEnvNative(int argCount, Value* args);
-
-/**
- * Sets an environment variable.
- * If the variable does not exist, it will be created.
- */
-Value setEnvNative(int argCount, Value* args);
-
-/**
- * Unsets an environment variable.
- * If the variable does not exist, it will do nothing.
- */
-Value unsetEnvNative(int argCount, Value* args);

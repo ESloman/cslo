@@ -32,11 +32,6 @@ void defineNatives() {
     defineNative("abs", absNative);
     defineNative("min", minNative);
     defineNative("max", maxNative);
-
-    // os functions
-    defineNative("getenv", getEnvNative);
-    defineNative("setenv", setEnvNative);
-    defineNative("unsetenv", unsetEnvNative);
 }
 
 /**
@@ -176,65 +171,4 @@ Value maxNative(int argCount, Value* args) {
     double a = AS_NUMBER(args[0]);
     double b = AS_NUMBER(args[1]);
     return NUMBER_VAL(a > b ? a : b);
-}
-
-/**
- * Gets the value of an environment variable.
- * Usage: getenv("HOME")
- */
-Value getEnvNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
-    }
-    const char* name = AS_CSTRING(args[0]);
-    char* value = getenv(name);
-    if (value == NULL) {
-        return NIL_VAL;
-    }
-    return OBJ_VAL(copyString(value, (int)strlen(value)));
-}
-
-/**
- * Sets the value of an environment variable.
- * Usage: setenv("MYVAR", "value")
- */
-Value setEnvNative(int argCount, Value* args) {
-    if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
-    }
-    const char* name = AS_CSTRING(args[0]);
-    const char* value = AS_CSTRING(args[1]);
-#if defined(_WIN32)
-    // Windows uses _putenv_s
-    int result = _putenv_s(name, value);
-#else
-    // POSIX uses setenv
-    int result = setenv(name, value, 1);
-#endif
-    if (result != 0) {
-        return ERROR_VAL;
-    }
-    return NIL_VAL;
-}
-
-/**
- * Unsets an environment variable.
- * Usage: unsetenv("MYVAR")
- */
-Value unsetEnvNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
-    }
-    const char* name = AS_CSTRING(args[0]);
-#if defined(_WIN32)
-    // Windows uses _putenv_s with an empty value
-    int result = _putenv_s(name, "");
-#else
-    // POSIX uses unsetenv
-    int result = unsetenv(name);
-#endif
-    if (result != 0) {
-        return ERROR_VAL;
-    }
-    return NIL_VAL;
 }

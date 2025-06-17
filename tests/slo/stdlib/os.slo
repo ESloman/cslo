@@ -1,0 +1,7 @@
+import os;
+
+var path = os.getenv("FOO");
+print(path);
+
+os.setenv("TEST", "somevalue");
+print(os.getenv("TEST"));

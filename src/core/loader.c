@@ -12,8 +12,8 @@
 #include "core/vm.h"
 
 // add all the std library imports here
-
 #include "std/math.h"
+#include "std/os.h"
 #include "std/random.h"
 
 /**
@@ -29,9 +29,8 @@ bool loadModule(const char* moduleName) {
         tableSet(&vm.globals, OBJ_VAL(copyString("random", 6)), OBJ_VAL(randomModule));
         return true;
     } else if (strcmp(moduleName, "os") == 0) {
-        // Load OS module if implemented
-        // Example: ObjModule* osModule = getOsModule();
-        // tableSet(&vm.globals, OBJ_VAL(copyString("os", 2)), OBJ_VAL(osModule));
+        ObjModule* osModule = getOSModule();
+        tableSet(&vm.globals, OBJ_VAL(copyString("os", 2)), OBJ_VAL(osModule));
         return true;
     } else {
         printf("Error: Module '%s' not found.\n", moduleName);

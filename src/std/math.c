@@ -5,8 +5,19 @@
 
 #include <math.h>
 
+#include "builtins/util.h"
 #include "core/value.h"
 #include "std/math.h"
+
+
+// forward declarations of native functions
+static Value ceilNative(int argCount, Value* args);
+static Value floorNative(int argCount, Value* args);
+static Value sqrtNative(int argCount, Value* args);
+static Value sinNative(int argCount, Value* args);
+static Value cosNative(int argCount, Value* args);
+static Value tanNative(int argCount, Value* args);
+
 
 /**
  * @brief Gets the math module with all its functions.
@@ -14,12 +25,12 @@
  */
 ObjModule* getMathModule() {
     ObjModule* module = newModule();
-    tableSet(&module->methods, OBJ_VAL(copyString("ceil", 4)), OBJ_VAL(newNative(ceilNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("floor", 5)), OBJ_VAL(newNative(floorNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("sqrt", 4)), OBJ_VAL(newNative(sqrtNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("sin", 3)), OBJ_VAL(newNative(sinNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("cos", 3)), OBJ_VAL(newNative(cosNative)));
-    tableSet(&module->methods, OBJ_VAL(copyString("tan", 3)), OBJ_VAL(newNative(tanNative)));
+    defineBuiltIn(&module->methods, "ceil", ceilNative);
+    defineBuiltIn(&module->methods, "floor", floorNative);
+    defineBuiltIn(&module->methods, "sqrt", sqrtNative);
+    defineBuiltIn(&module->methods, "sin", sinNative);
+    defineBuiltIn(&module->methods, "cos", cosNative);
+    defineBuiltIn(&module->methods, "tan", tanNative);
     return module;
 }
 
@@ -27,7 +38,7 @@ ObjModule* getMathModule() {
  * Calculates the ceil of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-Value ceilNative(int argCount, Value* args) {
+static Value ceilNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
@@ -39,7 +50,7 @@ Value ceilNative(int argCount, Value* args) {
  * Calculates the floor of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-Value floorNative(int argCount, Value* args) {
+static Value floorNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
@@ -51,7 +62,7 @@ Value floorNative(int argCount, Value* args) {
  * Calculates the square root of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-Value sqrtNative(int argCount, Value* args) {
+static Value sqrtNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
@@ -66,7 +77,7 @@ Value sqrtNative(int argCount, Value* args) {
  * Calculates the sine of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-Value sinNative(int argCount, Value* args) {
+static Value sinNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
@@ -78,7 +89,7 @@ Value sinNative(int argCount, Value* args) {
  * Calculates the cosine of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-Value cosNative(int argCount, Value* args) {
+static Value cosNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
@@ -90,7 +101,7 @@ Value cosNative(int argCount, Value* args) {
  * Calculates the tangent of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-Value tanNative(int argCount, Value* args) {
+static Value tanNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL;
     }
