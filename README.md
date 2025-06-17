@@ -23,7 +23,7 @@ any particular order and are subject to change.
 - ~~adding `enums`~~
 - better error reporting
 - everything as an object á la Python
-- more builtin methods like ~~`len`~~, `str`, ~~`max`~~, ~~`min`~~, etc
+- more builtin methods like ~~`len`~~, ~~`str`~~, ~~`max`~~, ~~`min`~~, etc
 - string formatting
 - standard library (~~and some `namespace`, `import`, `include` system~~)
   - things like a ~~`math`~~, `io`, `os`, ~~`random`~~, etc
@@ -47,6 +47,7 @@ This is a non-exhaustive list of things that have been added / are different to 
 - environment variable handling with `setenv` and `getenv`
 - `time()` to get current now
 - `exit()` to exit with optional status code
+- methods for some type conversions: `str()`, `bool()`, `number()`
 - beginnings of an import system with `import math;` syntax
 - stdlib modules:
   - `math` module for things like `sin`, `cos`, `tan`, `ceil`, `floor`, `abs`, `sqrt`, etc
