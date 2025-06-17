@@ -1,0 +1,1 @@
+enum Colours: {YELLOW: 2, ORANGE: 3, BLACK: 0, BLUE: 1}

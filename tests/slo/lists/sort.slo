@@ -1,4 +1,6 @@
 import random;
+# make sure that we always get the same results
+random.seed(1000);
 
 var x = [];
 for (var count = 0; count < 10; count++) {

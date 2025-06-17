@@ -29,6 +29,10 @@ if __name__ == "__main__":
                 if output.decode("utf8") != exp_output:
                     print(f"Output didn't match expected output for {slo_file}.")
                     failed_files.append(slo_file)
+            # write the output to a file - just used to generate initial expected outputs
+            # else:
+            #     with open(out_path, "w", encoding="utf8") as out_f:
+            #         out_f.write(output.decode("utf8"))
         except KeyboardInterrupt:
             print("Execution interrupted by user.")
             print(f"Last file was: {slo_file}")

@@ -1,5 +1,8 @@
 import random;
 
+# make sure that we always get the same results
+random.seed(1000);
+
 for(var i = 0; i < 10; i++) {
     print(random.random());
 }
