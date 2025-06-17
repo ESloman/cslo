@@ -1,0 +1,5 @@
+print(str(nil));
+print(str(false));
+print(str(true));
+print(str(0));
+print(str(12.5));

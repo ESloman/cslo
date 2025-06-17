@@ -21,7 +21,14 @@ if __name__ == "__main__":
     for slo_file in example_dir.rglob("*.slo"):
         print(f"Found SLO file: {slo_file}")
         try:
-            subprocess.run(["./build/cslo", str(slo_file)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            output = subprocess.check_output(["./build/cslo", str(slo_file)], stderr=subprocess.DEVNULL)
+            out_path = Path(slo_file.parent, slo_file.name.replace(".slo", ".out"))
+            if out_path.exists():
+                with open(out_path, "r", encoding="utf8") as exp_output_f:
+                    exp_output = exp_output_f.read()
+                if output.decode("utf8") != exp_output:
+                    print(f"Output didn't match expected output for {slo_file}.")
+                    failed_files.append(slo_file)
         except KeyboardInterrupt:
             print("Execution interrupted by user.")
             print(f"Last file was: {slo_file}")

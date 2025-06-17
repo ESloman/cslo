@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "builtins/util.h"
 #include "core/object.h"
 #include "core/value.h"
 
@@ -25,14 +26,14 @@ Value sortNative(int argCount, Value* args);
  * @param cls The ObjClass representing the string type.
  */
 void registerListMethods(ObjClass* cls) {
-    tableSet(&cls->methods, OBJ_VAL(copyString("append", 6)), OBJ_VAL(newNative(appendNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("insert", 6)), OBJ_VAL(newNative(insertNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("remove", 6)), OBJ_VAL(newNative(removeNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("reverse", 7)), OBJ_VAL(newNative(reverseNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(indexNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(countNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("extend", 6)), OBJ_VAL(newNative(extendNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("sort", 4)), OBJ_VAL(newNative(sortNative)));
+    defineBuiltIn(&cls->methods, "append", appendNative);
+    defineBuiltIn(&cls->methods, "insert", insertNative);
+    defineBuiltIn(&cls->methods, "remove", removeNative);
+    defineBuiltIn(&cls->methods, "reverse", reverseNative);
+    defineBuiltIn(&cls->methods, "index", indexNative);
+    defineBuiltIn(&cls->methods, "count", countNative);
+    defineBuiltIn(&cls->methods, "extend", extendNative);
+    defineBuiltIn(&cls->methods, "sort", sortNative);
 }
 
 /**

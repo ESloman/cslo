@@ -1,0 +1,10 @@
+
+print(bool(1));          # true
+print(bool(0));          # false
+print(bool(""));         # false
+print(bool("0"));        # true
+print(bool(" "));        # true
+print(bool([]));         # false
+print(bool({}));         # false
+print(bool([1, 2, 3]));  # true
+print(bool({"a": 1}));   # true

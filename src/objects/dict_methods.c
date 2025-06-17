@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "builtins/util.h"
 #include "core/memory.h"
 #include "core/object.h"
 #include "core/table.h"
@@ -27,11 +28,11 @@ Value itemsNative(int argCount, Value* args);
  * @param dictClass The ObjClass representing the string type.
  */
 void registerDictMethods(ObjClass* cls) {
-    tableSet(&cls->methods, OBJ_VAL(copyString("keys", 4)), OBJ_VAL(newNative(keysNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("values", 6)), OBJ_VAL(newNative(valuesNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("get", 3)), OBJ_VAL(newNative(getNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("update", 6)), OBJ_VAL(newNative(updateNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("items", 5)), OBJ_VAL(newNative(itemsNative)));
+    defineBuiltIn(&cls->methods, "keys", keysNative);
+    defineBuiltIn(&cls->methods, "values", valuesNative);
+    defineBuiltIn(&cls->methods, "get", getNative);
+    defineBuiltIn(&cls->methods, "update", updateNative);
+    defineBuiltIn(&cls->methods, "items", itemsNative);
 }
 
 /**

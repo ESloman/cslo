@@ -9,6 +9,8 @@
 #include <string.h>
 #include <time.h>
 
+#include "builtins/type_methods.h"
+
 #include "core/common.h"
 #include "compiler/compiler.h"
 #include "core/debug.h"
@@ -95,6 +97,7 @@ void initVM() {
     vm.stringClass = newClass(stringName, NULL);
     registerStringMethods(vm.stringClass);
 
+    registerBuiltInTypeMethods(&vm.globals);
     defineNatives();
 }
 
@@ -153,7 +156,7 @@ Value pop() {
 /**
  * Method for peeking at the stack.
  */
-static Value peek(int distance) {
+Value peek(int distance) {
   return vm.stackTop[-1 - distance];
 }
 
@@ -252,6 +255,15 @@ static bool invokeFromClass(ObjClass* sClass, ObjString* name, int argCount) {
 static Value getContainerMethod(Value receiver, ObjString* name) {
     // check parent container first
     Value method;
+    #ifdef DEBUG_LOGGING
+    printf("All container methods:\n");
+    for (int i = 0; i < vm.containerClass->methods.count; i++) {
+        Entry* entry = &vm.containerClass->methods.entries[i];
+        if (!IS_EMPTY(entry->key)) {
+            printf("  %s\n", AS_STRING(entry->key)->chars);
+        }
+    }
+    #endif
     if (tableGet(&vm.containerClass->methods, OBJ_VAL(name), &method)) {
         return method;
     }
@@ -264,6 +276,15 @@ static Value getContainerMethod(Value receiver, ObjString* name) {
         runtimeError("Only containers have methods.");
         return NIL_VAL;
     }
+    #ifdef DEBUG_LOGGING
+    printf("All methods:\n");
+    for (int i = 0; i < methods->count; i++) {
+        Entry* entry = &methods->entries[i];
+        if (!IS_EMPTY(entry->key)) {
+            printf("  %s\n", AS_STRING(entry->key)->chars);
+        }
+    }
+    #endif
     return tableGet(methods, OBJ_VAL(name), &method) ? method : NIL_VAL;
 
 }

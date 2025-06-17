@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "builtins/util.h"
 #include "core/memory.h"
 #include "core/object.h"
 #include "core/table.h"
@@ -33,20 +34,20 @@ Value strIndex(int argCount, Value* args);
  * @param cls The ObjClass representing the string type.
  */
 void registerStringMethods(ObjClass* cls) {
-    tableSet(&cls->methods, OBJ_VAL(copyString("upper", 5)), OBJ_VAL(newNative(upper)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("lower", 5)), OBJ_VAL(newNative(lower)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("title", 5)), OBJ_VAL(newNative(title)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("split", 5)), OBJ_VAL(newNative(split)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("strip", 5)), OBJ_VAL(newNative(strip)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("startswith", 10)), OBJ_VAL(newNative(startsWith)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("endswith", 8)), OBJ_VAL(newNative(endsWith)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("isalpha", 7)), OBJ_VAL(newNative(isAlpha)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("isdigit", 7)), OBJ_VAL(newNative(isDigit)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("isalphanum", 10)), OBJ_VAL(newNative(isAlphaNumeric)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("find", 4)), OBJ_VAL(newNative(find)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("replace", 7)), OBJ_VAL(newNative(replace)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("count", 5)), OBJ_VAL(newNative(count)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("index", 5)), OBJ_VAL(newNative(strIndex)));
+    defineBuiltIn(&cls->methods, "upper", upper);
+    defineBuiltIn(&cls->methods, "lower", lower);
+    defineBuiltIn(&cls->methods, "title", title);
+    defineBuiltIn(&cls->methods, "split", split);
+    defineBuiltIn(&cls->methods, "strip", strip);
+    defineBuiltIn(&cls->methods, "startswith", startsWith);
+    defineBuiltIn(&cls->methods, "endswith", endsWith);
+    defineBuiltIn(&cls->methods, "isalpha", isAlpha);
+    defineBuiltIn(&cls->methods, "isdigit", isDigit);
+    defineBuiltIn(&cls->methods, "isalphanum", isAlphaNumeric);
+    defineBuiltIn(&cls->methods, "find", find);
+    defineBuiltIn(&cls->methods, "replace", replace);
+    defineBuiltIn(&cls->methods, "count", count);
+    defineBuiltIn(&cls->methods, "index", strIndex);
 }
 
 /**

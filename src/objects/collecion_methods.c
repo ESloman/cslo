@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "builtins/util.h"
 #include "core/object.h"
 #include "core/table.h"
 #include "core/value.h"
@@ -26,10 +27,10 @@ Value cloneNative(int argCount, Value* args);
  * @param cls The ObjClass representing the string type.
  */
 void registerContainerMethods(ObjClass* cls) {
-    tableSet(&cls->methods, OBJ_VAL(copyString("__index__", 9)), OBJ_VAL(newNative(internalIndexNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("clear", 5)), OBJ_VAL(newNative(clearNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("pop", 3)), OBJ_VAL(newNative(popNative)));
-    tableSet(&cls->methods, OBJ_VAL(copyString("clone", 5)), OBJ_VAL(newNative(cloneNative)));
+    defineBuiltIn(&cls->methods, "__index__", internalIndexNative);
+    defineBuiltIn(&cls->methods, "clear", clearNative);
+    defineBuiltIn(&cls->methods, "pop", popNative);
+    defineBuiltIn(&cls->methods, "clone", cloneNative);
 }
 
 

@@ -1,0 +1,5 @@
+print(number(false));   # 0
+print(number(true));    # 1
+print(number(nil));     # 0
+print(number("1"));     # 1
+print(number("12.5"));  # 12.5

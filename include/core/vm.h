@@ -89,4 +89,9 @@ void push(Value value);
  */
 Value pop();
 
+/**
+ * Method for peeking at the stack.
+ */
+Value peek(int distance);
+
 #endif
