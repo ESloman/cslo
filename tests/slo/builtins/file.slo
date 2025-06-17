@@ -1,0 +1,21 @@
+import os;
+
+var cwd = os.getcwd();
+
+var file_to_open;
+for (var path in os.listdir(cwd)) {
+    if (file_to_open == nil and os.isfile(path)) {
+        # success!
+        file_to_open = os.join(cwd, path);
+    }
+}
+
+print(file_to_open);
+var opened = open(file_to_open, "r");
+print(opened);
+
+var contents = opened.read();
+
+# make sure we close the file
+opened.close();
+print(opened);

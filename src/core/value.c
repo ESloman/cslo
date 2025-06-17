@@ -224,6 +224,8 @@ char* valueTypeToString(Value value) {
                 case OBJ_NATIVE: return "native function";
                 case OBJ_DICT: return "dict";
                 case OBJ_ENUM: return "enum";
+                case OBJ_FILE: return "file";
+                case OBJ_MODULE: return "module";
                 default: return "object";
             }
         }

@@ -5,6 +5,8 @@
 #ifndef cslo_object_h
 #define cslo_object_h
 
+#include <stdio.h>
+
 #include "chunk.h"
 #include "core/common.h"
 #include "table.h"
@@ -55,6 +57,9 @@
 /** Macro for checking the given object is an ObjModule. */
 #define IS_MODULE(value)      isObjType(value, OBJ_MODULE)
 
+/** Macro for checking the given object is an ObjFile. */
+#define IS_FILE(value)        isObjType(value, OBJ_FILE)
+
 /**
  * Macros for converting values to objects.
  */
@@ -92,8 +97,11 @@
 /** Macro for converting a Value to an ObjEnum. */
 #define AS_ENUM(value)        ((ObjEnum*)AS_OBJ(value))
 
-/** Macro for convering a Value to an ObjModule. */
+/** Macro for converting a Value to an ObjModule. */
 #define AS_MODULE(value)      ((ObjModule*)AS_OBJ(value))
+
+/** Macro for converting a Value to an ObjFile. */
+#define AS_FILE(value)        ((ObjFile*)AS_OBJ(value))
 
 /**
  * @enum ObjType
@@ -111,6 +119,7 @@ typedef enum ObjType {
     OBJ_DICT,
     OBJ_MODULE,
     OBJ_ENUM,
+    OBJ_FILE,
 } ObjType;
 
 /**
@@ -254,6 +263,15 @@ typedef struct {
 } ObjEnum;
 
 /**
+ * @struct ObjFile
+ */
+typedef struct {
+    Obj obj;
+    FILE* file;
+    bool closed;
+} ObjFile;
+
+/**
  * Method for creating a new bound method.
  */
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
@@ -317,6 +335,11 @@ ObjModule* newModule();
  * Method for creating a new ObjEnum.
  */
 ObjEnum* newEnum(ObjString* name);
+
+/**
+ * Method for creating a new ObjFile.
+ */
+ObjFile* newFile(FILE* file);
 
 /**
  * Method for printing an object.

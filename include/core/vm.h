@@ -41,6 +41,7 @@ typedef struct VM {
     ObjClass* listClass;
     ObjClass* dictClass;
     ObjClass* stringClass;
+    ObjClass* fileClass;
 
     size_t bytesAllocated;
     size_t nextGC;

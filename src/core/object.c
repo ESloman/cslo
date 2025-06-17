@@ -141,6 +141,13 @@ ObjEnum* newEnum(ObjString* name) {
     return sEnum;
 }
 
+ObjFile* newFile(FILE* file) {
+    ObjFile* sFile = ALLOCATE_OBJ(ObjFile, OBJ_FILE);
+    sFile->file = file;
+    sFile->closed = false;
+    return sFile;
+}
+
 /**
  * Method for creating an ObjString.
  *
@@ -292,6 +299,16 @@ void printObject(Value value) {
                 }
             }
             printf("}");
+            break;
+        }
+        case OBJ_FILE: {
+            ObjFile* sFile = AS_FILE(value);
+            printf("file %p", (void*)sFile->file);
+            if (sFile->closed) {
+                printf(" (closed)");
+            } else {
+                printf(" (open)");
+            }
             break;
         }
         default:

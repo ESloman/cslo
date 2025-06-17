@@ -9,6 +9,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "builtins/file_methods.h"
 #include "builtins/type_methods.h"
 
 #include "core/common.h"
@@ -23,6 +24,7 @@
 
 #include "objects/collection_methods.h"
 #include "objects/dict_methods.h"
+#include "objects/file_methods.h"
 #include "objects/list_methods.h"
 #include "objects/string_methods.h"
 
@@ -105,6 +107,9 @@ void initVM() {
     vm.initString = NULL;
     vm.initString = copyString("__init__", 8);
 
+    registerBuiltInFileMethods(&vm.globals);
+    registerBuiltInTypeMethods(&vm.globals);
+
     ObjString* containerName = copyString("container", 8);
     vm.containerClass = newClass(containerName, NULL);
     registerContainerMethods(vm.containerClass);
@@ -123,7 +128,10 @@ void initVM() {
     vm.stringClass = newClass(stringName, NULL);
     registerStringMethods(vm.stringClass);
 
-    registerBuiltInTypeMethods(&vm.globals);
+    ObjString* fileName = copyString("fileCls", 7);
+    vm.fileClass = newClass(fileName, NULL);
+    registerFileMethods(vm.fileClass);
+
     defineNatives();
 }
 
@@ -388,6 +396,32 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             return callValue(method, argCount, ip);
         } else {
             runtimeError(ERROR_ATTRIBUTE, "Undefined method '%s' in module.", name->chars);
+            return false;
+        }
+    } else if (IS_FILE(receiver)) {
+        ObjFile* sFile = AS_FILE(receiver);
+        Value method;
+        if (tableGet(&vm.fileClass->methods, OBJ_VAL(name), &method)) {
+            if (IS_NATIVE(method)) {
+                NativeFn native = AS_NATIVE(method);
+                Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+                if (IS_ERROR(result)) {
+                    // todo: add native error handling
+                    runtimeError(ERROR_RUNTIME, "Native function returned an error.");
+                    return false;
+                }
+                vm.stackTop -= argCount + 1;
+                push(result);
+                return true;
+            } else if (IS_CLOSURE(method)) {
+                // If you support closures/methods on files, handle here
+                return call(AS_CLOSURE(method), argCount);
+            } else {
+                runtimeError(ERROR_TYPE, "Method '%s' is not callable.", name->chars);
+                return false;
+            }
+        } else {
+            runtimeError(ERROR_ATTRIBUTE, "Undefined method '%s' for file.", name->chars);
             return false;
         }
     } else {

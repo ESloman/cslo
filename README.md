@@ -26,7 +26,7 @@ any particular order and are subject to change.
 - more builtin methods like ~~`len`~~, ~~`str`~~, ~~`max`~~, ~~`min`~~, etc
 - string formatting
 - standard library (~~and some `namespace`, `import`, `include` system~~)
-  - things like a ~~`math`~~, `io`, `os`, ~~`random`~~, etc
+  - things like a ~~`math`~~, `io`, ~~`os`~~, ~~`random`~~, etc
 
 I would like to eventually add type hints or some kind of type system but that's very much a stretch goal.
 
@@ -191,4 +191,19 @@ enum Colours {
 print(Colours);
 print(Colours.RED);
 print(Colours.BLUE == 2);
+```
+
+### files
+
+Support for basic file operations:
+
+```slo
+var path = "/some/path/to/file";
+
+var f = open(path);
+print(f);  # should show file is open
+var contents = f.read();
+print(contents);
+f.close();
+print(f);  # should show file is closed
 ```

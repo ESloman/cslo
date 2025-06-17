@@ -12,6 +12,26 @@
             "-O3",
             "-flto",
             "-o",
+            "build/release/cslo/builtins/file_methods.o",
+            "src/builtins/file_methods.c"
+        ],
+        "directory": "/home/esloman/gitwork/cslo",
+        "file": "/home/esloman/gitwork/cslo/src/builtins/file_methods.c",
+        "output": "/home/esloman/gitwork/cslo/build/release/cslo/builtins/file_methods.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wno-unused-parameter",
+            "-Iinclude",
+            "-Ithird_party",
+            "-O3",
+            "-flto",
+            "-o",
             "build/release/cslo/builtins/type_methods.o",
             "src/builtins/type_methods.c"
         ],
@@ -398,6 +418,26 @@
         "directory": "/home/esloman/gitwork/cslo",
         "file": "/home/esloman/gitwork/cslo/src/objects/dict_methods.c",
         "output": "/home/esloman/gitwork/cslo/build/release/cslo/objects/dict_methods.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wno-unused-parameter",
+            "-Iinclude",
+            "-Ithird_party",
+            "-O3",
+            "-flto",
+            "-o",
+            "build/release/cslo/objects/file_methods.o",
+            "src/objects/file_methods.c"
+        ],
+        "directory": "/home/esloman/gitwork/cslo",
+        "file": "/home/esloman/gitwork/cslo/src/objects/file_methods.c",
+        "output": "/home/esloman/gitwork/cslo/build/release/cslo/objects/file_methods.o"
     },
     {
         "arguments": [
