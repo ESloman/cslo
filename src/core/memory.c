@@ -80,6 +80,39 @@ void freeObject(Obj* object) {
             FREE(ObjUpvalue, object);
             break;
         }
+        case OBJ_LIST: {
+            ObjList* list = (ObjList*)object;
+            FREE_ARRAY(Value, list->values.values, list->values.capacity);
+            FREE(ObjList, object);
+            break;
+        }
+        case OBJ_DICT: {
+            ObjDict* dict = (ObjDict*)object;
+            freeTable(&dict->data);
+            FREE(ObjDict, object);
+            break;
+        }
+        case OBJ_MODULE: {
+            ObjModule* module = (ObjModule*)object;
+            freeTable(&module->methods);
+            FREE(ObjModule, object);
+            break;
+        }
+        case OBJ_ENUM: {
+            ObjEnum* sEnum = (ObjEnum*)object;
+            freeTable(&sEnum->values);
+            FREE(ObjEnum, object);
+            break;
+        }
+        case OBJ_FILE: {
+            ObjFile* sFile = (ObjFile*)object;
+            if (sFile->file && !sFile->closed) {
+                fclose(sFile->file);
+                sFile->closed = true;
+            }
+            FREE(ObjFile, object);
+            break;
+        }
         default:
             return;
     }

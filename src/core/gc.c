@@ -55,7 +55,7 @@ void markRoots() {
     printf("--> marking roots\n");
 #endif
 
-    for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+    for (const Value* slot = vm.stack; slot < vm.stackTop; slot++) {
         markValue(*slot);
     }
 
@@ -140,7 +140,7 @@ void markTable(Table* table) {
 #endif
 
     for (int i = 0; i < table->capacity; i++) {
-        Entry* entry = &table->entries[i];
+        const Entry* entry = &table->entries[i];
         markValue(entry->key);
         markValue(entry->value);
     }
@@ -272,6 +272,8 @@ void blackenObject(Obj* object) {
             markTable(&module->methods);
             break;
         }
+        case OBJ_FILE:
+            break;
         case OBJ_NATIVE:
             break;
         case OBJ_STRING:
