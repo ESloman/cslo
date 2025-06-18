@@ -130,7 +130,6 @@ ObjDict* newDict() {
 ObjModule* newModule() {
     ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE);
     initTable(&module->methods);
-    module->sClass = NULL;
     return module;
 }
 

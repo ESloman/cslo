@@ -121,10 +121,8 @@ Value lenNative(int argCount, Value* args) {
     switch (OBJ_TYPE(args[0])) {
         case OBJ_STRING:
             return NUMBER_VAL((double)AS_STRING(args[0])->length);
-            break;
         case OBJ_LIST:
             return NUMBER_VAL((double)AS_LIST(args[0])->count);
-            break;
         case OBJ_DICT:
             return NUMBER_VAL((double)AS_DICT(args[0])->data.count);
         default:

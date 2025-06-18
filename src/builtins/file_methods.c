@@ -40,6 +40,8 @@ static Value open(int argCount, Value* args) {
         return ERROR_VAL;
     }
 
+    // Ownership of 'f' is transferred to ObjFile.
+    // ObjFile is responsible for closing the file
     ObjFile* sFile = newFile(f);
     return OBJ_VAL(sFile);
 }

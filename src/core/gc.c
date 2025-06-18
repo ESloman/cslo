@@ -261,6 +261,17 @@ void blackenObject(Obj* object) {
             markTable(&dict->data);
             break;
         }
+        case OBJ_ENUM: {
+            ObjEnum* enumObj = (ObjEnum*)object;
+            markObject((Obj*)enumObj->name);
+            markTable(&enumObj->values);
+            break;
+        }
+        case OBJ_MODULE: {
+            ObjModule* module = (ObjModule*)object;
+            markTable(&module->methods);
+            break;
+        }
         case OBJ_NATIVE:
             break;
         case OBJ_STRING:

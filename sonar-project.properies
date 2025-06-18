@@ -1,0 +1,2 @@
+sonar.exclusions=third_party/**
+sonar.python.version=3.13

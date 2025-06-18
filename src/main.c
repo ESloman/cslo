@@ -28,6 +28,11 @@ static char* readFile(const char* path) {
     size_t fileSize = ftell(file);
     rewind(file);
 
+    if (fileSize == 0) {
+        fclose(file);
+        return strdup("");
+    }
+
     char* buffer = (char*)malloc(fileSize + 1);
     if (buffer == NULL) {
         fprintf(stderr, "Not enough memory to read \"%s\".\n", path);

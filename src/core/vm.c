@@ -67,6 +67,7 @@ static void runtimeError(enum ErrorType errorType, const char* format, ...) {
     char stacktrace[1024] = {0};
     size_t offset = 0;
     for (int i = vm.frameCount - 1; i >= 0; i--) {
+        if (i < 0 || i >= FRAMES_MAX) break;  // defensive check
         CallFrame* frame = &vm.frames[i];
         ObjFunction* function = frame->closure->function;
         int line = getLine(function->chunk, frame->ip - function->chunk.code - 1);
