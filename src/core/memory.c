@@ -113,6 +113,10 @@ void freeObject(Obj* object) {
             FREE(ObjFile, object);
             break;
         }
+        case OBJ_ERROR: {
+            FREE(ObjError, object);
+            break;
+        }
         default:
             return;
     }

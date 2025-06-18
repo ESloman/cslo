@@ -272,6 +272,11 @@ void blackenObject(Obj* object) {
             markTable(&module->methods);
             break;
         }
+        case OBJ_ERROR: {
+            ObjError* error = (ObjError*)object;
+            markObject((Obj*)error->message);
+            break;
+        }
         case OBJ_FILE:
             break;
         case OBJ_NATIVE:
