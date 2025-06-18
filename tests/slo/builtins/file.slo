@@ -16,6 +16,10 @@ print(opened);
 
 var contents = opened.read();
 
+for (var line in contents.split("\n")) {
+    print(line);
+}
+
 # make sure we close the file
 opened.close();
 print(opened);

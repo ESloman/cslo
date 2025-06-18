@@ -144,7 +144,7 @@ Value split(int argCount, Value* args) {
 
     ObjString* original = AS_STRING(args[0]);
     ObjString* delimiter = AS_STRING(args[1]);
-    if (delimiter->length != 1) {
+    if (delimiter->length == 0 || delimiter->length > original->length) {
         return ERROR_VAL;
     }
     char delim = delimiter->chars[0];
