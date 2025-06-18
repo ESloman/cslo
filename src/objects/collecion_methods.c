@@ -1,4 +1,3 @@
-
 /**
  * @file collecion_methods.c
  * @brief Implementation of collection methods in CSLO.
@@ -41,8 +40,7 @@ void registerContainerMethods(ObjClass* cls) {
  */
 Value internalIndexNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_CONTAINER(args[0]) || !IS_NUMBER(args[1])) {
-        printf("__index__() must be called on a container with a number argument.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("Invalid arguments for __index__(). Expected a container and a number.");
     }
     switch (OBJ_TYPE(args[0])) {
         case OBJ_LIST: {
@@ -77,8 +75,7 @@ Value internalIndexNative(int argCount, Value* args) {
  */
 Value clearNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_CONTAINER(args[0])) {
-        printf("clear() must be called on a list.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("clear() must be called on a container.");
     }
 
     switch (OBJ_TYPE(args[0]))
@@ -110,18 +107,15 @@ Value clearNative(int argCount, Value* args) {
  */
 Value popNative(int argCount, Value *args) {
     if (argCount == 0 || !IS_CONTAINER(args[0])) {
-        printf("pop() must be called on a container.");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("pop() must be called on a container.");
     }
     switch (OBJ_TYPE(args[0])) {
         case OBJ_LIST:
             if (argCount != 1) {
-                printf("pop() must be called on a list with no arguments.\n");
-                return ERROR_VAL;
+                return ERROR_VAL_PTR("pop() must be called on a list with no arguments.");
             }
             ObjList* list = AS_LIST(args[0]);
             if (list->count == 0) {
-                // popping an empty list returns nil
                 return NIL_VAL;
             }
             Value val = list->values.values[list->count - 1];
@@ -134,8 +128,7 @@ Value popNative(int argCount, Value *args) {
             return val;
         case OBJ_DICT:
             if (argCount < 2) {
-                printf("pop() must be called on a dict with the key to pop.\n");
-                return ERROR_VAL;
+                return ERROR_VAL_PTR("pop() must be called on a dict with the key to pop.");
             }
             ObjDict* dict = AS_DICT(args[0]);
             if (dict->data.count == 0) {
@@ -153,11 +146,11 @@ Value popNative(int argCount, Value *args) {
                     // if a default value is provided, return it
                     return args[2];
                 }
-                return NIL_VAL; // key not found, return nil
+                return ERROR_VAL_PTR("Key not found in dict and no default provided.");
             }
             return NIL_VAL;
         default:
-            return NIL_VAL;
+            return ERROR_VAL_PTR("pop() must be called on a container.");
     }
 }
 

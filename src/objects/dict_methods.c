@@ -41,8 +41,7 @@ void registerDictMethods(ObjClass* cls) {
  */
 Value keysNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_DICT(args[0])) {
-        printf("keys() must be called on a dict.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("keys() must be called on a dict.");
     }
     ObjDict* dict = AS_DICT(args[0]);
     ObjList* keys = newList();
@@ -64,8 +63,7 @@ Value keysNative(int argCount, Value* args) {
  */
 Value valuesNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_DICT(args[0])) {
-        printf("values() must be called on a dict.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("values() must be called on a dict.");
     }
     ObjDict* dict = AS_DICT(args[0]);
     ObjList* values = newList();
@@ -89,8 +87,7 @@ Value valuesNative(int argCount, Value* args) {
  */
 Value getNative(int argCount, Value* args) {
     if (argCount < 2 || !IS_DICT(args[0])) {
-        printf("get() must be called on a dict with a key.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("get() must be called on a dict with a key.");
     }
     ObjDict* dict = AS_DICT(args[0]);
     Value key = args[1];
@@ -114,8 +111,7 @@ Value getNative(int argCount, Value* args) {
  */
 Value updateNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_DICT(args[0]) || !IS_DICT(args[1])) {
-        printf("update() must be called on a dict with another dict.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("update() must be called on a dict with another dict.");
     }
     ObjDict* target = AS_DICT(args[0]);
     ObjDict* source = AS_DICT(args[1]);
@@ -136,8 +132,7 @@ Value updateNative(int argCount, Value* args) {
  */
 Value itemsNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_DICT(args[0])) {
-        printf("items() must be called on a dict.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("items() must be called on a dict.");
     }
     ObjDict* dict = AS_DICT(args[0]);
     ObjList* items = newList();

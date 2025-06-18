@@ -52,7 +52,7 @@ ObjModule* getRandomModule() {
  */
 static Value randomSeedNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("seed() expects a single numeric argument.");
     }
     unsigned int seed = (unsigned int)AS_NUMBER(args[0]);
     srand(seed);
@@ -64,7 +64,7 @@ static Value randomSeedNative(int argCount, Value* args) {
  */
 static Value randomNative(int argCount, Value* args) {
     if (argCount != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("random() expects no arguments.");
     }
     return NUMBER_VAL((double)rand() / RAND_MAX);
 }
@@ -75,12 +75,12 @@ static Value randomNative(int argCount, Value* args) {
  */
 static Value randomIntNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("randint() expects two numeric arguments.");
     }
     double min = AS_NUMBER(args[0]);
     double max = AS_NUMBER(args[1]);
     if (min > max) {
-        return ERROR_VAL; // or handle error
+        return ERROR_VAL_PTR("randint() min must be less than or equal to max.");
     }
     int range = (int)(max - min + 1);
     return NUMBER_VAL(min + (rand() % range));
@@ -92,12 +92,12 @@ static Value randomIntNative(int argCount, Value* args) {
  */
 static Value randomRangeNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("randrange() expects two numeric arguments.");
     }
     double min = AS_NUMBER(args[0]);
     double max = AS_NUMBER(args[1]);
     if (min > max) {
-        return ERROR_VAL; // or handle error
+        return ERROR_VAL_PTR("randrange() min must be less than or equal to max.");
     }
     double range = max - min;
     return NUMBER_VAL(min + ((double)rand() / RAND_MAX) * range);
@@ -111,7 +111,7 @@ static Value randomRangeNative(int argCount, Value* args) {
  */
 static Value randomChoiceNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("choice() expects a single list argument.");
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count == 0) {
@@ -129,7 +129,7 @@ static Value randomChoiceNative(int argCount, Value* args) {
  */
 static Value randomShuffleNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("shuffle() expects a single list argument.");
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count <= 1) {
@@ -154,7 +154,7 @@ static Value randomShuffleNative(int argCount, Value* args) {
  */
 static Value randomBoolNative(int argCount, Value* args) {
     if (argCount != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("randbool() expects no arguments.");
     }
     int val = rand() & 1;
     return BOOL_VAL(val != 0);
@@ -168,11 +168,11 @@ static Value randomBoolNative(int argCount, Value* args) {
  */
 static Value randomBytesNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("randbytes() expects a single numeric argument.");
     }
     int length = (int)AS_NUMBER(args[0]);
     if (length < 0) {
-        return ERROR_VAL; // or handle error
+        return ERROR_VAL_PTR("randbytes() length must be non-negative.");
     }
     ObjList* byteArray = newList();
     while (byteArray->values.capacity < length) {
@@ -194,12 +194,12 @@ static Value randomBytesNative(int argCount, Value* args) {
  */
 static Value randomGaussNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("gauss() expects two numeric arguments.");
     }
     double mu = AS_NUMBER(args[0]);
     double sigma = AS_NUMBER(args[1]);
     if (sigma <= 0) {
-        return ERROR_VAL; // or handle error
+        return ERROR_VAL_PTR("gauss() sigma must be positive.");
     }
 
     double u1 = (double)rand() / RAND_MAX;
@@ -216,12 +216,12 @@ static Value randomGaussNative(int argCount, Value* args) {
  */
 static Value randomSampleNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("sample() expects a list and a numeric argument.");
     }
     ObjList* list = AS_LIST(args[0]);
     int sampleSize = (int)AS_NUMBER(args[1]);
     if (sampleSize < 0 || sampleSize > list->count) {
-        return ERROR_VAL; // or handle error
+        return ERROR_VAL_PTR("sample() size must be in range 0..list length.");
     }
     ObjList* sample = newList();
     while (sample->values.capacity < sampleSize) {

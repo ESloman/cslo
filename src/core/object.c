@@ -148,6 +148,15 @@ ObjFile* newFile(FILE* file) {
 }
 
 /**
+ * Method for creating a new ObjError.
+ */
+ObjError* newError(const char* message) {
+    ObjError* error = ALLOCATE_OBJ(ObjError, OBJ_ERROR);
+    error->message = copyString(message, strlen(message) + 1);
+    return error;
+}
+
+/**
  * Method for creating an ObjString.
  *
  * This creates the ObjString and
@@ -310,6 +319,10 @@ void printObject(Value value) {
             }
             break;
         }
+        case OBJ_ERROR:
+            // shouldn't be printed directly anyway
+            printf("<error>");
+            break;
         default:
             return;
     }

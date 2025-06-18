@@ -44,6 +44,9 @@ typedef struct Value {
     } as;
 } Value;
 
+
+#define ERROR_VAL_PTR(message) ((Value){VAL_ERROR, { .obj = (Obj*)newError(message) }})
+
 /**
  * Macros for checking the value types.
  */

@@ -80,7 +80,7 @@ ObjModule* getOSModule() {
  */
 static Value getEnvNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("getenv() expects a single string argument.");
     }
     const char* name = AS_CSTRING(args[0]);
     char* value = getenv(name);
@@ -96,7 +96,7 @@ static Value getEnvNative(int argCount, Value* args) {
  */
 static Value setEnvNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("setenv() expects two string arguments.");
     }
     const char* name = AS_CSTRING(args[0]);
     const char* value = AS_CSTRING(args[1]);
@@ -108,7 +108,7 @@ static Value setEnvNative(int argCount, Value* args) {
     int result = setenv(name, value, 1);
 #endif
     if (result != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("setenv() failed to set environment variable.");
     }
     return NIL_VAL;
 }
@@ -119,7 +119,7 @@ static Value setEnvNative(int argCount, Value* args) {
  */
 static Value unsetEnvNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("unsetenv() expects a single string argument.");
     }
     const char* name = AS_CSTRING(args[0]);
 #if defined(_WIN32)
@@ -130,7 +130,7 @@ static Value unsetEnvNative(int argCount, Value* args) {
     int result = unsetenv(name);
 #endif
     if (result != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("unsetenv() failed to unset environment variable.");
     }
     return NIL_VAL;
 }
@@ -143,11 +143,11 @@ static Value unsetEnvNative(int argCount, Value* args) {
  */
 static Value getCWD(int argCount, Value* args) {
     if (argCount != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("getcwd() expects no arguments.");
     }
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("getcwd() failed to get current working directory.");
     }
     return OBJ_VAL(copyString(cwd, (int)strlen(cwd)));
 }
@@ -160,7 +160,7 @@ static Value getCWD(int argCount, Value* args) {
  */
 static Value getPID(int argCount, Value* args) {
     if (argCount != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("getpid() expects no arguments.");
     }
     pid_t pid = getpid();
     return NUMBER_VAL((double)pid);
@@ -174,7 +174,7 @@ static Value getPID(int argCount, Value* args) {
  */
 static Value getUID(int argCount, Value* args) {
     if (argCount != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("getuid() expects no arguments.");
     }
     uid_t uid = getuid();
     return NUMBER_VAL((double)uid);
@@ -188,11 +188,11 @@ static Value getUID(int argCount, Value* args) {
  */
 static Value changeDir(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("chdir() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     if (chdir(path) != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("chdir() failed to change directory.");
     }
     return NIL_VAL;
 }
@@ -205,11 +205,11 @@ static Value changeDir(int argCount, Value* args) {
  */
 static Value makeDir(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("mkdir() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     if (mkdir(path, 0755) != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("mkdir() failed to create directory.");
     }
     return NIL_VAL;
 }
@@ -222,11 +222,11 @@ static Value makeDir(int argCount, Value* args) {
  */
 static Value rmDir(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("rmdir() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     if (rmdir(path) != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("rmdir() failed to remove directory.");
     }
     return NIL_VAL;
 }
@@ -239,11 +239,11 @@ static Value rmDir(int argCount, Value* args) {
  */
 static Value removeFile(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("remove() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     if (unlink(path) != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("remove() failed to remove file.");
     }
     return NIL_VAL;
 }
@@ -254,12 +254,12 @@ static Value removeFile(int argCount, Value* args) {
  */
 static Value listDir(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("listdir() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     DIR* dir = opendir(path);
     if (dir == NULL) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("listdir() failed to open directory.");
     }
 
     ObjList* list = newList();
@@ -291,7 +291,7 @@ static Value listDir(int argCount, Value* args) {
  */
 static Value existsNtv(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("exists() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     struct stat buffer;
@@ -307,12 +307,12 @@ static Value existsNtv(int argCount, Value* args) {
  */
 static Value isFile(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("isfile() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     struct stat buffer;
     if (stat(path, &buffer) != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("isfile() failed to stat path.");
     }
     return BOOL_VAL(S_ISREG(buffer.st_mode));
 }
@@ -325,12 +325,12 @@ static Value isFile(int argCount, Value* args) {
  */
 static Value isDir(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("isdir() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     struct stat buffer;
     if (stat(path, &buffer) != 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("isdir() failed to stat path.");
     }
     return BOOL_VAL(S_ISDIR(buffer.st_mode));
 }
@@ -343,12 +343,12 @@ static Value isDir(int argCount, Value* args) {
  */
 static Value absPath(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("abspath() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     char* resolved = realpath(path, NULL);
     if (resolved == NULL) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("abspath() failed to resolve path.");
     }
     Value result = OBJ_VAL(copyString(resolved, (int)strlen(resolved)));
     free(resolved);
@@ -363,13 +363,13 @@ static Value absPath(int argCount, Value* args) {
  */
 static Value joinPath(int argCount, Value* args) {
     if (argCount < 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("join() expects at least one string argument.");
     }
     char path[1024] = {0};
     const char* sep = "/";
     for (int i = 0; i < argCount; i++) {
         if (!IS_STRING(args[i])) {
-            return ERROR_VAL;
+            return ERROR_VAL_PTR("join() expects all arguments to be strings.");
         }
         const char* part = AS_CSTRING(args[i]);
         if (i > 0) {
@@ -388,7 +388,7 @@ static Value joinPath(int argCount, Value* args) {
  */
 static Value baseName(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("basename() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     const char* base = strrchr(path, '/');
@@ -406,7 +406,7 @@ static Value baseName(int argCount, Value* args) {
  */
 static Value dirName(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("dirname() expects a single string argument.");
     }
     const char* path = AS_CSTRING(args[0]);
     char dir[1024];

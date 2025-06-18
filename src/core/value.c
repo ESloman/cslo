@@ -89,6 +89,8 @@ void printValue(Value value) {
         case VAL_EMPTY:
             printf("<empty>");
             break;
+        case VAL_ERROR:
+            printf("<exception>");
         default:
             return;
     }

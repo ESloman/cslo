@@ -71,7 +71,7 @@ Value timeNative(int argCount, Value* args) {
  */
 Value sleepNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("sleep() expects a single numeric argument.");
     }
     double t = AS_NUMBER(args[0]);
     sleep(t);
@@ -83,7 +83,7 @@ Value sleepNative(int argCount, Value* args) {
  */
 Value printNative(int argCount, Value* args) {
     if (argCount < 1) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("print() expects at least one argument.");
     }
     for (int i = 0; i < argCount; i++) {
         printValue(args[i]);
@@ -99,7 +99,7 @@ Value printNative(int argCount, Value* args) {
  */
 Value exitNative(int argCount, Value* args) {
     if (argCount > 0 && !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("exit() expects a numeric argument (if any).");
     }
     int status = 0;
     if (0 < argCount) {
@@ -115,8 +115,7 @@ Value exitNative(int argCount, Value* args) {
  */
 Value lenNative(int argCount, Value* args) {
     if (argCount != 1 || (!IS_LIST(args[0]) && !IS_STRING(args[0]) && !IS_DICT(args[0]))) {
-        printf("len() expects a single argument of type string, list, or dict.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("len() expects a single argument of type string, list, or dict.");
     }
     switch (OBJ_TYPE(args[0])) {
         case OBJ_STRING:
@@ -126,8 +125,7 @@ Value lenNative(int argCount, Value* args) {
         case OBJ_DICT:
             return NUMBER_VAL((double)AS_DICT(args[0])->data.count);
         default:
-            printf("len() expects a single argument of type string or list.\n");
-            return ERROR_VAL;
+            return ERROR_VAL_PTR("len() expects a single argument of type string, list, or dict.");
     }
 }
 
@@ -139,7 +137,7 @@ Value lenNative(int argCount, Value* args) {
  */
 Value absNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("abs() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
     return NUMBER_VAL(value < 0 ? -value : value);
@@ -151,7 +149,7 @@ Value absNative(int argCount, Value* args) {
  */
 Value minNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("min() expects two numeric arguments.");
     }
     double a = AS_NUMBER(args[0]);
     double b = AS_NUMBER(args[1]);
@@ -164,7 +162,7 @@ Value minNative(int argCount, Value* args) {
  */
 Value maxNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("max() expects two numeric arguments.");
     }
     double a = AS_NUMBER(args[0]);
     double b = AS_NUMBER(args[1]);

@@ -103,6 +103,9 @@
 /** Macro for converting a Value to an ObjFile. */
 #define AS_FILE(value)        ((ObjFile*)AS_OBJ(value))
 
+/** Macro for convering a Value to an ObjError. */
+#define AS_ERROR(value)       ((ObjError*)AS_OBJ(value))
+
 /**
  * @enum ObjType
  */
@@ -120,6 +123,7 @@ typedef enum ObjType {
     OBJ_MODULE,
     OBJ_ENUM,
     OBJ_FILE,
+    OBJ_ERROR,
 } ObjType;
 
 /**
@@ -271,6 +275,14 @@ typedef struct {
 } ObjFile;
 
 /**
+ * @struct ObjError
+ */
+typedef struct {
+    Obj obj;
+    ObjString* message;
+} ObjError;
+
+/**
  * Method for creating a new bound method.
  */
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
@@ -339,6 +351,11 @@ ObjEnum* newEnum(ObjString* name);
  * Method for creating a new ObjFile.
  */
 ObjFile* newFile(FILE* file);
+
+/**
+ * Method for creating a new ObjError.
+ */
+ObjError* newError(const char* message);
 
 /**
  * Method for printing an object.

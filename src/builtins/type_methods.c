@@ -36,7 +36,7 @@ void registerBuiltInTypeMethods(Table* tbl) {
  */
 Value boolCvrt(int argCount, Value* args) {
     if (argCount != 1) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("bool() expects a single argument.");
     }
     Value value = args[0];
     if (IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value)) || (IS_NUMBER(value) && AS_NUMBER(value) == 0) || (IS_STRING(value) && AS_STRING(value)->length == 0) || (IS_LIST(value) && AS_LIST(value)->count == 0) || (IS_DICT(value) && AS_DICT(value)->data.count == 0)) {
@@ -53,7 +53,7 @@ Value boolCvrt(int argCount, Value* args) {
  */
 Value numberCvrt(int argCount, Value* args) {
     if (argCount != 1) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("number() expects a single argument.");
     }
     Value value = args[0];
     if (IS_NIL(value)) {
@@ -70,10 +70,10 @@ Value numberCvrt(int argCount, Value* args) {
         if (endptr != str->chars && *endptr == '\0') {
             return NUMBER_VAL(num);
         } else {
-            return ERROR_VAL;
+            return ERROR_VAL_PTR("number() could not convert string to number.");
         }
     }
-    return ERROR_VAL;
+    return ERROR_VAL_PTR("number() could not convert value to number.");
 }
 
 /**
@@ -84,7 +84,7 @@ Value numberCvrt(int argCount, Value* args) {
 */
 Value strCvrt(int argCount, Value* args) {
     if (argCount != 1) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("str() expects a single argument.");
     }
     Value value = args[0];
 
@@ -99,9 +99,5 @@ Value strCvrt(int argCount, Value* args) {
     } else if (IS_STRING(value)) {
         return value;
     }
-    // return an error for now - come back to this later
-    return ERROR_VAL;
-    // // For lists, dicts, or other objects, call their toString method or implement custom logic.
-    // // Example fallback:
-    // return OBJ_VAL(copyString("<object>", 8));
+    return ERROR_VAL_PTR("str() could not convert value to string.");
 }

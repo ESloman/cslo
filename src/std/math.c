@@ -40,7 +40,7 @@ ObjModule* getMathModule() {
  */
 static Value ceilNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("ceil() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
     return NUMBER_VAL(ceil(value));
@@ -52,7 +52,7 @@ static Value ceilNative(int argCount, Value* args) {
  */
 static Value floorNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("floor() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
     return NUMBER_VAL(floor(value));
@@ -64,11 +64,11 @@ static Value floorNative(int argCount, Value* args) {
  */
 static Value sqrtNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("sqrt() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
     if (value < 0) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("sqrt() domain error: negative input.");
     }
     return NUMBER_VAL(sqrt(value));
 }
@@ -79,7 +79,7 @@ static Value sqrtNative(int argCount, Value* args) {
  */
 static Value sinNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("sin() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
     return NUMBER_VAL(sin(value));
@@ -91,7 +91,7 @@ static Value sinNative(int argCount, Value* args) {
  */
 static Value cosNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("cos() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
     return NUMBER_VAL(cos(value));
@@ -103,7 +103,7 @@ static Value cosNative(int argCount, Value* args) {
  */
 static Value tanNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("tan() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
     return NUMBER_VAL(tan(value));

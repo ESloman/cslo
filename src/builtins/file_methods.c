@@ -30,14 +30,14 @@ void registerBuiltInFileMethods(Table* tbl) {
  */
 static Value open(int argCount, Value* args) {
     if (argCount < 1 || argCount > 2 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("open() expects a file path (string) and optional mode.");
     }
 
     const char* path = AS_CSTRING(args[0]);
     const char* mode = (argCount == 2 && IS_STRING(args[1])) ? AS_CSTRING(args[1]) : "r";
     FILE* f = fopen(path, mode);
     if (!f) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("Failed to open file.");
     }
 
     // Ownership of 'f' is transferred to ObjFile.

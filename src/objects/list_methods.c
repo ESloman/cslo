@@ -41,8 +41,7 @@ void registerListMethods(ObjClass* cls) {
  */
 Value appendNative(int argCount, Value *args) {
     if (argCount != 2 || !IS_LIST(args[0])) {
-        printf("append() must be called on a list with one argument.");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("append() must be called on a list with one argument.");
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count + 1 > list->values.capacity) {
@@ -59,8 +58,7 @@ Value appendNative(int argCount, Value *args) {
  */
 Value insertNative(int argCount, Value* args) {
     if (argCount != 3 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
-        printf("insert() must be called on a list with an index and a value.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("insert() must be called on a list with an index and a value.");
     }
     ObjList* list = AS_LIST(args[0]);
     int idx = (int)AS_NUMBER(args[1]);
@@ -94,14 +92,12 @@ Value insertNative(int argCount, Value* args) {
  */
 Value removeNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
-        printf("remove() must be called on a list with an index.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("remove() must be called on a list with an index.");
     }
     ObjList* list = AS_LIST(args[0]);
     int idx = (int)AS_NUMBER(args[1]);
     if (idx < 0 || idx >= list->count) {
-        printf("Index out of bounds for remove().\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("Index out of bounds for remove().");
     }
 
     Value removed = list->values.values[idx];
@@ -120,8 +116,7 @@ Value removeNative(int argCount, Value* args) {
  */
 Value reverseNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
-        printf("reverse() must be called on a list.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("reverse() must be called on a list.");
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count == 0 || list->count == 1) {
@@ -143,12 +138,10 @@ Value reverseNative(int argCount, Value* args) {
  */
 Value indexNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0])) {
-        printf("index() must be called on a list with a value.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("index() must be called on a list with a value.");
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count == 0) {
-        printf("index() called on an empty list.\n");
         return NIL_VAL;
     }
 
@@ -165,8 +158,7 @@ Value indexNative(int argCount, Value* args) {
  */
 Value countNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0])) {
-        printf("count() must be called on a list with a value.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("count() must be called on a list with a value.");
     }
     ObjList* list = AS_LIST(args[0]);
     if (list->count == 0) {
@@ -189,8 +181,7 @@ Value countNative(int argCount, Value* args) {
  */
 Value extendNative(int argCount, Value* args) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_LIST(args[1])) {
-        printf("extend() must be called on a list with a list.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("extend() must be called on a list with a list.");
     }
     ObjList* list = AS_LIST(args[0]);
     ObjList* other = AS_LIST(args[1]);
@@ -216,8 +207,7 @@ Value extendNative(int argCount, Value* args) {
  */
 Value sortNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_LIST(args[0])) {
-        printf("sort() must be called on a list.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("sort() must be called on a list.");
     }
     ObjList* list = AS_LIST(args[0]);
 

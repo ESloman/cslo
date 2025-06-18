@@ -31,14 +31,12 @@ void registerFileMethods(ObjClass* cls) {
 
 static Value fileRead(int argCount, Value* args) {
     if (argCount != 1 || !IS_FILE(args[0])) {
-        // printf("fileRead() must be called on a file object.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("read() must be called on a file object.");
     }
 
     ObjFile* sFile = AS_FILE(args[0]);
     if (sFile->closed) {
-        // printf("fileRead() called on a closed file.\n");
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("fileRead() called on a closed file.");
     }
 
     fseek(sFile->file, 0, SEEK_END);
@@ -59,12 +57,12 @@ static Value fileRead(int argCount, Value* args) {
 
 static Value fileClose(int argCount, Value* args) {
     if (argCount != 1 || !IS_FILE(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("close() must be called on a file object.");
     }
 
     ObjFile* sFile = AS_FILE(args[0]);
     if (sFile->closed) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("fileClose() called on a closed file.");
     }
 
     fclose(sFile->file);

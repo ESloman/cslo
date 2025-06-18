@@ -256,8 +256,8 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 #endif
                 Value result = native(argCount, vm.stackTop - argCount);
                 if (IS_ERROR(result)) {
-                    // todo: handle native errors
-                    runtimeError(ERROR_RUNTIME, "Native function returned an error.");
+                    ObjError* error = AS_ERROR(result);
+                    runtimeError(ERROR_RUNTIME, error->message->chars);
                     return false;
                 }
                 vm.stackTop -= argCount + 1;
@@ -347,8 +347,8 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
                 NativeFn native = AS_NATIVE(method);
                 Value result = native(argCount + 1, vm.stackTop - argCount - 1);
                 if (IS_ERROR(result)) {
-                    // todo: add native error handling
-                    runtimeError(ERROR_RUNTIME, "Native function returned an error.");
+                    ObjError* error = AS_ERROR(result);
+                    runtimeError(ERROR_RUNTIME, error->message->chars);
                     return false;
                 }
                 vm.stackTop -= argCount + 1;
@@ -376,7 +376,8 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             NativeFn native = AS_NATIVE(method);
             Value result = native(argCount + 1, vm.stackTop - argCount - 1);
             if (IS_ERROR(result)) {
-                runtimeError(ERROR_RUNTIME, "Native function returned an error.");
+                ObjError* error = AS_ERROR(result);
+                runtimeError(ERROR_RUNTIME, error->message->chars);
                 return false;
             }
             vm.stackTop -= argCount + 1;
@@ -406,8 +407,8 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
                 NativeFn native = AS_NATIVE(method);
                 Value result = native(argCount + 1, vm.stackTop - argCount - 1);
                 if (IS_ERROR(result)) {
-                    // todo: add native error handling
-                    runtimeError(ERROR_RUNTIME, "Native function returned an error.");
+                    ObjError* error = AS_ERROR(result);
+                    runtimeError(ERROR_RUNTIME, error->message->chars);
                     return false;
                 }
                 vm.stackTop -= argCount + 1;

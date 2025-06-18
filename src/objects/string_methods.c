@@ -58,7 +58,7 @@ void registerStringMethods(ObjClass* cls) {
  */
 Value upper(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("upper() must be called on a string.");
     }
 
     ObjString* original = AS_STRING(args[0]);
@@ -82,7 +82,7 @@ Value upper(int argCount, Value* args) {
  */
 Value lower(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("lower() must be called on a string.");
     }
 
     ObjString* original = AS_STRING(args[0]);
@@ -106,7 +106,7 @@ Value lower(int argCount, Value* args) {
  */
 Value title(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("title() must be called on a string.");
     }
 
     ObjString* original = AS_STRING(args[0]);
@@ -139,13 +139,13 @@ Value title(int argCount, Value* args) {
  */
 Value split(int argCount, Value* args) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("split() must be called on a string and a delimiter string.");
     }
 
     ObjString* original = AS_STRING(args[0]);
     ObjString* delimiter = AS_STRING(args[1]);
     if (delimiter->length == 0 || delimiter->length > original->length) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("Delimiter must be non-empty and shorter than the string.");
     }
     char delim = delimiter->chars[0];
     ObjList* list = newList();
@@ -189,7 +189,7 @@ Value split(int argCount, Value* args) {
  */
 Value strip(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("strip() must be called on a string.");
     }
 
     ObjString* original = AS_STRING(args[0]);
@@ -233,7 +233,7 @@ Value strip(int argCount, Value* args) {
  */
 Value startsWith(int argCount, Value* args) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("startswith() must be called on a string and a prefix string.");
     }
 
     ObjString* original = AS_STRING(args[0]);
@@ -260,7 +260,7 @@ Value startsWith(int argCount, Value* args) {
  */
 Value endsWith(int argCount, Value* args) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("endswith() must be called on a string and a suffix string.");
     }
 
     ObjString* original = AS_STRING(args[0]);
@@ -288,7 +288,7 @@ Value endsWith(int argCount, Value* args) {
  */
 Value isAlpha(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("isalpha() must be called on a string.");
     }
     ObjString* str = AS_STRING(args[0]);
     for (int i = 0; i < str->length; i++) {
@@ -307,7 +307,7 @@ Value isAlpha(int argCount, Value* args) {
  */
 Value isAlphaNumeric(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("isalphanum() must be called on a string.");
     }
     ObjString* str = AS_STRING(args[0]);
     for (int i = 0; i < str->length; i++) {
@@ -326,7 +326,7 @@ Value isAlphaNumeric(int argCount, Value* args) {
  */
 Value isDigit(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("isdigit() must be called on a string.");
     }
     ObjString* str = AS_STRING(args[0]);
     for (int i = 0; i < str->length; i++) {
@@ -345,7 +345,7 @@ Value isDigit(int argCount, Value* args) {
  */
 Value find(int argCount, Value* args) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("find() must be called on a string and a substring.");
     }
     ObjString* original = AS_STRING(args[0]);
     ObjString* sub = AS_STRING(args[1]);
@@ -377,7 +377,7 @@ Value find(int argCount, Value* args) {
  */
 Value replace(int argCount, Value* args) {
     if (argCount != 3 || !IS_STRING(args[0]) || !IS_STRING(args[1]) || !IS_STRING(args[2])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("replace() must be called on a string, old substring, and new substring.");
     }
     ObjString* original = AS_STRING(args[0]);
     ObjString* oldSub = AS_STRING(args[1]);
@@ -440,7 +440,7 @@ Value replace(int argCount, Value* args) {
  */
 Value count(int argCount, Value* args) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("count() must be called on a string and a substring.");
     }
     ObjString* original = AS_STRING(args[0]);
     ObjString* sub = AS_STRING(args[1]);
@@ -474,19 +474,17 @@ Value count(int argCount, Value* args) {
  */
 Value strIndex(int argCount, Value* args) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("index() must be called on a string and a substring.");
     }
     ObjString* str = AS_STRING(args[0]);
     ObjString* index = AS_STRING(args[1]);
-
     if (index->length != 1) {
-        return ERROR_VAL;
+        return ERROR_VAL_PTR("index() second argument must be a single character.");
     }
-
     for (int i = 0; i < str->length; i++) {
         if (str->chars[i] == index->chars[0]) {
             return NUMBER_VAL((double)i);
         }
     }
-    return ERROR_VAL;
+    return ERROR_VAL_PTR("Character not found in string.");
 }

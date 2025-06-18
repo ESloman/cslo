@@ -9,6 +9,7 @@ expected_errors = [
     "for_in_iterating.slo",
     "locals.slo",
     "errors.slo",
+    "pop.slo",
 ]
 
 if __name__ == "__main__":
