@@ -1,2 +1,4 @@
+sonar.inclusions=src/**,include/**
 sonar.exclusions=third_party/**
+sonar.test.inclusions=tests/**
 sonar.python.version=3.13
