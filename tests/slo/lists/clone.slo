@@ -1,3 +1,3 @@
 var list_a = [1, 2, 3, 4];
 var list_b = list_a.clone();
-print(list_a == list_b);
+println(list_a == list_b);

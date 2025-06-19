@@ -1,7 +1,7 @@
 var a = ["a", "b", "c", "d", "e"];
 
 for (var letter in a) {
-    print(letter);
+    println(letter);
 }
 
-print(a);
+println(a);

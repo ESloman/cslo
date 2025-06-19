@@ -39,6 +39,9 @@
 /** Macro for checking the given object is an ObjNative. */
 #define IS_NATIVE(value)       isObjType(value, OBJ_NATIVE)
 
+/** Macro for checking the given object is an ObjNativeProperty. */
+#define IS_NATIVE_PROPERTY(value) isObjType(value, OBJ_NATIVE_PROPERTY)
+
 /** Macro for checking the given object is an ObjString. */
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 
@@ -82,6 +85,9 @@
 /** Macro for converting the Value to an ObjNative. */
 #define AS_NATIVE(value)       (((ObjNative*)AS_OBJ(value))->function)
 
+/** Macro for converting the Value to an ObjNativeProperty. */
+#define AS_NATIVE_PROPERTY(value) (((ObjNativeProperty*)AS_OBJ(value))->getter)
+
 /** Macro for converting a Value to an ObjString. */
 #define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
 
@@ -115,6 +121,7 @@ typedef enum ObjType {
     OBJ_CLOSURE,
     OBJ_FUNCTION,
     OBJ_NATIVE,
+    OBJ_NATIVE_PROPERTY,
     OBJ_INSTANCE,
     OBJ_STRING,
     OBJ_UPVALUE,
@@ -166,6 +173,7 @@ typedef struct ObjFunction {
 
 
 typedef Value (*NativeFn)(int argCount, Value* args);
+typedef Value (*NativeProperty)(Value arg);
 
 /**
  * @struct ObjNative defintion
@@ -176,17 +184,25 @@ typedef struct ObjNative {
 } ObjNative;
 
 /**
+ * @struct ObjNativeProperty defintion
+ */
+typedef struct ObjNativeProperty {
+    Obj obj;
+    NativeProperty getter;
+} ObjNativeProperty;
+
+/**
  * @struct ObjString.
  *
  * As well as the base Obj, contains the length of the string
  * and a pointer to the actual string.
  */
-struct ObjString {
+typedef struct ObjString {
     Obj obj;
     int length;
     char* chars;
     uint32_t hash;
-};
+} ObjString;
 
 /**
  * @struct ObjUpvalue
@@ -220,6 +236,7 @@ typedef struct ObjClass{
     ObjString* name;
     struct ObjClass* superclass;
     Table methods;
+    Table nativeProperties;
 } ObjClass;
 
 /**
@@ -285,6 +302,7 @@ typedef struct {
     FILE* file;
     bool closed;
     FileMode mode;
+    ObjString* name;
 } ObjFile;
 
 /**
@@ -326,6 +344,11 @@ ObjFunction* newFunction();
 ObjNative* newNative(NativeFn function);
 
 /**
+ * Method for creating a new ObjNativeProperty.
+ */
+ObjNativeProperty* newNativeProperty(NativeProperty getter);
+
+/**
  * Method for creating an ObjString an taking ownership of the given string.
  */
 ObjString* takeString(char* chars, int length);
@@ -363,7 +386,7 @@ ObjEnum* newEnum(ObjString* name);
 /**
  * Method for creating a new ObjFile.
  */
-ObjFile* newFile(FILE* file, FileMode mode);
+ObjFile* newFile(FILE* file, FileMode mode, ObjString* name);
 
 /**
  * Method for creating a new ObjError.

@@ -24,3 +24,10 @@ void defineBuiltIn(Table* tbl, const char* name, NativeFn function) {
     // pop();
     // pop();
 }
+
+/**
+ *
+ */
+void addNativeProperty(Table* tbl, const char* name, NativeProperty getter) {
+    tableSet(tbl, OBJ_VAL(copyString(name, (int)strlen(name))), OBJ_VAL(newNativeProperty(getter)));
+}

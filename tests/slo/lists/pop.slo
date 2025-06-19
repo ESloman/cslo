@@ -1,16 +1,16 @@
 var x = [1, 2, 3];
-print(x);
+println(x);
 
 var z = x.pop();  # 3
-print(x);
-print(z);
+println(x);
+println(z);
 
 var a = x.pop();  # 2
-print(a);
-print(x);
+println(a);
+println(x);
 
-print(x.pop());  # 1
-print(x);
+println(x.pop());  # 1
+println(x);
 
-print(x.pop());
-print(x);
+println(x.pop());
+println(x);

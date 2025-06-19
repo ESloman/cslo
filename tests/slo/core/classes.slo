@@ -6,18 +6,18 @@ class TestClass {
     }
 
     func hello() {
-        print("My name is: " + self.name);
+        println("My name is: " + self.name);
     }
 }
 
 var test = TestClass("elliot", 29);
 var h = test.hello;
-print(h);
+println(h);
 h();
-print(test);
-print(test.name);
-print(test.age);
-print(test.hello);
+println(test);
+println(test.name);
+println(test.age);
+println(test.hello);
 test.hello();
 
 var test2 = TestClass("bob", 43);

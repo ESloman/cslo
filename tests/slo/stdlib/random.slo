@@ -4,27 +4,27 @@ import random;
 random.seed(1000);
 
 for(var i = 0; i < 10; i++) {
-    print(random.random());
+    println(random.random());
 }
 
 for(var j = 0; j < 10; j++){
-    print(random.randint(0, j));
+    println(random.randint(0, j));
 }
 
 for(var j = 0; j < 10; j++){
-    print(random.randrange(0, j));
+    println(random.randrange(0, j));
 }
 
 var list = [1, 2, 3, 4, 5, 6];
-print(random.choice(list));
+println(random.choice(list));
 
-print(random.shuffle(list));
+println(random.shuffle(list));
 
-print(random.randbool());
+println(random.randbool());
 
-print(random.randbytes(5));
+println(random.randbytes(5));
 
-print(random.gauss(0, 1));
+println(random.gauss(0, 1));
 
 var sample = random.sample(list, 3);
-print(sample);
+println(sample);

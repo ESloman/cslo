@@ -1,5 +1,5 @@
 var map = {"a": 1, "b": 2, "c": 3};
-print(map.pop("a"));     # 1
-print(map);              # no 'a' key
-print(map.pop("d"));     # nil
-print(map.pop("d", 4));  # 4
+println(map.pop("a"));     # 1
+println(map);              # no 'a' key
+println(map.pop("d"));     # nil
+println(map.pop("d", 4));  # 4

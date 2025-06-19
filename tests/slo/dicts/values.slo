@@ -1,5 +1,5 @@
 var map = {"a": 1, "b": 2, "c": 3};
-print(map.values());
+println(map.values());
 for (var value in map.values()) {
-    print(value);
+    println(value);
 }

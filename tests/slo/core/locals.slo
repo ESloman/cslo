@@ -1,10 +1,10 @@
 var x = 10;
 {
-    print(x);
+    println(x);
     var y = 6;
-    print(y);
-    print(x * y);
+    println(y);
+    println(x * y);
 }
 
 this will error
-print(y);
+println(y);

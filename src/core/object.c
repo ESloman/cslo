@@ -50,6 +50,7 @@ ObjClass* newClass(ObjString* name, ObjClass* superClass) {
     sClass->name = name;
     sClass->superclass = superClass;
     initTable(&sClass->methods);
+    initTable(&sClass->nativeProperties);
     return sClass;
 }
 
@@ -102,6 +103,15 @@ ObjNative* newNative(NativeFn function) {
 }
 
 /**
+ * Method for creating a new ObjNativeProperty.
+ */
+ObjNativeProperty* newNativeProperty(NativeProperty getter) {
+    ObjNativeProperty* nativeProperty = ALLOCATE_OBJ(ObjNativeProperty, OBJ_NATIVE_PROPERTY);
+    nativeProperty->getter = getter;
+    return nativeProperty;
+}
+
+/**
  * Method for creating a new upvalue.
  */
 ObjUpvalue* newUpvalue(Value* slot) {
@@ -140,11 +150,12 @@ ObjEnum* newEnum(ObjString* name) {
     return sEnum;
 }
 
-ObjFile* newFile(FILE* file, FileMode mode) {
+ObjFile* newFile(FILE* file, FileMode mode, ObjString* name) {
     ObjFile* sFile = ALLOCATE_OBJ(ObjFile, OBJ_FILE);
     sFile->file = file;
     sFile->closed = false;
     sFile->mode = mode;
+    sFile->name = name;
     return sFile;
 }
 

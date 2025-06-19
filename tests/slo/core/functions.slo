@@ -1,14 +1,14 @@
 func echo(x) {
-    print(x);
-    print(x + 10);
+    println(x);
+    println(x + 10);
 }
 
-print("Start");
+println("Start");
 for (var i = 0; i < 25; i = i + 1) {
-    print(i);
+    println(i);
 }
 
-print("End");
+println("End");
 
 echo(59);
 
@@ -20,8 +20,8 @@ func sloman2(x, y, z) {
     return x + y + z;
 }
 
-print(sloman);
-print(sloman2);
+println(sloman);
+println(sloman2);
 
-print(sloman());
-print(sloman2(1, 5, 9));
+println(sloman());
+println(sloman2(1, 5, 9));

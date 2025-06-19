@@ -2,7 +2,7 @@ var x = "global";
 func outer() {
   var x = "outer";
   func inner() {
-    print(x);
+    println(x);
   }
   inner();
 }
@@ -12,7 +12,7 @@ outer();
 func outer2() {
   var y = "outside";
   func inner2() {
-    print(y);
+    println(y);
   }
 
   return inner2;

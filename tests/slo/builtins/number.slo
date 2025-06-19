@@ -1,5 +1,5 @@
-print(number(false));   # 0
-print(number(true));    # 1
-print(number(nil));     # 0
-print(number("1"));     # 1
-print(number("12.5"));  # 12.5
+println(number(false));   # 0
+println(number(true));    # 1
+println(number(nil));     # 0
+println(number("1"));     # 1
+println(number("12.5"));  # 12.5

@@ -1,13 +1,13 @@
 
 for (var x = 0; x < 10; x++) {
     if (x == 2) {
-        print("x is 2");
+        println("x is 2");
     } elif (x == 1) {
-        print("x is 1");
+        println("x is 1");
     } elif (x == 3) {
-        print("x is 3");
+        println("x is 3");
     } else {
-        print("x is neither");
+        println("x is neither");
     }
 }
 
@@ -15,23 +15,23 @@ for (var x = 0; x < 10; x++) {
 var y = 0;
 while (y < 10) {
     if (y == 0) {
-        print("y is 0");
-        print(y);
+        println("y is 0");
+        println(y);
     } elif (y % 2 == 0) {
-        print("y is even");
-        print(y);
+        println("y is even");
+        println(y);
     } else {
-        print("y is odd");
+        println("y is odd");
     }
     y += 1;
 }
 
 for (var z = 0; z < 3; z++) {
     if (z == 1) {
-        print("z is 1");
+        println("z is 1");
     } elif (z == 2) {
-        print("z == 2");
+        println("z == 2");
     }
 }
 
-print("end of elif.slo");
+println("end of elif.slo");

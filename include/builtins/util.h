@@ -18,4 +18,9 @@
 void defineBuiltIn(Table* tbl, const char* name, NativeFn function);
 
 
+/**
+ *
+ */
+void addNativeProperty(Table* tbl, const char* name, NativeProperty getter);
+
 #endif

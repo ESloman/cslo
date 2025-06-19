@@ -43,6 +43,6 @@ static Value open(int argCount, Value* args) {
 
     // Ownership of 'f' is transferred to ObjFile.
     // ObjFile is responsible for closing the file
-    ObjFile* sFile = newFile(f, fileMode);
+    ObjFile* sFile = newFile(f, fileMode, AS_STRING(args[0]));
     return OBJ_VAL(sFile);
 }

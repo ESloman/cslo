@@ -1,5 +1,5 @@
 var x = 1;
-print(x);
+println(x);
 --x;
-print(x);
-print(--x);
+println(x);
+println(--x);

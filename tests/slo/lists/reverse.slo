@@ -1,11 +1,11 @@
 var x = [1, 2, 3, 4];
-print(x);
-print(x.reverse());
+println(x);
+println(x.reverse());
 
 var y = [1];
-print(y);
-print(y.reverse());
+println(y);
+println(y.reverse());
 
 var z = [];
-print(z);
-print(z.reverse());
+println(z);
+println(z.reverse());

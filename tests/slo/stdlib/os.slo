@@ -1,18 +1,18 @@
 import os;
 
 var path = os.getenv("FOO");
-print(path);
+println(path);
 
 os.setenv("TEST", "somevalue");
-print(os.getenv("TEST"));
+println(os.getenv("TEST"));
 
 var original_dir = os.getcwd();
 
 os.chdir("/tmp/");
-print(os.getcwd());
+println(os.getcwd());
 
-print(os.getpid());
-print(os.getuid());
+println(os.getpid());
+println(os.getuid());
 
 if (!os.exists("/tmp/test")) {
     os.mkdir("/tmp/test");
@@ -23,16 +23,16 @@ var path = os.getcwd();
 var count = 0;
 for (var obj in os.listdir(path)) {
     count++;
-    print("Found: ", obj);
+    println("Found: ", obj);
     if (os.isfile(obj)) {
-        print("It's a file!");
+        println("It's a file!");
     } elif (os.isdir(obj)) {
-        print("It's a directory!");
+        println("It's a directory!");
     } else {
-        print("uhoh");
+        println("uhoh");
     }
 }
 
-print("Found ", count, " things in ", path);
+println("Found ", count, " things in ", path);
 
 os.rmdir("/tmp/test");

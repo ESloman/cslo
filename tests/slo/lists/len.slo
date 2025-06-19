@@ -1,5 +1,5 @@
 var x = [1, 2, 3];
-print(len(x));
+println(len(x));
 
 var y = [];
-print(len(y));
+println(len(y));

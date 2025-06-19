@@ -1,5 +1,5 @@
 
 var foo;
 
-print(foo);
-print(foo + foo);
+println(foo);
+println(foo + foo);

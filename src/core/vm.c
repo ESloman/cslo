@@ -1030,9 +1030,9 @@ static InterpretResult run() {
                 break;
             }
             case OP_GET_PROPERTY: {
-                if (!IS_INSTANCE(peek(0)) && !IS_ENUM(peek(0))) {
+                if (!IS_INSTANCE(peek(0)) && !IS_ENUM(peek(0)) && !IS_FILE(peek(0))) {
                     frame->ip = ip;
-                    runtimeError(ERROR_ATTRIBUTE, "Only instances have properties.");
+                    runtimeError(ERROR_ATTRIBUTE, "Object doesn't have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (IS_INSTANCE(peek(0))) {
@@ -1058,6 +1058,30 @@ static InterpretResult run() {
                         pop();
                         push(value);
                         break;
+                    }
+
+                    frame->ip = ip;
+                    runtimeError(ERROR_ATTRIBUTE, "Undefined property '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                } else if (IS_FILE(peek(0))) {
+                    ObjString* name = READ_STRING();
+                    Value value;
+                    if (tableGet(&vm.fileClass->nativeProperties, OBJ_VAL(name), &value)) {
+                        if (IS_NATIVE_PROPERTY(value)) {
+                            NativeProperty native = AS_NATIVE_PROPERTY(value);
+                            Value result = native(pop());
+                            if (IS_ERROR(result)) {
+                                ObjError* error = AS_ERROR(result);
+                                runtimeError(ERROR_RUNTIME, error->message->chars);
+                                return INTERPRET_RUNTIME_ERROR;
+                            }
+                            push(result);
+                            break;
+                        } else {
+                            frame->ip = ip;
+                            runtimeError(ERROR_ATTRIBUTE, "Undefined property '%s'.", name->chars);
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
                     }
 
                     frame->ip = ip;

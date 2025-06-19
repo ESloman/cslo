@@ -5,8 +5,8 @@ enum Colours {
     ORANGE
 }
 
-print(Colours.BLACK);        # 0
-print(Colours.YELLOW == 2);  # true
+println(Colours.BLACK);        # 0
+println(Colours.YELLOW == 2);  # true
 
 var yellow = Colours.YELLOW;
-print(yellow);               # 2
+println(yellow);               # 2

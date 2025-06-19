@@ -5,4 +5,4 @@ var map = {
     "key": 1
 };
 
-print(map);
+println(map);

@@ -1,31 +1,31 @@
 var string = "Hello, world!";
-print(string.upper());
-print(string.lower());
-print(string.title());
+println(string.upper());
+println(string.lower());
+println(string.title());
 
-print("alllowercase".upper());
+println("alllowercase".upper());
 
 var split = string.split(",");
 for (var part in split) {
-    print(part);
+    println(part);
 }
 
 var unstripped = "  Hello, world!        ";
-print(unstripped.strip());
+println(unstripped.strip());
 
-print(string.startswith("Hello"));  # true
-print(string.startswith("foo"));    # false
-print(string.endswith("world!"));   # true
-print(string.endswith("foo"));      # false
+println(string.startswith("Hello"));  # true
+println(string.startswith("foo"));    # false
+println(string.endswith("world!"));   # true
+println(string.endswith("foo"));      # false
 
-print(string.isalpha());         # false
-print(string.isdigit());         # false
-print(string.isalphanum());      # false
-print("hello".isalpha());        # true
-print("12345".isdigit());        # true
-print("hello123".isalphanum());  # true
+println(string.isalpha());         # false
+println(string.isdigit());         # false
+println(string.isalphanum());      # false
+println("hello".isalpha());        # true
+println("12345".isdigit());        # true
+println("hello123".isalphanum());  # true
 
-print(string.replace("world", "mum"));  # Hello, mum!
-print(string.count("l"));               # 3
-print(string.find("o"));                # 4
-print(string.index("w"));               # 7
+println(string.replace("world", "mum"));  # Hello, mum!
+println(string.count("l"));               # 3
+println(string.find("o"));                # 4
+println(string.index("w"));               # 7

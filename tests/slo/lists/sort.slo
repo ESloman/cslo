@@ -6,7 +6,7 @@ var x = [];
 for (var count = 0; count < 10; count++) {
     x.append(random.randint(0, 20));
 }
-print(x);
+println(x);
 
 x.sort();
-print(x);
+println(x);

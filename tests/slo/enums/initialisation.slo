@@ -5,4 +5,4 @@ enum Colours {
     ORANGE
 }
 
-print(Colours);
+println(Colours);

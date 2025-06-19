@@ -28,6 +28,7 @@ void defineNatives() {
     defineNative("sleep", sleepNative);
     defineNative("time", timeNative);
     defineNative("print", printNative);
+    defineNative("println", printLNNative);
     defineNative("len", lenNative);
 
     // math functions
@@ -98,6 +99,18 @@ Value printNative(int argCount, Value* args) {
             printValue(args[i]);
         }
     }
+    // printf("\n");
+    return NIL_VAL;
+}
+
+/**
+ * Println native function.
+ */
+Value printLNNative(int argCount, Value* args) {
+    if (argCount < 1) {
+        return ERROR_VAL_PTR("print() expects at least one argument.");
+    }
+    printNative(argCount, args);
     printf("\n");
     return NIL_VAL;
 }

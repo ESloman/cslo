@@ -1,9 +1,9 @@
 var list = [1, 2, 3, 4, 5];
 
 for (var item in list) {
-    print(item);
+    println(item);
 }
 
 for (var x = 0; x < 5; x++) {
-    print(list[x]);
+    println(list[x]);
 }

@@ -1,5 +1,5 @@
-print(str(nil));
-print(str(false));
-print(str(true));
-print(str(0));
-print(str(12.5));
+println(str(nil));
+println(str(false));
+println(str(true));
+println(str(0));
+println(str(12.5));

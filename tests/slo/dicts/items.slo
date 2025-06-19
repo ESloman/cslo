@@ -1,4 +1,4 @@
 var alpha = {"a": 1, "b": 2, "c": 3};
 for (var pair in alpha.items()) {
-    print("key: ", pair[0], ", value: ", pair[1]);
+    println("key: ", pair[0], ", value: ", pair[1]);
 }

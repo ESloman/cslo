@@ -26,6 +26,11 @@ Value clockNative(int argCount, Value* args);
 Value printNative(int argCount, Value* args);
 
 /**
+ * Println native function.
+ */
+Value printLNNative(int argCount, Value* args);
+
+/**
  * Sleep native function.
  */
 Value sleepNative(int argCount, Value* args);

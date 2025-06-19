@@ -35,6 +35,7 @@ I would like to eventually add type hints or some kind of type system but that's
 This is a non-exhaustive list of things that have been added / are different to `lox`.
 
 - print is a function (`print()`) and supports multiple arguments
+- dedicated `println()` for printing with automatic newlines
 - `func` instead of `fun` for function declarations
 - support for `elif`
 - `self` rather than `this` in classes
@@ -206,4 +207,9 @@ var contents = f.read();
 print(contents);
 f.close();
 print(f);  # should show file is closed
+
+var lines = ["Line 1", "Line 2", "Line 3"];
+var f = open("/tmp/text.txt", "w");
+f.writelines(lines);
+f.close();
 ```

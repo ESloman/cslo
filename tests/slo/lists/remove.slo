@@ -1,9 +1,9 @@
 var x = [1, 2, 3];
-print(x);
+println(x);
 
-print("Removed: ", x.remove(0));
-print(x);
+println("Removed: ", x.remove(0));
+println(x);
 
 var y = x.remove(1);
-print("Removed: ", y);
-print(x);
+println("Removed: ", y);
+println(x);

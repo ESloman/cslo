@@ -1,3 +1,3 @@
 var nums = {1: "a", 2: "b", 3: "c"};
-print(nums);
-print(len(nums));
+println(nums);
+println(len(nums));

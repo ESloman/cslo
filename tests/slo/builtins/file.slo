@@ -1,42 +1,34 @@
-import os;
-
-var cwd = os.getcwd();
-
-var file_to_open;
-for (var path in os.listdir(cwd)) {
-    if (file_to_open == nil and os.isfile(path)) {
-        # success!
-        file_to_open = os.join(cwd, path);
-    }
-}
-
-print(file_to_open);
-var opened = open(file_to_open, "r");
-print(opened);
-
-var contents = opened.read();
-
-for (var line in contents.split("\n")) {
-    print(line);
-}
-
-print("test");
-
-# make sure we close the file
-if (opened != nil) {
-    opened.close();
-}
-print(opened);
-
-var f = open("/tmp/test.txt", "w");
-f.write("Hello, World!\n");
+var f = open("/tmp/example.txt", "w");
+f.writeline("First line");
+f.writeline("Second line");
+f.writeline("Third line");
 f.close();
 
-var a = open("/tmp/test.txt", "a");
-a.write("Appending some text.
-");
-a.close();
+# Append another line
+var f = open("/tmp/example.txt", "a");
+f.writeline("Fourth line (appended)");
+println("File mode:", f.mode);      # Should print "a"
+println("File closed:", f.closed);  # Should print false
+f.close();
 
-var t = open("/tmp/test.txt", "r");
-print(t.read());
-t.close();
+# Read all lines
+var f = open("/tmp/example.txt", "r");
+println("File name:", f.name);      # Should print "/tmp/example.txt"
+var lines = f.readlines();
+for (var line in lines) {
+    print("Read line: ", line);
+}
+println("Current position: ", f.tell());
+f.seek(0);                        # Go back to start
+println("First line again: ", f.readline());
+f.close();
+
+# Truncate the file (clear contents)
+var f = open("/tmp/example.txt", "w");
+f.truncate();
+f.close();
+
+# Confirm file is now empty
+var f = open("/tmp/example.txt", "r");
+println("After truncate, contents: ", f.read());
+f.close();
