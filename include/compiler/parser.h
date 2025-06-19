@@ -108,16 +108,6 @@ void parseBlock();
 void parseGrouping(bool canAssign);
 
 /**
- * Method for compiling a number.
- */
-void parseNumber(bool canAssign);
-
-/**
- * Method for compiling a string.
- */
-void parseString(bool canAssign);
-
-/**
  * Method for compiling a variable.
  *
  * Will compile the variable and emit the appropriate bytecode.

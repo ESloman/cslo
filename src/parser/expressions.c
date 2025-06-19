@@ -6,6 +6,7 @@
  */
 
 #include "stdbool.h"
+#include "stdlib.h"
 
 #include "core/chunk.h"
 #include "compiler/codegen.h"
@@ -30,4 +31,27 @@ void parseDictLiteral(bool canAssign) {
     emitByte(OP_DICT, parser.previous.line);
     emitByte((kVPairsCount >> 8) & 0xff, parser.previous.line);
     emitByte(kVPairsCount & 0xff, parser.previous.line);
+}
+
+/**
+ * @brief Compiles a numeric literal.
+ *
+ * Emits bytecode to load the number onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
+ */
+void parseNumberLiteral(bool canAssign) {
+    double value = strtod(parser.previous.start, NULL);
+    emitConstant(NUMBER_VAL(value));
+}
+
+/**
+ * @brief Compiles a string literal.
+ *
+ * Emits bytecode to load the string onto the stack.
+ *
+ * @param canAssign Indicates if assignment is allowed (unused).
+ */
+void parseStringLiteral(bool canAssign) {
+    emitConstant(OBJ_VAL(copyString(parser.previous.start +1, parser.previous.length - 2)));
 }

@@ -17,6 +17,8 @@
 #include "core/value.h"
 #include "core/vm.h"
 
+#include "util.h"
+
 /**
  * Method for defining all our natives.
  */
@@ -86,7 +88,15 @@ Value printNative(int argCount, Value* args) {
         return ERROR_VAL_PTR("print() expects at least one argument.");
     }
     for (int i = 0; i < argCount; i++) {
-        printValue(args[i]);
+        if (IS_STRING(args[i])) {
+            ObjString* str = AS_STRING(args[i]);
+            size_t unescLen;
+            char* unesc = unescapeString(str->chars, str->length, &unescLen);
+            printf("%s", unesc);
+            free(unesc);
+        } else {
+            printValue(args[i]);
+        }
     }
     printf("\n");
     return NIL_VAL;

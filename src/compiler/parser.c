@@ -203,29 +203,6 @@ void parseGrouping(bool canAssign) {
 }
 
 /**
- * @brief Compiles a numeric literal.
- *
- * Emits bytecode to load the number onto the stack.
- *
- * @param canAssign Indicates if assignment is allowed (unused).
- */
-void parseNumber(bool canAssign) {
-    double value = strtod(parser.previous.start, NULL);
-    emitConstant(NUMBER_VAL(value));
-}
-
-/**
- * @brief Compiles a string literal.
- *
- * Emits bytecode to load the string onto the stack.
- *
- * @param canAssign Indicates if assignment is allowed (unused).
- */
-void parseString(bool canAssign) {
-    emitConstant(OBJ_VAL(copyString(parser.previous.start +1, parser.previous.length - 2)));
-}
-
-/**
  * Method for compiling a variable.
  */
 void variable(bool canAssign) {

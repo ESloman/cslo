@@ -14,8 +14,11 @@
 
 #include "objects/file_methods.h"
 
+#include "util.h"
+
 static Value fileRead(int argCount, Value* args);
 static Value fileClose(int argCount, Value* args);
+static Value fileWrite(int argCount, Value* args);
 
 /**
  * @brief Registers file methods for the given ObjClass.
@@ -24,7 +27,7 @@ static Value fileClose(int argCount, Value* args);
 void registerFileMethods(ObjClass* cls) {
     defineBuiltIn(&cls->methods, "read", fileRead);
     defineBuiltIn(&cls->methods, "close", fileClose);
-    // defineBuiltIn(&cls->methods, "write", fileWrite);
+    defineBuiltIn(&cls->methods, "write", fileWrite);
     // defineBuiltIn(&cls->methods, "flush", fileFlush);
 }
 
@@ -36,7 +39,7 @@ static Value fileRead(int argCount, Value* args) {
 
     ObjFile* sFile = AS_FILE(args[0]);
     if (sFile->closed) {
-        return ERROR_VAL_PTR("fileRead() called on a closed file.");
+        return ERROR_VAL_PTR("read() called on a closed file.");
     }
 
     fseek(sFile->file, 0, SEEK_END);
@@ -62,10 +65,37 @@ static Value fileClose(int argCount, Value* args) {
 
     ObjFile* sFile = AS_FILE(args[0]);
     if (sFile->closed) {
-        return ERROR_VAL_PTR("fileClose() called on a closed file.");
+        return ERROR_VAL_PTR("close() called on a closed file.");
     }
 
     fclose(sFile->file);
     sFile->closed = true;
     return NIL_VAL;
+}
+
+static Value fileWrite(int argCount, Value* args) {
+    if (argCount != 2 || !IS_FILE(args[0]) || !IS_STRING(args[1])) {
+        return ERROR_VAL_PTR("write() must be called on a file object with a string argument.");
+    }
+
+    ObjFile* sFile = AS_FILE(args[0]);
+    if (sFile->closed) {
+        return ERROR_VAL_PTR("write() called on a closed file.");
+    }
+    if (sFile->mode == FILE_READ) {
+        return ERROR_VAL_PTR("write() called on a file opened in read mode.");
+    }
+
+    ObjString* str = AS_STRING(args[1]);
+    size_t unescLen;
+    char* unesc = unescapeString(str->chars, str->length, &unescLen);
+
+    size_t bytesWritten = fwrite(unesc, sizeof(char), unescLen, sFile->file);
+    free(unesc);
+
+    if (bytesWritten != unescLen) {
+        return ERROR_VAL_PTR("Failed to write to file.");
+    }
+
+    return BOOL_VAL(true);
 }

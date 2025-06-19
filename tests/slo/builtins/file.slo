@@ -20,6 +20,23 @@ for (var line in contents.split("\n")) {
     print(line);
 }
 
+print("test");
+
 # make sure we close the file
-opened.close();
+if (opened != nil) {
+    opened.close();
+}
 print(opened);
+
+var f = open("/tmp/test.txt", "w");
+f.write("Hello, World!\n");
+f.close();
+
+var a = open("/tmp/test.txt", "a");
+a.write("Appending some text.
+");
+a.close();
+
+var t = open("/tmp/test.txt", "r");
+print(t.read());
+t.close();

@@ -35,6 +35,7 @@ static Value open(int argCount, Value* args) {
 
     const char* path = AS_CSTRING(args[0]);
     const char* mode = (argCount == 2 && IS_STRING(args[1])) ? AS_CSTRING(args[1]) : "r";
+    FileMode fileMode = mode[0] == 'r' ? FILE_READ : (mode[0] == 'w' ? FILE_WRITE : FILE_APPEND);
     FILE* f = fopen(path, mode);
     if (!f) {
         return ERROR_VAL_PTR("Failed to open file.");
@@ -42,6 +43,6 @@ static Value open(int argCount, Value* args) {
 
     // Ownership of 'f' is transferred to ObjFile.
     // ObjFile is responsible for closing the file
-    ObjFile* sFile = newFile(f);
+    ObjFile* sFile = newFile(f, fileMode);
     return OBJ_VAL(sFile);
 }

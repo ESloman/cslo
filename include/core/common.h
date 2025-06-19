@@ -11,7 +11,7 @@
 #define DEBUG_LOGGING 1
 #endif
 
-#ifdef DEBUG1
+#ifdef DEBUG
 #define DEBUG_STRESS_GC 1
 #define DEBUG_LOG_GC 0
 #endif

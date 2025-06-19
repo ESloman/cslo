@@ -127,6 +127,18 @@ typedef enum ObjType {
 } ObjType;
 
 /**
+ * @enum FileMode
+ *
+ * Enum for defining the file mode.
+ * Used to determine how a file should be opened.
+ */
+typedef enum FileMode {
+    FILE_READ,
+    FILE_WRITE,
+    FILE_APPEND
+} FileMode;
+
+/**
  * @struct Obj
  *
  * Struct for defining an Obj.
@@ -272,6 +284,7 @@ typedef struct {
     Obj obj;
     FILE* file;
     bool closed;
+    FileMode mode;
 } ObjFile;
 
 /**
@@ -350,7 +363,7 @@ ObjEnum* newEnum(ObjString* name);
 /**
  * Method for creating a new ObjFile.
  */
-ObjFile* newFile(FILE* file);
+ObjFile* newFile(FILE* file, FileMode mode);
 
 /**
  * Method for creating a new ObjError.

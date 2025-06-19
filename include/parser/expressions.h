@@ -15,4 +15,14 @@
  */
 void parseDictLiteral(bool canAssign);
 
+/**
+ * Method for compiling a number.
+ */
+void parseNumberLiteral(bool canAssign);
+
+/**
+ * Method for compiling a string.
+ */
+void parseStringLiteral(bool canAssign);
+
 #endif

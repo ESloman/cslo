@@ -140,10 +140,11 @@ ObjEnum* newEnum(ObjString* name) {
     return sEnum;
 }
 
-ObjFile* newFile(FILE* file) {
+ObjFile* newFile(FILE* file, FileMode mode) {
     ObjFile* sFile = ALLOCATE_OBJ(ObjFile, OBJ_FILE);
     sFile->file = file;
     sFile->closed = false;
+    sFile->mode = mode;
     return sFile;
 }
 
