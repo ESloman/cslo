@@ -54,8 +54,8 @@ static void runtimeError(enum ErrorType errorType, const char* format, ...) {
     int column = -1;
     const char* file = "<script>";
     if (vm.frameCount > 0) {
-        CallFrame* frame = &vm.frames[vm.frameCount - 1];
-        ObjFunction* function = frame->closure->function;
+        const CallFrame* frame = &vm.frames[vm.frameCount - 1];
+        const ObjFunction* function = frame->closure->function;
         size_t instruction = frame->ip - function->chunk.code - 1;
         line = getLine(function->chunk, instruction);
         column = getColumn(function->chunk, instruction);
@@ -68,8 +68,8 @@ static void runtimeError(enum ErrorType errorType, const char* format, ...) {
     size_t offset = 0;
     for (int i = vm.frameCount - 1; i >= 0; i--) {
         if (i < 0 || i >= FRAMES_MAX) break;  // defensive check
-        CallFrame* frame = &vm.frames[i];
-        ObjFunction* function = frame->closure->function;
+        const CallFrame* frame = &vm.frames[i];
+        const ObjFunction* function = frame->closure->function;
         int line = getLine(function->chunk, frame->ip - function->chunk.code - 1);
         int column = getColumn(function->chunk, frame->ip - function->chunk.code - 1);
         const char* funcName = function->name ? function->name->chars : "<script>";
