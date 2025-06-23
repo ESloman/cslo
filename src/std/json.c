@@ -25,6 +25,11 @@ ObjModule* getJsonModule() {
     return module;
 }
 
+/**
+ * @brief Converts a cJSON object to a Value.
+ * @param json The cJSON object to convert.
+ * @return A Value representing the JSON object, or an error value if conversion fails.
+ */
 static Value cjsonToValue(cJSON* json) {
     if (cJSON_IsObject(json)) {
         Value result = OBJ_VAL(newDict());
@@ -66,17 +71,6 @@ static Value cjsonToValue(cJSON* json) {
     return NIL_VAL;
 }
 
-static Value loadsJson(const char* jsonString) {
-    cJSON* json = cJSON_Parse(jsonString);
-    if (!json) {
-        return ERROR_VAL_PTR("Invalid JSON string.");
-    }
-
-    Value result = cjsonToValue(json);
-    cJSON_Delete(json);
-    return result;
-}
-
 /**
  * @brief Loads a JSON string into a Value.
  * @param jsonString The JSON string to parse.
@@ -86,5 +80,14 @@ static Value loadsJsonNative(int argCount, Value* args) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("loads() expects a single string argument.");
     }
-    return loadsJson(AS_CSTRING(args[0]));
+
+    cJSON* json = cJSON_Parse(AS_CSTRING(args[0]));
+    if (!json) {
+        return ERROR_VAL_PTR("Invalid JSON string.");
+    }
+
+    Value result = cjsonToValue(json);
+    cJSON_Delete(json);
+
+    return result;
 }
