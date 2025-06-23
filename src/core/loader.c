@@ -12,6 +12,7 @@
 #include "core/vm.h"
 
 // add all the std library imports here
+#include "std/json.h"
 #include "std/math.h"
 #include "std/os.h"
 #include "std/random.h"
@@ -31,6 +32,10 @@ bool loadModule(const char* moduleName) {
     } else if (strcmp(moduleName, "os") == 0) {
         ObjModule* osModule = getOSModule();
         tableSet(&vm.globals, OBJ_VAL(copyString("os", 2)), OBJ_VAL(osModule));
+        return true;
+    } else if (strcmp(moduleName, "json") == 0) {
+        ObjModule* jsonModule = getJsonModule();
+        tableSet(&vm.globals, OBJ_VAL(copyString("json", 4)), OBJ_VAL(jsonModule));
         return true;
     } else {
         printf("Error: Module '%s' not found.\n", moduleName);
