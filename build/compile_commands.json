@@ -659,5 +659,26 @@
         "directory": "/home/esloman/gitwork/cslo",
         "file": "/home/esloman/gitwork/cslo/third_party/linenoise.c",
         "output": "/home/esloman/gitwork/cslo/build/release/cslo/third_party/linenoise.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wno-unused-parameter",
+            "-Iinclude",
+            "-Ithird_party",
+            "-O3",
+            "-flto",
+            "-w",
+            "-o",
+            "build/release/cslo/third_party/cJSON.o",
+            "third_party/cJSON.c"
+        ],
+        "directory": "/home/esloman/gitwork/cslo",
+        "file": "/home/esloman/gitwork/cslo/third_party/cJSON.c",
+        "output": "/home/esloman/gitwork/cslo/build/release/cslo/third_party/cJSON.o"
     }
 ]

@@ -53,6 +53,12 @@ LINENOISE_OBJ := $(BUILD_DIR)/$(NAME)/third_party/linenoise.o
 SOURCES += $(LINENOISE_SRC)
 OBJECTS += $(LINENOISE_OBJ)
 
+# cJSON
+CJSON_SRC := third_party/cJSON.c
+CJSON_OBJ := $(BUILD_DIR)/$(NAME)/third_party/cJSON.o
+SOURCES += $(CJSON_SRC)
+OBJECTS += $(CJSON_OBJ)
+
 # Targets ---------------------------------------------------------------------
 
 # Link the interpreter.
