@@ -55,3 +55,4 @@ dkms.conf
 
 # keep exp .out files
 !tests/**/*.out
+!tests/**/*.json

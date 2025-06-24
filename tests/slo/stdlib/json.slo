@@ -1,15 +1,21 @@
 import json;
 
+# test loading from a string
+var json_str = '{"a": 1, "b": [2, 3]}';
+var json_obj = json.loads(json_str);
+println(json_obj);
+
+# testing loading from a json file
 var file = open("tests/slo/stdlib/json.json");
 var content = file.read();
 file.close();
-
-var s = {"a": 1, "b": [2, 3]};
 var obj = json.loads(content);
 println(obj);
 for (var key in obj) {
     println(key, ": ", obj[key]);
 }
 
-var json_str = json.dumps(s);
-println(json_str);
+# test dumping
+var s = {"a": 1, "b": [2, 3]};
+var str_json = json.dumps(s);
+println(str_json);

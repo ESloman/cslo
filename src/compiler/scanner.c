@@ -287,8 +287,8 @@ static void skipWhitespace() {
  *
  * Will consume characters until we reach the closing quote.
  */
-static Token string() {
-    while (peek() != '"' && !isAtEnd()) {
+static Token string(char quote) {
+    while (peek() != quote && !isAtEnd()) {
         if (peek() == '\n') {
             scanner.line++;
         }
@@ -419,7 +419,10 @@ Token scanToken() {
             );
         }
         // literal matching
-        case '"': return string();
+        case '\'':
+            return string('\'');
+        case '"':
+            return string('"');
 
         default:
             // break into the error token
