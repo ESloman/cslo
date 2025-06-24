@@ -3,6 +3,7 @@
  * @brief Implementation of JSON handling utilities.
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "builtins/util.h"
@@ -14,6 +15,7 @@
 
 // forward declarations of native functions
 static Value loadsJsonNative(int argCount, Value* args);
+static Value dumpsJsonNative(int argCount, Value* args);
 
 /**
  * @brief Gets the json module with all its functions.
@@ -22,6 +24,7 @@ static Value loadsJsonNative(int argCount, Value* args);
 ObjModule* getJsonModule() {
     ObjModule* module = newModule();
     defineBuiltIn(&module->methods, "loads", loadsJsonNative);
+    defineBuiltIn(&module->methods, "dumps", dumpsJsonNative);
     return module;
 }
 
@@ -71,6 +74,42 @@ static Value cjsonToValue(cJSON* json) {
     return NIL_VAL;
 }
 
+static cJSON* valueToCJson(Value value) {
+    if (IS_DICT(value)) {
+        cJSON* json = cJSON_CreateObject();
+        ObjDict* dict = AS_DICT(value);
+        for (int i = 0; i < dict->data.capacity; i++) {
+            Value key = dict->data.entries[i].key;
+            Value val = dict->data.entries[i].value;
+            if (IS_NIL(key)) {
+                // skip tombstones / empties
+                continue;
+            }
+            if (!IS_STRING(key)) {
+                continue;
+            }
+            cJSON_AddItemToObject(json, AS_CSTRING(key), valueToCJson(val));
+        }
+        return json;
+    } else if (IS_LIST(value)) {
+        cJSON* json = cJSON_CreateArray();
+        ObjList* list = AS_LIST(value);
+        for (int i = 0; i < list->values.count; i++) {
+            cJSON_AddItemToArray(json, valueToCJson(list->values.values[i]));
+        }
+        return json;
+    } else if (IS_STRING(value)) {
+        return cJSON_CreateString(AS_CSTRING(value));
+    } else if (IS_NUMBER(value)) {
+        return cJSON_CreateNumber(AS_NUMBER(value));
+    } else if (IS_BOOL(value)) {
+        return cJSON_CreateBool(AS_BOOL(value));
+    } else if (IS_NIL(value)) {
+        return cJSON_CreateNull();
+    }
+    return cJSON_CreateNull();
+}
+
 /**
  * @brief Loads a JSON string into a Value.
  * @param jsonString The JSON string to parse.
@@ -89,5 +128,28 @@ static Value loadsJsonNative(int argCount, Value* args) {
     Value result = cjsonToValue(json);
     cJSON_Delete(json);
 
+    return result;
+}
+
+/**
+ *
+ */
+static Value dumpsJsonNative(int argCount, Value* args) {
+    if (argCount != 1) {
+        return ERROR_VAL_PTR("dumps() expects a single argument.");
+    }
+
+    cJSON* json = valueToCJson(args[0]);
+    if (!json) {
+        return ERROR_VAL_PTR("Invalid value for JSON serialization.");
+    }
+
+    char* jsonString = cJSON_Print(json);
+    cJSON_Delete(json);
+    if (!jsonString) {
+        return ERROR_VAL_PTR("Failed to serialize JSON.");
+    }
+    Value result = OBJ_VAL(copyString(jsonString, strlen(jsonString)));
+    free(jsonString);
     return result;
 }

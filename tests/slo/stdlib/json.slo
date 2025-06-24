@@ -10,3 +10,6 @@ println(obj);
 for (var key in obj) {
     println(key, ": ", obj[key]);
 }
+
+var json_str = json.dumps(s);
+println(json_str);
