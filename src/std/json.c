@@ -17,6 +17,7 @@
 static Value loadJsonNative(int argCount, Value* args);
 static Value loadsJsonNative(int argCount, Value* args);
 static Value dumpsJsonNative(int argCount, Value* args);
+static Value dumpJsonNative(int argCount, Value* args);
 
 /**
  * @brief Gets the json module with all its functions.
@@ -27,6 +28,7 @@ ObjModule* getJsonModule() {
     defineBuiltIn(&module->methods, "load", loadJsonNative);
     defineBuiltIn(&module->methods, "loads", loadsJsonNative);
     defineBuiltIn(&module->methods, "dumps", dumpsJsonNative);
+    defineBuiltIn(&module->methods, "dump", dumpJsonNative);
     return module;
 }
 
@@ -201,4 +203,31 @@ static Value dumpsJsonNative(int argCount, Value* args) {
     Value result = OBJ_VAL(copyString(jsonString, strlen(jsonString)));
     free(jsonString);
     return result;
+}
+
+static Value dumpJsonNative(int argCount, Value* args) {
+    if (argCount != 2 || !IS_FILE(args[0])) {
+        return ERROR_VAL_PTR("dump() expects a file and a value.");
+    }
+
+    ObjFile* file = AS_FILE(args[0]);
+    if (file->closed) {
+        return ERROR_VAL_PTR("File is not open.");
+    }
+
+    cJSON* json = valueToCJson(args[1]);
+    if (!json) {
+        return ERROR_VAL_PTR("Invalid value for JSON serialization.");
+    }
+
+    char* jsonString = cJSON_Print(json);
+    cJSON_Delete(json);
+    if (!jsonString) {
+        return ERROR_VAL_PTR("Failed to serialize JSON.");
+    }
+
+    fprintf(file->file, "%s", jsonString);
+    free(jsonString);
+
+    return NIL_VAL;
 }

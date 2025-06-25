@@ -20,7 +20,13 @@ var s = {"a": 1, "b": [2, 3]};
 var str_json = json.dumps(s);
 println(str_json);
 
+# test loading from file directly
 file = open("tests/slo/stdlib/json.json");
 var lobj = json.load(file);
 println(lobj);
+file.close();
+
+# test dumping to a file directly
+file = open("tests/slo/stdlib/json_dump.json", "w");
+json.dump(file, s);
 file.close();
