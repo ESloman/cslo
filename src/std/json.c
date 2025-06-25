@@ -14,6 +14,7 @@
 #include "cJSON.h"
 
 // forward declarations of native functions
+static Value loadJsonNative(int argCount, Value* args);
 static Value loadsJsonNative(int argCount, Value* args);
 static Value dumpsJsonNative(int argCount, Value* args);
 
@@ -23,6 +24,7 @@ static Value dumpsJsonNative(int argCount, Value* args);
  */
 ObjModule* getJsonModule() {
     ObjModule* module = newModule();
+    defineBuiltIn(&module->methods, "load", loadJsonNative);
     defineBuiltIn(&module->methods, "loads", loadsJsonNative);
     defineBuiltIn(&module->methods, "dumps", dumpsJsonNative);
     return module;
@@ -74,6 +76,11 @@ static Value cjsonToValue(cJSON* json) {
     return NIL_VAL;
 }
 
+/**
+ * @brief Converts a Value to a cJSON object.
+ * @param value The Value to convert.
+ * @return A cJSON object representing the Value, or NULL if conversion fails.
+ */
 static cJSON* valueToCJson(Value value) {
     if (IS_DICT(value)) {
         cJSON* json = cJSON_CreateObject();
@@ -132,7 +139,49 @@ static Value loadsJsonNative(int argCount, Value* args) {
 }
 
 /**
- *
+ * @brief
+ */
+static Value loadJsonNative(int argCount, Value* args) {
+    if (argCount != 1 || !IS_FILE(args[0])) {
+        return ERROR_VAL_PTR("load() expects a single file argument.");
+    }
+
+    ObjFile* file = AS_FILE(args[0]);
+    if (file->closed) {
+        return ERROR_VAL_PTR("File is not open.");
+    }
+
+    // Read the file content into a string
+    fseek(file->file, 0, SEEK_END);
+    long fileSize = ftell(file->file);
+    fseek(file->file, 0, SEEK_SET);
+    char* buffer = malloc(fileSize + 1);
+    if (!buffer) {
+        return ERROR_VAL_PTR("Memory allocation failed.");
+    }
+    size_t read = fread(buffer, 1, fileSize, file->file);
+    if (read != (size_t)fileSize) {
+        free(buffer);
+        return ERROR_VAL_PTR("Failed to read file.");
+    }
+    buffer[fileSize] = '\0'; // Null-terminate the string
+
+    cJSON* json = cJSON_Parse(buffer);
+    free(buffer);
+    if (!json) {
+        return ERROR_VAL_PTR("Invalid JSON string.");
+    }
+
+    Value result = cjsonToValue(json);
+    cJSON_Delete(json);
+
+    return result;
+}
+
+/**
+ * @brief Dumps a Value to a JSON string.
+ * @param value The Value to serialize to JSON.
+ * @return A Value containing the JSON string, or an error value if serialization fails.
  */
 static Value dumpsJsonNative(int argCount, Value* args) {
     if (argCount != 1) {

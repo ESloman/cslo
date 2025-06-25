@@ -19,3 +19,8 @@ for (var key in obj) {
 var s = {"a": 1, "b": [2, 3]};
 var str_json = json.dumps(s);
 println(str_json);
+
+file = open("tests/slo/stdlib/json.json");
+var lobj = json.load(file);
+println(lobj);
+file.close();
