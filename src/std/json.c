@@ -186,8 +186,14 @@ static Value loadJsonNative(int argCount, Value* args) {
  * @return A Value containing the JSON string, or an error value if serialization fails.
  */
 static Value dumpsJsonNative(int argCount, Value* args) {
-    if (argCount != 1) {
-        return ERROR_VAL_PTR("dumps() expects a single argument.");
+    if (argCount < 1) {
+        return ERROR_VAL_PTR("dumps() expects at least one argument.");
+    }
+
+    int indent = 2;
+    if (argCount >= 2 && IS_NUMBER(args[1])) {
+        indent = (int)AS_NUMBER(args[1]);
+        if (indent < 0) indent = 0;
     }
 
     cJSON* json = valueToCJson(args[0]);
@@ -195,7 +201,13 @@ static Value dumpsJsonNative(int argCount, Value* args) {
         return ERROR_VAL_PTR("Invalid value for JSON serialization.");
     }
 
-    char* jsonString = cJSON_Print(json);
+    char* jsonString = NULL;
+    if (indent == 0) {
+        jsonString = cJSON_PrintUnformatted(json);
+    } else {
+        int bufsize = 256;
+        jsonString = cJSON_PrintBuffered(json, bufsize, 1);
+    }
     cJSON_Delete(json);
     if (!jsonString) {
         return ERROR_VAL_PTR("Failed to serialize JSON.");
@@ -206,8 +218,14 @@ static Value dumpsJsonNative(int argCount, Value* args) {
 }
 
 static Value dumpJsonNative(int argCount, Value* args) {
-    if (argCount != 2 || !IS_FILE(args[0])) {
+    if (argCount < 2 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("dump() expects a file and a value.");
+    }
+
+    int indent = 2;
+    if (argCount >= 3 && IS_NUMBER(args[2])) {
+        indent = (int)AS_NUMBER(args[2]);
+        if (indent < 0) indent = 0;
     }
 
     ObjFile* file = AS_FILE(args[0]);
@@ -220,7 +238,13 @@ static Value dumpJsonNative(int argCount, Value* args) {
         return ERROR_VAL_PTR("Invalid value for JSON serialization.");
     }
 
-    char* jsonString = cJSON_Print(json);
+    char* jsonString = NULL;
+    if (indent == 0) {
+        jsonString = cJSON_PrintUnformatted(json);
+    } else {
+        int bufsize = 256;
+        jsonString = cJSON_PrintBuffered(json, bufsize, 1);
+    }
     cJSON_Delete(json);
     if (!jsonString) {
         return ERROR_VAL_PTR("Failed to serialize JSON.");
