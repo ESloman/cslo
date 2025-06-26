@@ -56,3 +56,4 @@ dkms.conf
 # keep exp .out files
 !tests/**/*.out
 !tests/**/*.json
+tests/slo/stdlib/json_dump.json

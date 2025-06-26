@@ -53,6 +53,7 @@ This is a non-exhaustive list of things that have been added / are different to 
 - stdlib modules:
   - `math` module for things like `sin`, `cos`, `tan`, `ceil`, `floor`, `abs`, `sqrt`, etc
   - `random` module for things like `random`, `randint`, `randrange`, `choice`, `shuffle`, `gauss`, `sample`, etc
+  - `json` module for interacting with json strings / files with `load`, `loads`, `dump`, `dumps`
 
 ### Strings
 
