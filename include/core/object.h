@@ -160,6 +160,17 @@ struct Obj {
 };
 
 /**
+ * @struct ParamInfo
+ *
+ * Struct for defining a parameter information.
+ * Contains the name of the parameter and whether it is required.
+ */
+typedef struct ParamInfo {
+    ObjString* name;
+    bool required;
+} ParamInfo;
+
+/**
  * @struct ObjFunction
  */
 typedef struct ObjFunction {
@@ -181,6 +192,9 @@ typedef Value (*NativeProperty)(Value arg);
 typedef struct ObjNative {
     Obj obj;
     NativeFn function;
+    int arityMin;
+    int arityMax;
+    ParamInfo* params;
 } ObjNative;
 
 /**
@@ -341,7 +355,7 @@ ObjFunction* newFunction();
 /**
  * Method for creating a new ObjNative.
  */
-ObjNative* newNative(NativeFn function);
+ObjNative* newNative(NativeFn function, int arityMin, int arityMax, ParamInfo* params);
 
 /**
  * Method for creating a new ObjNativeProperty.

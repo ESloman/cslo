@@ -17,10 +17,10 @@
  * These are functions that are built into the language
  * and implemented natively in C.
  */
-void defineBuiltIn(Table* tbl, const char* name, NativeFn function) {
+void defineBuiltIn(Table* tbl, const char* name, NativeFn function, int arityMin, int arityMax, ParamInfo* params) {
     // push(OBJ_VAL(copyString(name, (int)strlen(name))));
     // push(OBJ_VAL(newNative(function)));
-    tableSet(tbl, OBJ_VAL(copyString(name, (int)strlen(name))), OBJ_VAL(newNative(function)));
+    tableSet(tbl, OBJ_VAL(copyString(name, (int)strlen(name))), OBJ_VAL(newNative(function, arityMin, arityMax, params)));
     // pop();
     // pop();
 }

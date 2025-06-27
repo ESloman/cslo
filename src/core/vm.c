@@ -245,7 +245,12 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 return call(AS_CLOSURE(callee), argCount);
             }
             case OBJ_NATIVE: {
-                NativeFn native = AS_NATIVE(callee);
+                ObjNative* nativeObj = (ObjNative*)AS_OBJ(callee);
+                if (argCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && argCount > nativeObj->arityMax)) {
+                    runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, argCount);
+                    return false;
+                }
+                NativeFn native = nativeObj->function;
                 #ifdef DEBUG_LOGGING
                 printf("Stack before native call: ");
                 for (int i = 0; i < argCount + 1; i++) {
@@ -344,7 +349,13 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
         Value method;
         if (tableGet(&vm.stringClass->methods, OBJ_VAL(name), &method)) {
             if (IS_NATIVE(method)) {
-                NativeFn native = AS_NATIVE(method);
+                ObjNative* nativeObj = (ObjNative*)AS_OBJ(method);
+                int actualArgCount = argCount + 1;
+                if (actualArgCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && actualArgCount > nativeObj->arityMax)) {
+                    runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, actualArgCount);
+                    return false;
+                }
+                NativeFn native = nativeObj->function;
                 Value result = native(argCount + 1, vm.stackTop - argCount - 1);
                 if (IS_ERROR(result)) {
                     ObjError* error = AS_ERROR(result);
@@ -373,7 +384,13 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
         }
         // For native methods, pass the container as the first argument
         if (IS_NATIVE(method)) {
-            NativeFn native = AS_NATIVE(method);
+            ObjNative* nativeObj = (ObjNative*)AS_OBJ(method);
+            int actualArgCount = argCount + 1;
+            if (actualArgCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && actualArgCount > nativeObj->arityMax)) {
+                runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, actualArgCount);
+                return false;
+            }
+            NativeFn native = nativeObj->function;
             Value result = native(argCount + 1, vm.stackTop - argCount - 1);
             if (IS_ERROR(result)) {
                 ObjError* error = AS_ERROR(result);
@@ -404,7 +421,13 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
         Value method;
         if (tableGet(&vm.fileClass->methods, OBJ_VAL(name), &method)) {
             if (IS_NATIVE(method)) {
-                NativeFn native = AS_NATIVE(method);
+                ObjNative* nativeObj = (ObjNative*)AS_OBJ(method);
+                int actualArgCount = argCount + 1;
+                if (actualArgCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && actualArgCount > nativeObj->arityMax)) {
+                    runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, actualArgCount);
+                    return false;
+                }
+                NativeFn native = nativeObj->function;
                 Value result = native(argCount + 1, vm.stackTop - argCount - 1);
                 if (IS_ERROR(result)) {
                     ObjError* error = AS_ERROR(result);

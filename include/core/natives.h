@@ -8,7 +8,7 @@
 /**
  * Method for defining a native function.
  */
-void defineNative(const char* name, NativeFn function);
+void defineNative(const char* name, NativeFn function, int arityMin, int arityMax, ParamInfo* params);
 
 /**
  * Method for defining all the natives.

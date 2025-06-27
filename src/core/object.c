@@ -96,9 +96,12 @@ ObjFunction* newFunction() {
 /**
  * Method for creating a new ObjNative.
  */
-ObjNative* newNative(NativeFn function) {
+ObjNative* newNative(NativeFn function, int arityMin, int arityMax, ParamInfo* params) {
     ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
     native->function = function;
+    native->arityMin = arityMin;
+    native->arityMax = arityMax;
+    native->params = params;
     return native;
 }
 

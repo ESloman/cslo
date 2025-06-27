@@ -25,12 +25,12 @@ static Value tanNative(int argCount, Value* args);
  */
 ObjModule* getMathModule() {
     ObjModule* module = newModule();
-    defineBuiltIn(&module->methods, "ceil", ceilNative);
-    defineBuiltIn(&module->methods, "floor", floorNative);
-    defineBuiltIn(&module->methods, "sqrt", sqrtNative);
-    defineBuiltIn(&module->methods, "sin", sinNative);
-    defineBuiltIn(&module->methods, "cos", cosNative);
-    defineBuiltIn(&module->methods, "tan", tanNative);
+    defineBuiltIn(&module->methods, "ceil", ceilNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineBuiltIn(&module->methods, "floor", floorNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineBuiltIn(&module->methods, "sqrt", sqrtNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineBuiltIn(&module->methods, "sin", sinNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineBuiltIn(&module->methods, "cos", cosNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineBuiltIn(&module->methods, "tan", tanNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
     return module;
 }
 

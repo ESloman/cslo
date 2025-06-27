@@ -34,16 +34,16 @@ static Value randomSampleNative(int argCount, Value* args);
  */
 ObjModule* getRandomModule() {
     ObjModule* module = newModule();
-    defineBuiltIn(&module->methods, "seed", randomSeedNative);
-    defineBuiltIn(&module->methods, "random", randomNative);
-    defineBuiltIn(&module->methods, "randint", randomIntNative);
-    defineBuiltIn(&module->methods, "randrange", randomRangeNative);
-    defineBuiltIn(&module->methods, "choice", randomChoiceNative);
-    defineBuiltIn(&module->methods, "shuffle", randomShuffleNative);
-    defineBuiltIn(&module->methods, "randbool", randomBoolNative);
-    defineBuiltIn(&module->methods, "randbytes", randomBytesNative);
-    defineBuiltIn(&module->methods, "gauss", randomGaussNative);
-    defineBuiltIn(&module->methods, "sample", randomSampleNative);
+    defineBuiltIn(&module->methods, "seed", randomSeedNative, 1, 1, ((ParamInfo[]){{copyString("seed", 4), true}}));
+    defineBuiltIn(&module->methods, "random", randomNative, 0, 0, NULL);
+    defineBuiltIn(&module->methods, "randint", randomIntNative, 2, 2, ((ParamInfo[]){{copyString("min", 3), true}, {copyString("max", 3), true}}));
+    defineBuiltIn(&module->methods, "randrange", randomRangeNative, 2, 2, ((ParamInfo[]){{copyString("min", 3), true}, {copyString("max", 3), true}}));
+    defineBuiltIn(&module->methods, "choice", randomChoiceNative, 1, 1, ((ParamInfo[]){{copyString("list", 4), true}}));
+    defineBuiltIn(&module->methods, "shuffle", randomShuffleNative, 1, 1, ((ParamInfo[]){{copyString("list", 4), true}}));
+    defineBuiltIn(&module->methods, "randbool", randomBoolNative, 0, 0, NULL);
+    defineBuiltIn(&module->methods, "randbytes", randomBytesNative, 1, 1, ((ParamInfo[]){{copyString("length", 6), true}}));
+    defineBuiltIn(&module->methods, "gauss", randomGaussNative, 2, 2, ((ParamInfo[]){{copyString("mean", 5), true}, {copyString("stddev", 6), true}}));
+    defineBuiltIn(&module->methods, "sample", randomSampleNative, 2, 2, ((ParamInfo[]){{copyString("population", 9), true}, {copyString("k", 1), true}}));
     return module;
 }
 

@@ -15,7 +15,7 @@
  * These are functions that are built into the language
  * and implemented natively in C.
  */
-void defineBuiltIn(Table* tbl, const char* name, NativeFn function);
+void defineBuiltIn(Table* tbl, const char* name, NativeFn function, int arityMin, int arityMax, ParamInfo* params);
 
 
 /**

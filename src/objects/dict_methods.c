@@ -28,11 +28,11 @@ Value itemsNative(int argCount, Value* args);
  * @param dictClass The ObjClass representing the string type.
  */
 void registerDictMethods(ObjClass* cls) {
-    defineBuiltIn(&cls->methods, "keys", keysNative);
-    defineBuiltIn(&cls->methods, "values", valuesNative);
-    defineBuiltIn(&cls->methods, "get", getNative);
-    defineBuiltIn(&cls->methods, "update", updateNative);
-    defineBuiltIn(&cls->methods, "items", itemsNative);
+    defineBuiltIn(&cls->methods, "keys", keysNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
+    defineBuiltIn(&cls->methods, "values", valuesNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
+    defineBuiltIn(&cls->methods, "get", getNative, 2, 3, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("key", 3), true}, {copyString("default", 7), false}}));
+    defineBuiltIn(&cls->methods, "update", updateNative, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("other", 6), true}}));
+    defineBuiltIn(&cls->methods, "items", itemsNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
 }
 
 /**

@@ -23,18 +23,18 @@
  * Method for defining all our natives.
  */
 void defineNatives() {
-    defineNative("clock", clockNative);
-    defineNative("exit", exitNative);
-    defineNative("sleep", sleepNative);
-    defineNative("time", timeNative);
-    defineNative("print", printNative);
-    defineNative("println", printLNNative);
-    defineNative("len", lenNative);
+    defineNative("clock", clockNative, 0, 0, NULL);
+    defineNative("exit", exitNative, 0, 1, ((ParamInfo[]){{copyString("code", 4), false}}));
+    defineNative("sleep", sleepNative, 1, 1, ((ParamInfo[]){{copyString("seconds", 7), true}}));
+    defineNative("time", timeNative, 0, 0, NULL);
+    defineNative("print", printNative, 1, -1, ((ParamInfo[]){{copyString("message", 7), true}, {copyString("...args", 7), false}}));
+    defineNative("println", printLNNative, 1, -1, ((ParamInfo[]){{copyString("message", 7), true}, {copyString("...args", 7), false}}));
+    defineNative("len", lenNative, 1, 1, ((ParamInfo[]){{copyString("sequence", 9), true}}));
 
     // math functions
-    defineNative("abs", absNative);
-    defineNative("min", minNative);
-    defineNative("max", maxNative);
+    defineNative("abs", absNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineNative("min", minNative, 2, 2, ((ParamInfo[]){{copyString("a", 1), true}, {copyString("b", 1), true}}));
+    defineNative("max", maxNative, 2, 2, ((ParamInfo[]){{copyString("a", 1), true}, {copyString("b", 1), true}}));
 }
 
 /**
@@ -44,9 +44,9 @@ void defineNatives() {
  *
  * Pushes the name and native values onto the stack to prevent GC.
  */
-void defineNative(const char* name, NativeFn function) {
+void defineNative(const char* name, NativeFn function, int arityMin, int arityMax, ParamInfo* params) {
     push(OBJ_VAL(copyString(name, (int)strlen(name))));
-    push(OBJ_VAL(newNative(function)));
+    push(OBJ_VAL(newNative(function, arityMin, arityMax, params)));
     tableSet(&vm.globals, OBJ_VAL(AS_STRING(vm.stack[0])), vm.stack[1]);
     pop();
     pop();
