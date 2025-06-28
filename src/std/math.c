@@ -11,12 +11,12 @@
 
 
 // forward declarations of native functions
-static Value ceilNative(int argCount, Value* args);
-static Value floorNative(int argCount, Value* args);
-static Value sqrtNative(int argCount, Value* args);
-static Value sinNative(int argCount, Value* args);
-static Value cosNative(int argCount, Value* args);
-static Value tanNative(int argCount, Value* args);
+static Value ceilNative(int argCount, Value* args, ParamInfo* params);
+static Value floorNative(int argCount, Value* args, ParamInfo* params);
+static Value sqrtNative(int argCount, Value* args, ParamInfo* params);
+static Value sinNative(int argCount, Value* args, ParamInfo* params);
+static Value cosNative(int argCount, Value* args, ParamInfo* params);
+static Value tanNative(int argCount, Value* args, ParamInfo* params);
 
 
 /**
@@ -38,7 +38,7 @@ ObjModule* getMathModule() {
  * Calculates the ceil of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-static Value ceilNative(int argCount, Value* args) {
+static Value ceilNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("ceil() expects a single numeric argument.");
     }
@@ -50,7 +50,7 @@ static Value ceilNative(int argCount, Value* args) {
  * Calculates the floor of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-static Value floorNative(int argCount, Value* args) {
+static Value floorNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("floor() expects a single numeric argument.");
     }
@@ -62,7 +62,7 @@ static Value floorNative(int argCount, Value* args) {
  * Calculates the square root of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-static Value sqrtNative(int argCount, Value* args) {
+static Value sqrtNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("sqrt() expects a single numeric argument.");
     }
@@ -77,7 +77,7 @@ static Value sqrtNative(int argCount, Value* args) {
  * Calculates the sine of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-static Value sinNative(int argCount, Value* args) {
+static Value sinNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("sin() expects a single numeric argument.");
     }
@@ -89,7 +89,7 @@ static Value sinNative(int argCount, Value* args) {
  * Calculates the cosine of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-static Value cosNative(int argCount, Value* args) {
+static Value cosNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("cos() expects a single numeric argument.");
     }
@@ -101,7 +101,7 @@ static Value cosNative(int argCount, Value* args) {
  * Calculates the tangent of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-static Value tanNative(int argCount, Value* args) {
+static Value tanNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("tan() expects a single numeric argument.");
     }

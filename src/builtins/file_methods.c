@@ -12,7 +12,7 @@
 #include "builtins/file_methods.h"
 #include "builtins/util.h"
 
-static Value open(int argCount, Value* args);
+static Value open(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Registers built-in file methods
@@ -28,8 +28,8 @@ void registerBuiltInFileMethods(Table* tbl) {
  * @param args The arguments passed to the function.
  * @return An ObjFile object or an error value if the file cannot be opened.
  */
-static Value open(int argCount, Value* args) {
-    if (argCount < 1 || argCount > 2 || !IS_STRING(args[0])) {
+static Value open(int argCount, Value* args, ParamInfo* params) {
+    if (!IS_STRING(args[0])) {
         return ERROR_VAL_PTR("open() expects a file path (string) and optional mode.");
     }
 

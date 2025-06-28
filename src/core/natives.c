@@ -55,7 +55,7 @@ void defineNative(const char* name, NativeFn function, int arityMin, int arityMa
 /**
  * Clock native function.
  */
-Value clockNative(int argCount, Value* args) {
+Value clockNative(int argCount, Value* args, ParamInfo* params) {
     return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
@@ -63,7 +63,7 @@ Value clockNative(int argCount, Value* args) {
  * Time native function.
  * Returns the number of seconds since epoch.
  */
-Value timeNative(int argCount, Value* args) {
+Value timeNative(int argCount, Value* args, ParamInfo* params) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return NUMBER_VAL((double)tv.tv_sec + (double)tv.tv_usec / 1e6);
@@ -72,8 +72,8 @@ Value timeNative(int argCount, Value* args) {
 /**
  * Sleep native function.
  */
-Value sleepNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
+Value sleepNative(int argCount, Value* args, ParamInfo* params) {
+    if (!IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("sleep() expects a single numeric argument.");
     }
     double t = AS_NUMBER(args[0]);
@@ -84,10 +84,7 @@ Value sleepNative(int argCount, Value* args) {
 /**
  * Print native function.
  */
-Value printNative(int argCount, Value* args) {
-    if (argCount < 1) {
-        return ERROR_VAL_PTR("print() expects at least one argument.");
-    }
+Value printNative(int argCount, Value* args, ParamInfo* params) {
     for (int i = 0; i < argCount; i++) {
         if (IS_STRING(args[i])) {
             ObjString* str = AS_STRING(args[i]);
@@ -106,11 +103,8 @@ Value printNative(int argCount, Value* args) {
 /**
  * Println native function.
  */
-Value printLNNative(int argCount, Value* args) {
-    if (argCount < 1) {
-        return ERROR_VAL_PTR("print() expects at least one argument.");
-    }
-    printNative(argCount, args);
+Value printLNNative(int argCount, Value* args, ParamInfo* params) {
+    printNative(argCount, args, params);
     printf("\n");
     return NIL_VAL;
 }
@@ -120,7 +114,7 @@ Value printLNNative(int argCount, Value* args) {
  *
  * Exits the program.
  */
-Value exitNative(int argCount, Value* args) {
+Value exitNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount > 0 && !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("exit() expects a numeric argument (if any).");
     }
@@ -136,8 +130,8 @@ Value exitNative(int argCount, Value* args) {
 /**
  * len native function.
  */
-Value lenNative(int argCount, Value* args) {
-    if (argCount != 1 || (!IS_LIST(args[0]) && !IS_STRING(args[0]) && !IS_DICT(args[0]))) {
+Value lenNative(int argCount, Value* args, ParamInfo* params) {
+    if (!IS_LIST(args[0]) && !IS_STRING(args[0]) && !IS_DICT(args[0])) {
         return ERROR_VAL_PTR("len() expects a single argument of type string, list, or dict.");
     }
     switch (OBJ_TYPE(args[0])) {
@@ -158,8 +152,8 @@ Value lenNative(int argCount, Value* args) {
  * Calculates the absolute value of a number.
  * If the argument is not a number, returns NIL_VAL or throws an error.
  */
-Value absNative(int argCount, Value* args) {
-    if (argCount != 1 || !IS_NUMBER(args[0])) {
+Value absNative(int argCount, Value* args, ParamInfo* params) {
+    if (!IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("abs() expects a single numeric argument.");
     }
     double value = AS_NUMBER(args[0]);
@@ -170,8 +164,8 @@ Value absNative(int argCount, Value* args) {
  * Calculates the minimum of two numbers.
  * If the arguments are not numbers, returns NIL_VAL or throws an error.
  */
-Value minNative(int argCount, Value* args) {
-    if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
+Value minNative(int argCount, Value* args, ParamInfo* params) {
+    if (!IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("min() expects two numeric arguments.");
     }
     double a = AS_NUMBER(args[0]);
@@ -183,8 +177,8 @@ Value minNative(int argCount, Value* args) {
  * Calculates the maximum of two numbers.
  * If the arguments are not numbers, returns NIL_VAL or throws an error.
  */
-Value maxNative(int argCount, Value* args) {
-    if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
+Value maxNative(int argCount, Value* args, ParamInfo* params) {
+    if (!IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("max() expects two numeric arguments.");
     }
     double a = AS_NUMBER(args[0]);

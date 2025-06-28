@@ -16,10 +16,10 @@
 
 
 // forward declarations of native functions
-Value internalIndexNative(int argCount, Value* args);
-Value clearNative(int argCount, Value* args);
-Value popNative(int argCount, Value *args);
-Value cloneNative(int argCount, Value* args);
+Value internalIndexNative(int argCount, Value* args, ParamInfo* params);
+Value clearNative(int argCount, Value* args, ParamInfo* params);
+Value popNative(int argCount, Value *args, ParamInfo* params);
+Value cloneNative(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Registers Container methods for the given ObjClass.
@@ -38,7 +38,7 @@ void registerContainerMethods(ObjClass* cls) {
  * For lists, it simply returns the value at the index.
  * For dictionaries, it retrieves the nth key value.
  */
-Value internalIndexNative(int argCount, Value* args) {
+Value internalIndexNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_CONTAINER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("Invalid arguments for __index__(). Expected a container and a number.");
     }
@@ -73,7 +73,7 @@ Value internalIndexNative(int argCount, Value* args) {
  * Clear native function.
  * Removes all elements from the list.
  */
-Value clearNative(int argCount, Value* args) {
+Value clearNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_CONTAINER(args[0])) {
         return ERROR_VAL_PTR("clear() must be called on a container.");
     }
@@ -105,7 +105,7 @@ Value clearNative(int argCount, Value* args) {
 /**
  * Pop native function.
  */
-Value popNative(int argCount, Value *args) {
+Value popNative(int argCount, Value *args, ParamInfo* params) {
     if (argCount == 0 || !IS_CONTAINER(args[0])) {
         return ERROR_VAL_PTR("pop() must be called on a container.");
     }
@@ -158,7 +158,7 @@ Value popNative(int argCount, Value *args) {
  * Clone native function.
  * Shallow clones/copies a container.
  */
-Value cloneNative(int argCount, Value* args) {
+Value cloneNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_CONTAINER(args[0])) {
         printf("clone() must be called on a container.\n");
         return ERROR_VAL;

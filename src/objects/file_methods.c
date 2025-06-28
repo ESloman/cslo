@@ -20,17 +20,17 @@
 
 #include "util.h"
 
-static Value fileRead(int argCount, Value* args);
-static Value fileReadline(int argCount, Value* args);
-static Value fileReadLines(int argCount, Value* args);
-static Value fileClose(int argCount, Value* args);
-static Value fileWrite(int argCount, Value* args);
-static Value fileWriteLine(int argCount, Value* args);
-static Value fileWriteLines(int argCount, Value* args);
-static Value fileSeek(int argCount, Value* args);
-static Value fileFlush(int argCount, Value* args);
-static Value fileTell(int argCount, Value* args);
-static Value fileTruncate(int argCount, Value* args);
+static Value fileRead(int argCount, Value* args, ParamInfo* params);
+static Value fileReadline(int argCount, Value* args, ParamInfo* params);
+static Value fileReadLines(int argCount, Value* args, ParamInfo* params);
+static Value fileClose(int argCount, Value* args, ParamInfo* params);
+static Value fileWrite(int argCount, Value* args, ParamInfo* params);
+static Value fileWriteLine(int argCount, Value* args, ParamInfo* params);
+static Value fileWriteLines(int argCount, Value* args, ParamInfo* params);
+static Value fileSeek(int argCount, Value* args, ParamInfo* params);
+static Value fileFlush(int argCount, Value* args, ParamInfo* params);
+static Value fileTell(int argCount, Value* args, ParamInfo* params);
+static Value fileTruncate(int argCount, Value* args, ParamInfo* params);
 
 // native properties
 static void registerNativeProperties(ObjClass* cls);
@@ -64,7 +64,7 @@ static void registerNativeProperties(ObjClass* cls) {
     addNativeProperty(&cls->nativeProperties, "name", propertyName);
 }
 
-static Value fileRead(int argCount, Value* args) {
+static Value fileRead(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("read() must be called on a file object.");
     }
@@ -90,7 +90,7 @@ static Value fileRead(int argCount, Value* args) {
     return result;
 }
 
-static Value fileClose(int argCount, Value* args) {
+static Value fileClose(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("close() must be called on a file object.");
     }
@@ -105,7 +105,7 @@ static Value fileClose(int argCount, Value* args) {
     return NIL_VAL;
 }
 
-static Value fileWrite(int argCount, Value* args) {
+static Value fileWrite(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_FILE(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("write() must be called on a file object with a string argument.");
     }
@@ -132,7 +132,7 @@ static Value fileWrite(int argCount, Value* args) {
     return BOOL_VAL(true);
 }
 
-static Value fileWriteLine(int argCount, Value* args) {
+static Value fileWriteLine(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_FILE(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("writeline() must be called on a file object with a string argument.");
     }
@@ -161,7 +161,7 @@ static Value fileWriteLine(int argCount, Value* args) {
     return BOOL_VAL(true);
 }
 
-static Value fileWriteLines(int argCount, Value* args) {
+static Value fileWriteLines(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_FILE(args[0]) || !IS_LIST(args[1])) {
         return ERROR_VAL_PTR("writelines() must be called on a file object with a list argument.");
     }
@@ -203,7 +203,7 @@ static Value fileWriteLines(int argCount, Value* args) {
     return BOOL_VAL(true);
 }
 
-static Value fileSeek(int argCount, Value* args) {
+static Value fileSeek(int argCount, Value* args, ParamInfo* params) {
     if (argCount < 2 || !IS_FILE(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("seek() must be called on a file object with a numeric argument.");
     }
@@ -223,7 +223,7 @@ static Value fileSeek(int argCount, Value* args) {
     return NIL_VAL;
 }
 
-static Value fileReadline(int argCount, Value* args) {
+static Value fileReadline(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("readline() must be called on a file object.");
     }
@@ -245,7 +245,7 @@ static Value fileReadline(int argCount, Value* args) {
     return result;
 }
 
-static Value fileFlush(int argCount, Value* args) {
+static Value fileFlush(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("flush() must be called on a file object.");
     }
@@ -261,7 +261,7 @@ static Value fileFlush(int argCount, Value* args) {
     return NIL_VAL;
 }
 
-static Value fileReadLines(int argCount, Value* args) {
+static Value fileReadLines(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("readlines() must be called on a file object.");
     }
@@ -287,7 +287,7 @@ static Value fileReadLines(int argCount, Value* args) {
     return OBJ_VAL(lines);
 }
 
-static Value fileTell(int argCount, Value* args) {
+static Value fileTell(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("tell() must be called on a file object.");
     }
@@ -298,7 +298,7 @@ static Value fileTell(int argCount, Value* args) {
     return NUMBER_VAL(ftell(sFile->file));
 }
 
-static Value fileTruncate(int argCount, Value* args) {
+static Value fileTruncate(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("truncate() must be called on a file object.");
     }

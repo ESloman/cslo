@@ -183,7 +183,7 @@ typedef struct ObjFunction {
 } ObjFunction;
 
 
-typedef Value (*NativeFn)(int argCount, Value* args);
+typedef Value (*NativeFn)(int argCount, Value* args, ParamInfo* params);
 typedef Value (*NativeProperty)(Value arg);
 
 /**

@@ -14,20 +14,20 @@
 #include "objects/string_methods.h"
 
 // forward declarations of native functions
-Value upper(int argCount, Value* args);
-Value lower(int argCount, Value* args);
-Value title(int argCount, Value* args);
-Value split(int argCount, Value* args);
-Value strip(int argCount, Value* args);
-Value startsWith(int argCount, Value* args);
-Value endsWith(int argCount, Value* args);
-Value isAlpha(int argCount, Value* args);
-Value isAlphaNumeric(int argCount, Value* args);
-Value isDigit(int argCount, Value* args);
-Value find(int argCount, Value* args);
-Value replace(int argCount, Value* args);
-Value count(int argCount, Value* args);
-Value strIndex(int argCount, Value* args);
+Value upper(int argCount, Value* args, ParamInfo* params);
+Value lower(int argCount, Value* args, ParamInfo* params);
+Value title(int argCount, Value* args, ParamInfo* params);
+Value split(int argCount, Value* args, ParamInfo* params);
+Value strip(int argCount, Value* args, ParamInfo* params);
+Value startsWith(int argCount, Value* args, ParamInfo* params);
+Value endsWith(int argCount, Value* args, ParamInfo* params);
+Value isAlpha(int argCount, Value* args, ParamInfo* params);
+Value isAlphaNumeric(int argCount, Value* args, ParamInfo* params);
+Value isDigit(int argCount, Value* args, ParamInfo* params);
+Value find(int argCount, Value* args, ParamInfo* params);
+Value replace(int argCount, Value* args, ParamInfo* params);
+Value count(int argCount, Value* args, ParamInfo* params);
+Value strIndex(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Registers string methods for the given ObjClass.
@@ -56,7 +56,7 @@ void registerStringMethods(ObjClass* cls) {
  * @param args The arguments passed to the function.
  * @return A new string with all characters converted to uppercase.
  */
-Value upper(int argCount, Value* args) {
+Value upper(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("upper() must be called on a string.");
     }
@@ -80,7 +80,7 @@ Value upper(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A new string with all characters converted to lowercase.
  */
-Value lower(int argCount, Value* args) {
+Value lower(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("lower() must be called on a string.");
     }
@@ -104,7 +104,7 @@ Value lower(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A new string with the first character of each word capitalized.
  */
-Value title(int argCount, Value* args) {
+Value title(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("title() must be called on a string.");
     }
@@ -137,7 +137,7 @@ Value title(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A list of substrings or an error if the arguments are invalid.
  */
-Value split(int argCount, Value* args) {
+Value split(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("split() must be called on a string and a delimiter string.");
     }
@@ -187,7 +187,7 @@ Value split(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A new string with leading and trailing whitespace removed.
  */
-Value strip(int argCount, Value* args) {
+Value strip(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("strip() must be called on a string.");
     }
@@ -231,7 +231,7 @@ Value strip(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return True if the string starts with the prefix, false otherwise.
  */
-Value startsWith(int argCount, Value* args) {
+Value startsWith(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("startswith() must be called on a string and a prefix string.");
     }
@@ -258,7 +258,7 @@ Value startsWith(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return True if the string ends with the suffix, false otherwise.
  */
-Value endsWith(int argCount, Value* args) {
+Value endsWith(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("endswith() must be called on a string and a suffix string.");
     }
@@ -286,7 +286,7 @@ Value endsWith(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return True if the string contains only alpha characters, false otherwise.
  */
-Value isAlpha(int argCount, Value* args) {
+Value isAlpha(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("isalpha() must be called on a string.");
     }
@@ -305,7 +305,7 @@ Value isAlpha(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return True if the string contains only alphanumeric characters, false otherwise.
  */
-Value isAlphaNumeric(int argCount, Value* args) {
+Value isAlphaNumeric(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("isalphanum() must be called on a string.");
     }
@@ -324,7 +324,7 @@ Value isAlphaNumeric(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return True if the string contains only numeric characters, false otherwise.
  */
-Value isDigit(int argCount, Value* args) {
+Value isDigit(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("isdigit() must be called on a string.");
     }
@@ -343,7 +343,7 @@ Value isDigit(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The index of the first occurrence of the substring or -1 if not found.
  */
-Value find(int argCount, Value* args) {
+Value find(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("find() must be called on a string and a substring.");
     }
@@ -375,7 +375,7 @@ Value find(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A new string with the replacements made or an error if the arguments are invalid.
  */
-Value replace(int argCount, Value* args) {
+Value replace(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 3 || !IS_STRING(args[0]) || !IS_STRING(args[1]) || !IS_STRING(args[2])) {
         return ERROR_VAL_PTR("replace() must be called on a string, old substring, and new substring.");
     }
@@ -438,7 +438,7 @@ Value replace(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The number of occurrences of the substring or an error if the arguments are invalid.
  */
-Value count(int argCount, Value* args) {
+Value count(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("count() must be called on a string and a substring.");
     }
@@ -472,7 +472,7 @@ Value count(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The index of the character or -1 if not found.
  */
-Value strIndex(int argCount, Value* args) {
+Value strIndex(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("index() must be called on a string and a substring.");
     }

@@ -12,14 +12,14 @@
 #include "core/value.h"
 
 // forward declarations of native functions
-Value appendNative(int argCount, Value* args);
-Value insertNative(int argCount, Value* args);
-Value removeNative(int argCount, Value* args);
-Value reverseNative(int argCount, Value* args);
-Value indexNative(int argCount, Value* args);
-Value countNative(int argCount, Value* args);
-Value extendNative(int argCount, Value* args);
-Value sortNative(int argCount, Value* args);
+Value appendNative(int argCount, Value* args, ParamInfo* params);
+Value insertNative(int argCount, Value* args, ParamInfo* params);
+Value removeNative(int argCount, Value* args, ParamInfo* params);
+Value reverseNative(int argCount, Value* args, ParamInfo* params);
+Value indexNative(int argCount, Value* args, ParamInfo* params);
+Value countNative(int argCount, Value* args, ParamInfo* params);
+Value extendNative(int argCount, Value* args, ParamInfo* params);
+Value sortNative(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Registers list methods for the given ObjClass.
@@ -39,7 +39,7 @@ void registerListMethods(ObjClass* cls) {
 /**
  * Append native function.
  */
-Value appendNative(int argCount, Value *args) {
+Value appendNative(int argCount, Value *args, ParamInfo* params) {
     if (argCount != 2 || !IS_LIST(args[0])) {
         return ERROR_VAL_PTR("append() must be called on a list with one argument.");
     }
@@ -56,7 +56,7 @@ Value appendNative(int argCount, Value *args) {
 /**
  * Insert native function.
  */
-Value insertNative(int argCount, Value* args) {
+Value insertNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 3 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("insert() must be called on a list with an index and a value.");
     }
@@ -90,7 +90,7 @@ Value insertNative(int argCount, Value* args) {
 /**
  * remove native function.
  */
-Value removeNative(int argCount, Value* args) {
+Value removeNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("remove() must be called on a list with an index.");
     }
@@ -114,7 +114,7 @@ Value removeNative(int argCount, Value* args) {
 /**
  * Reverse native function.
  */
-Value reverseNative(int argCount, Value* args) {
+Value reverseNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         return ERROR_VAL_PTR("reverse() must be called on a list.");
     }
@@ -136,7 +136,7 @@ Value reverseNative(int argCount, Value* args) {
 /**
  * Index native function.
  */
-Value indexNative(int argCount, Value* args) {
+Value indexNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_LIST(args[0])) {
         return ERROR_VAL_PTR("index() must be called on a list with a value.");
     }
@@ -156,7 +156,7 @@ Value indexNative(int argCount, Value* args) {
 /**
  * Count native function.
  */
-Value countNative(int argCount, Value* args) {
+Value countNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_LIST(args[0])) {
         return ERROR_VAL_PTR("count() must be called on a list with a value.");
     }
@@ -179,7 +179,7 @@ Value countNative(int argCount, Value* args) {
  * Extends native function.
  * Extends a list with another list.
  */
-Value extendNative(int argCount, Value* args) {
+Value extendNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_LIST(args[1])) {
         return ERROR_VAL_PTR("extend() must be called on a list with a list.");
     }
@@ -205,7 +205,7 @@ Value extendNative(int argCount, Value* args) {
  * Sort native function.
  * Sorts a list in-place.
  */
-Value sortNative(int argCount, Value* args) {
+Value sortNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         return ERROR_VAL_PTR("sort() must be called on a list.");
     }

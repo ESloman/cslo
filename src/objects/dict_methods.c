@@ -16,11 +16,11 @@
 
 
 // forward declarations of native functions
-Value keysNative(int argCount, Value* args);
-Value valuesNative(int argCount, Value* args);
-Value getNative(int argCount, Value* args);
-Value updateNative(int argCount, Value* args);
-Value itemsNative(int argCount, Value* args);
+Value keysNative(int argCount, Value* args, ParamInfo* params);
+Value valuesNative(int argCount, Value* args, ParamInfo* params);
+Value getNative(int argCount, Value* args, ParamInfo* params);
+Value updateNative(int argCount, Value* args, ParamInfo* params);
+Value itemsNative(int argCount, Value* args, ParamInfo* params);
 
 
 /**
@@ -39,7 +39,7 @@ void registerDictMethods(ObjClass* cls) {
  * keys native function.
  * Returns the keys of a dictionary as a list.
  */
-Value keysNative(int argCount, Value* args) {
+Value keysNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_DICT(args[0])) {
         return ERROR_VAL_PTR("keys() must be called on a dict.");
     }
@@ -61,7 +61,7 @@ Value keysNative(int argCount, Value* args) {
  * values native function.
  * Returns the values of a dictionary as a list.
  */
-Value valuesNative(int argCount, Value* args) {
+Value valuesNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_DICT(args[0])) {
         return ERROR_VAL_PTR("values() must be called on a dict.");
     }
@@ -85,7 +85,7 @@ Value valuesNative(int argCount, Value* args) {
  * Returns the value if found, or NIL_VAL if not found.
  * Optionally, returns a default if not found instead of NIL_VAL.
  */
-Value getNative(int argCount, Value* args) {
+Value getNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount < 2 || !IS_DICT(args[0])) {
         return ERROR_VAL_PTR("get() must be called on a dict with a key.");
     }
@@ -109,7 +109,7 @@ Value getNative(int argCount, Value* args) {
  * If the key already exists, it updates the value.
  * If the key does not exist, it adds the key-value pair.
  */
-Value updateNative(int argCount, Value* args) {
+Value updateNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_DICT(args[0]) || !IS_DICT(args[1])) {
         return ERROR_VAL_PTR("update() must be called on a dict with another dict.");
     }
@@ -130,7 +130,7 @@ Value updateNative(int argCount, Value* args) {
  * items native method.
  * Returns a list of key-value pairs from a dict.
  */
-Value itemsNative(int argCount, Value* args) {
+Value itemsNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_DICT(args[0])) {
         return ERROR_VAL_PTR("items() must be called on a dict.");
     }

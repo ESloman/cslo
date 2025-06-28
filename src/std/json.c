@@ -14,10 +14,10 @@
 #include "cJSON.h"
 
 // forward declarations of native functions
-static Value loadJsonNative(int argCount, Value* args);
-static Value loadsJsonNative(int argCount, Value* args);
-static Value dumpsJsonNative(int argCount, Value* args);
-static Value dumpJsonNative(int argCount, Value* args);
+static Value loadJsonNative(int argCount, Value* args, ParamInfo* params);
+static Value loadsJsonNative(int argCount, Value* args, ParamInfo* params);
+static Value dumpsJsonNative(int argCount, Value* args, ParamInfo* params);
+static Value dumpJsonNative(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Gets the json module with all its functions.
@@ -124,7 +124,7 @@ static cJSON* valueToCJson(Value value) {
  * @param jsonString The JSON string to parse.
  * @return A Value representing the parsed JSON object or array, or an error value.
  */
-static Value loadsJsonNative(int argCount, Value* args) {
+static Value loadsJsonNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("loads() expects a single string argument.");
     }
@@ -143,7 +143,7 @@ static Value loadsJsonNative(int argCount, Value* args) {
 /**
  * @brief
  */
-static Value loadJsonNative(int argCount, Value* args) {
+static Value loadJsonNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("load() expects a single file argument.");
     }
@@ -185,7 +185,7 @@ static Value loadJsonNative(int argCount, Value* args) {
  * @param value The Value to serialize to JSON.
  * @return A Value containing the JSON string, or an error value if serialization fails.
  */
-static Value dumpsJsonNative(int argCount, Value* args) {
+static Value dumpsJsonNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount < 1) {
         return ERROR_VAL_PTR("dumps() expects at least one argument.");
     }
@@ -217,7 +217,7 @@ static Value dumpsJsonNative(int argCount, Value* args) {
     return result;
 }
 
-static Value dumpJsonNative(int argCount, Value* args) {
+static Value dumpJsonNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount < 2 || !IS_FILE(args[0])) {
         return ERROR_VAL_PTR("dump() expects a file and a value.");
     }

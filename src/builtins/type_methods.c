@@ -14,9 +14,9 @@
 #include "builtins/util.h"
 
 // forward declarations
-Value boolCvrt(int argCount, Value* args);
-Value numberCvrt(int argCount, Value* args);
-Value strCvrt(int argCount, Value* args);
+Value boolCvrt(int argCount, Value* args, ParamInfo* params);
+Value numberCvrt(int argCount, Value* args, ParamInfo* params);
+Value strCvrt(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Registers built-in type methods
@@ -34,10 +34,7 @@ void registerBuiltInTypeMethods(Table* tbl) {
  * @param args The arguments passed to the function.
  * @return The boolean representation of the value.
  */
-Value boolCvrt(int argCount, Value* args) {
-    if (argCount != 1) {
-        return ERROR_VAL_PTR("bool() expects a single argument.");
-    }
+Value boolCvrt(int argCount, Value* args, ParamInfo* params) {
     Value value = args[0];
     if (IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value)) || (IS_NUMBER(value) && AS_NUMBER(value) == 0) || (IS_STRING(value) && AS_STRING(value)->length == 0) || (IS_LIST(value) && AS_LIST(value)->count == 0) || (IS_DICT(value) && AS_DICT(value)->data.count == 0)) {
         return BOOL_VAL(false);
@@ -51,10 +48,7 @@ Value boolCvrt(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The number representation of the value.
  */
-Value numberCvrt(int argCount, Value* args) {
-    if (argCount != 1) {
-        return ERROR_VAL_PTR("number() expects a single argument.");
-    }
+Value numberCvrt(int argCount, Value* args, ParamInfo* params) {
     Value value = args[0];
     if (IS_NIL(value)) {
         return NUMBER_VAL(0);
@@ -82,10 +76,7 @@ Value numberCvrt(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The string representation of the value.
 */
-Value strCvrt(int argCount, Value* args) {
-    if (argCount != 1) {
-        return ERROR_VAL_PTR("str() expects a single argument.");
-    }
+Value strCvrt(int argCount, Value* args, ParamInfo* params) {
     Value value = args[0];
 
     if (IS_NIL(value)) {

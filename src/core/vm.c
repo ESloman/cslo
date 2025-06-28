@@ -266,7 +266,7 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                 }
                 printf("\n");
                 #endif
-                Value result = native(argCount, vm.stackTop - argCount);
+                Value result = native(argCount, vm.stackTop - argCount, nativeObj->params);
                 if (IS_ERROR(result)) {
                     ObjError* error = AS_ERROR(result);
                     runtimeError(ERROR_RUNTIME, error->message->chars);
@@ -370,7 +370,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
                     return false;
                 }
                 NativeFn native = nativeObj->function;
-                Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+                Value result = native(argCount + 1, vm.stackTop - argCount - 1, nativeObj->params);
                 if (IS_ERROR(result)) {
                     ObjError* error = AS_ERROR(result);
                     runtimeError(ERROR_RUNTIME, error->message->chars);
@@ -412,7 +412,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
                 return false;
             }
             NativeFn native = nativeObj->function;
-            Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+            Value result = native(argCount + 1, vm.stackTop - argCount - 1, nativeObj->params);
             if (IS_ERROR(result)) {
                 ObjError* error = AS_ERROR(result);
                 runtimeError(ERROR_RUNTIME, error->message->chars);
@@ -456,7 +456,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
                     return false;
                 }
                 NativeFn native = nativeObj->function;
-                Value result = native(argCount + 1, vm.stackTop - argCount - 1);
+                Value result = native(argCount + 1, vm.stackTop - argCount - 1, nativeObj->params);
                 if (IS_ERROR(result)) {
                     ObjError* error = AS_ERROR(result);
                     runtimeError(ERROR_RUNTIME, error->message->chars);

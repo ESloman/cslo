@@ -23,28 +23,28 @@
 // forward declarations of native functions
 
 // env stuff
-static Value getEnvNative(int argCount, Value* args);
-static Value setEnvNative(int argCount, Value* args);
-static Value unsetEnvNative(int argCount, Value* args);
+static Value getEnvNative(int argCount, Value* args, ParamInfo* params);
+static Value setEnvNative(int argCount, Value* args, ParamInfo* params);
+static Value unsetEnvNative(int argCount, Value* args, ParamInfo* params);
 
 // system info
-static Value getCWD(int argCount, Value* args);
-static Value getPID(int argCount, Value* args);
-static Value getUID(int argCount, Value* args);
+static Value getCWD(int argCount, Value* args, ParamInfo* params);
+static Value getPID(int argCount, Value* args, ParamInfo* params);
+static Value getUID(int argCount, Value* args, ParamInfo* params);
 
 // file / directory stuff
-static Value changeDir(int argCount, Value* args);
-static Value makeDir(int argCount, Value* args);
-static Value rmDir(int argCount, Value* args);
-static Value removeFile(int argCount, Value* args);
-static Value listDir(int argCount, Value* args);
-static Value existsNtv(int argCount, Value* args);
-static Value isFile(int argCount, Value* args);
-static Value isDir(int argCount, Value* args);
-static Value absPath(int argCount, Value* args);
-static Value joinPath(int argCount, Value* args);
-static Value baseName(int argCount, Value* args);
-static Value dirName(int argCount, Value* args);
+static Value changeDir(int argCount, Value* args, ParamInfo* params);
+static Value makeDir(int argCount, Value* args, ParamInfo* params);
+static Value rmDir(int argCount, Value* args, ParamInfo* params);
+static Value removeFile(int argCount, Value* args, ParamInfo* params);
+static Value listDir(int argCount, Value* args, ParamInfo* params);
+static Value existsNtv(int argCount, Value* args, ParamInfo* params);
+static Value isFile(int argCount, Value* args, ParamInfo* params);
+static Value isDir(int argCount, Value* args, ParamInfo* params);
+static Value absPath(int argCount, Value* args, ParamInfo* params);
+static Value joinPath(int argCount, Value* args, ParamInfo* params);
+static Value baseName(int argCount, Value* args, ParamInfo* params);
+static Value dirName(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Gets the random module with all its functions.
@@ -78,7 +78,7 @@ ObjModule* getOSModule() {
  * Gets the value of an environment variable.
  * Usage: getenv("HOME")
  */
-static Value getEnvNative(int argCount, Value* args) {
+static Value getEnvNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("getenv() expects a single string argument.");
     }
@@ -94,7 +94,7 @@ static Value getEnvNative(int argCount, Value* args) {
  * Sets the value of an environment variable.
  * Usage: setenv("MYVAR", "value")
  */
-static Value setEnvNative(int argCount, Value* args) {
+static Value setEnvNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_STRING(args[0]) || !IS_STRING(args[1])) {
         return ERROR_VAL_PTR("setenv() expects two string arguments.");
     }
@@ -117,7 +117,7 @@ static Value setEnvNative(int argCount, Value* args) {
  * Unsets an environment variable.
  * Usage: unsetenv("MYVAR")
  */
-static Value unsetEnvNative(int argCount, Value* args) {
+static Value unsetEnvNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("unsetenv() expects a single string argument.");
     }
@@ -141,7 +141,7 @@ static Value unsetEnvNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The current working directory as a string or an error if the arguments are invalid.
  */
-static Value getCWD(int argCount, Value* args) {
+static Value getCWD(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 0) {
         return ERROR_VAL_PTR("getcwd() expects no arguments.");
     }
@@ -158,7 +158,7 @@ static Value getCWD(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The process ID as a number or an error if the arguments are invalid.
  */
-static Value getPID(int argCount, Value* args) {
+static Value getPID(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 0) {
         return ERROR_VAL_PTR("getpid() expects no arguments.");
     }
@@ -172,7 +172,7 @@ static Value getPID(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The user ID as a number or an error if the arguments are invalid.
  */
-static Value getUID(int argCount, Value* args) {
+static Value getUID(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 0) {
         return ERROR_VAL_PTR("getuid() expects no arguments.");
     }
@@ -186,7 +186,7 @@ static Value getUID(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return NIL_VAL on success or an error if the arguments are invalid.
  */
-static Value changeDir(int argCount, Value* args) {
+static Value changeDir(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("chdir() expects a single string argument.");
     }
@@ -203,7 +203,7 @@ static Value changeDir(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return NIL_VAL on success or an error if the arguments are invalid.
  */
-static Value makeDir(int argCount, Value* args) {
+static Value makeDir(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("mkdir() expects a single string argument.");
     }
@@ -220,7 +220,7 @@ static Value makeDir(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return NIL_VAL on success or an error if the arguments are invalid.
  */
-static Value rmDir(int argCount, Value* args) {
+static Value rmDir(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("rmdir() expects a single string argument.");
     }
@@ -237,7 +237,7 @@ static Value rmDir(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return NIL_VAL on success or an error if the arguments are invalid.
  */
-static Value removeFile(int argCount, Value* args) {
+static Value removeFile(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("remove() expects a single string argument.");
     }
@@ -252,7 +252,7 @@ static Value removeFile(int argCount, Value* args) {
 /**
  * @brief Lists the contents of a directory.
  */
-static Value listDir(int argCount, Value* args) {
+static Value listDir(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("listdir() expects a single string argument.");
     }
@@ -289,7 +289,7 @@ static Value listDir(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return true if the file or directory exists, false otherwise.
  */
-static Value existsNtv(int argCount, Value* args) {
+static Value existsNtv(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("exists() expects a single string argument.");
     }
@@ -305,7 +305,7 @@ static Value existsNtv(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return true if the path is a file, false otherwise.
  */
-static Value isFile(int argCount, Value* args) {
+static Value isFile(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("isfile() expects a single string argument.");
     }
@@ -323,7 +323,7 @@ static Value isFile(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return true if the path is a directory, false otherwise.
  */
-static Value isDir(int argCount, Value* args) {
+static Value isDir(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("isdir() expects a single string argument.");
     }
@@ -341,7 +341,7 @@ static Value isDir(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The absolute path as a string or an error if the arguments are invalid.
  */
-static Value absPath(int argCount, Value* args) {
+static Value absPath(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("abspath() expects a single string argument.");
     }
@@ -361,7 +361,7 @@ static Value absPath(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The joined path as a string or an error if the arguments are invalid.
  */
-static Value joinPath(int argCount, Value* args) {
+static Value joinPath(int argCount, Value* args, ParamInfo* params) {
     if (argCount < 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("join() expects at least one string argument.");
     }
@@ -386,7 +386,7 @@ static Value joinPath(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The base name as a string or an error if the arguments are invalid.
  */
-static Value baseName(int argCount, Value* args) {
+static Value baseName(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("basename() expects a single string argument.");
     }
@@ -404,7 +404,7 @@ static Value baseName(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The directory name as a string or an error if the arguments are invalid.
  */
-static Value dirName(int argCount, Value* args) {
+static Value dirName(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_STRING(args[0])) {
         return ERROR_VAL_PTR("dirname() expects a single string argument.");
     }

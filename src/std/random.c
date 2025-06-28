@@ -17,16 +17,16 @@
 #endif
 
 // forward declarations
-static Value randomSeedNative(int argCount, Value* args);
-static Value randomNative(int argCount, Value* args);
-static Value randomIntNative(int argCount, Value* args);
-static Value randomRangeNative(int argCount, Value* args);
-static Value randomChoiceNative(int argCount, Value* args);
-static Value randomShuffleNative(int argCount, Value* args);
-static Value randomBoolNative(int argCount, Value* args);
-static Value randomBytesNative(int argCount, Value* args);
-static Value randomGaussNative(int argCount, Value* args);
-static Value randomSampleNative(int argCount, Value* args);
+static Value randomSeedNative(int argCount, Value* args, ParamInfo* params);
+static Value randomNative(int argCount, Value* args, ParamInfo* params);
+static Value randomIntNative(int argCount, Value* args, ParamInfo* params);
+static Value randomRangeNative(int argCount, Value* args, ParamInfo* params);
+static Value randomChoiceNative(int argCount, Value* args, ParamInfo* params);
+static Value randomShuffleNative(int argCount, Value* args, ParamInfo* params);
+static Value randomBoolNative(int argCount, Value* args, ParamInfo* params);
+static Value randomBytesNative(int argCount, Value* args, ParamInfo* params);
+static Value randomGaussNative(int argCount, Value* args, ParamInfo* params);
+static Value randomSampleNative(int argCount, Value* args, ParamInfo* params);
 
 /**
  * @brief Gets the random module with all its functions.
@@ -50,7 +50,7 @@ ObjModule* getRandomModule() {
 /**
  * Sets the seed for the random number generator.
  */
-static Value randomSeedNative(int argCount, Value* args) {
+static Value randomSeedNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("seed() expects a single numeric argument.");
     }
@@ -62,7 +62,7 @@ static Value randomSeedNative(int argCount, Value* args) {
 /**
  * Generates a random number between 0 and 1.
  */
-static Value randomNative(int argCount, Value* args) {
+static Value randomNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 0) {
         return ERROR_VAL_PTR("random() expects no arguments.");
     }
@@ -73,7 +73,7 @@ static Value randomNative(int argCount, Value* args) {
  * Generates a random integer between the given range.
  * If the arguments are not numbers, returns ERROR_VAL or throws an error.
  */
-static Value randomIntNative(int argCount, Value* args) {
+static Value randomIntNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("randint() expects two numeric arguments.");
     }
@@ -90,7 +90,7 @@ static Value randomIntNative(int argCount, Value* args) {
  * Generates a random number between the given range.
  * If the arguments are not numbers, returns ERROR_VAL or throws an error.
  */
-static Value randomRangeNative(int argCount, Value* args) {
+static Value randomRangeNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("randrange() expects two numeric arguments.");
     }
@@ -109,7 +109,7 @@ static Value randomRangeNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A random choice from the list or an error if the arguments are invalid.
  */
-static Value randomChoiceNative(int argCount, Value* args) {
+static Value randomChoiceNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         return ERROR_VAL_PTR("choice() expects a single list argument.");
     }
@@ -127,7 +127,7 @@ static Value randomChoiceNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The shuffled list or an error if the arguments are invalid.
  */
-static Value randomShuffleNative(int argCount, Value* args) {
+static Value randomShuffleNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_LIST(args[0])) {
         return ERROR_VAL_PTR("shuffle() expects a single list argument.");
     }
@@ -152,7 +152,7 @@ static Value randomShuffleNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A random boolean value or an error if the arguments are invalid.
  */
-static Value randomBoolNative(int argCount, Value* args) {
+static Value randomBoolNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 0) {
         return ERROR_VAL_PTR("randbool() expects no arguments.");
     }
@@ -166,7 +166,7 @@ static Value randomBoolNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A byte array containing random bytes or an error if the arguments are invalid.
  */
-static Value randomBytesNative(int argCount, Value* args) {
+static Value randomBytesNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 1 || !IS_NUMBER(args[0])) {
         return ERROR_VAL_PTR("randbytes() expects a single numeric argument.");
     }
@@ -192,7 +192,7 @@ static Value randomBytesNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return A random Gaussian distributed number or an error if the arguments are invalid.
  */
-static Value randomGaussNative(int argCount, Value* args) {
+static Value randomGaussNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("gauss() expects two numeric arguments.");
     }
@@ -214,7 +214,7 @@ static Value randomGaussNative(int argCount, Value* args) {
  * @param args The arguments passed to the function.
  * @return The sampled list or an error if the arguments are invalid.
  */
-static Value randomSampleNative(int argCount, Value* args) {
+static Value randomSampleNative(int argCount, Value* args, ParamInfo* params) {
     if (argCount != 2 || !IS_LIST(args[0]) || !IS_NUMBER(args[1])) {
         return ERROR_VAL_PTR("sample() expects a list and a numeric argument.");
     }
