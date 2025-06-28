@@ -19,7 +19,7 @@ static Value open(int argCount, Value* args);
  * @param tbl The Table to register the methods in.
  */
 void registerBuiltInFileMethods(Table* tbl) {
-    defineBuiltIn(tbl, "open", open, 1, 2, ((ParamInfo[]){{copyString("path", 4), true}, {copyString("mode", 4), false}}));
+    defineBuiltIn(tbl, "open", open, 1, 2, PARAMS({copyString("path", 4), true}, {copyString("mode", 4), false}));
 }
 
 /**

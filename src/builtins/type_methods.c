@@ -23,9 +23,9 @@ Value strCvrt(int argCount, Value* args);
  * @param tbl The Table to register the methods in.
  */
 void registerBuiltInTypeMethods(Table* tbl) {
-    defineBuiltIn(tbl, "bool", boolCvrt, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineBuiltIn(tbl, "number", numberCvrt, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineBuiltIn(tbl, "str", strCvrt, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineBuiltIn(tbl, "bool", boolCvrt, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineBuiltIn(tbl, "number", numberCvrt, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineBuiltIn(tbl, "str", strCvrt, 1, 1, PARAMS({copyString("value", 5), true}));
 }
 
 /**

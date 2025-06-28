@@ -52,25 +52,25 @@ static Value dirName(int argCount, Value* args);
  */
 ObjModule* getOSModule() {
     ObjModule* module = newModule();
-    defineBuiltIn(&module->methods, "getenv", getEnvNative, 1, 1, ((ParamInfo[]){{copyString("name", 4), true}}));
-    defineBuiltIn(&module->methods, "setenv", setEnvNative, 2, 2, ((ParamInfo[]){{copyString("name", 4), true}, {copyString("value", 5), true}}));
-    defineBuiltIn(&module->methods, "unsetenv", unsetEnvNative, 1, 1, ((ParamInfo[]){{copyString("name", 4), true}}));
+    defineBuiltIn(&module->methods, "getenv", getEnvNative, 1, 1, PARAMS({copyString("name", 4), true}));
+    defineBuiltIn(&module->methods, "setenv", setEnvNative, 2, 2, PARAMS({copyString("name", 4), true}, {copyString("value", 5), true}));
+    defineBuiltIn(&module->methods, "unsetenv", unsetEnvNative, 1, 1, PARAMS({copyString("name", 4), true}));
 
     defineBuiltIn(&module->methods, "getcwd", getCWD, 0, 0, NULL);
     defineBuiltIn(&module->methods, "getpid", getPID, 0, 0, NULL);
     defineBuiltIn(&module->methods, "getuid", getUID, 0, 0, NULL);
-    defineBuiltIn(&module->methods, "chdir", changeDir, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "mkdir", makeDir, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "rmdir", rmDir, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "remove", removeFile, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "listdir", listDir, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "exists", existsNtv, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "isfile", isFile, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "isdir", isDir, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "abspath", absPath, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "join", joinPath, 1, -1, ((ParamInfo[]){{copyString("path", 4), true}, {copyString("...args", 7), true}}));
-    defineBuiltIn(&module->methods, "basename", baseName, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
-    defineBuiltIn(&module->methods, "dirname", dirName, 1, 1, ((ParamInfo[]){{copyString("path", 4), true}}));
+    defineBuiltIn(&module->methods, "chdir", changeDir, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "mkdir", makeDir, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "rmdir", rmDir, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "remove", removeFile, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "listdir", listDir, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "exists", existsNtv, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "isfile", isFile, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "isdir", isDir, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "abspath", absPath, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "join", joinPath, 1, -1, PARAMS({copyString("path", 4), true}, {copyString("...args", 7), true}));
+    defineBuiltIn(&module->methods, "basename", baseName, 1, 1, PARAMS({copyString("path", 4), true}));
+    defineBuiltIn(&module->methods, "dirname", dirName, 1, 1, PARAMS({copyString("path", 4), true}));
     return module;
 }
 

@@ -24,17 +24,17 @@
  */
 void defineNatives() {
     defineNative("clock", clockNative, 0, 0, NULL);
-    defineNative("exit", exitNative, 0, 1, ((ParamInfo[]){{copyString("code", 4), false}}));
-    defineNative("sleep", sleepNative, 1, 1, ((ParamInfo[]){{copyString("seconds", 7), true}}));
+    defineNative("exit", exitNative, 0, 1, PARAMS({copyString("code", 4), false}));
+    defineNative("sleep", sleepNative, 1, 1, PARAMS({copyString("seconds", 7), true}));
     defineNative("time", timeNative, 0, 0, NULL);
-    defineNative("print", printNative, 1, -1, ((ParamInfo[]){{copyString("message", 7), true}, {copyString("...args", 7), false}}));
-    defineNative("println", printLNNative, 1, -1, ((ParamInfo[]){{copyString("message", 7), true}, {copyString("...args", 7), false}}));
-    defineNative("len", lenNative, 1, 1, ((ParamInfo[]){{copyString("sequence", 9), true}}));
+    defineNative("print", printNative, 1, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
+    defineNative("println", printLNNative, 1, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
+    defineNative("len", lenNative, 1, 1, PARAMS({copyString("sequence", 9), true}));
 
     // math functions
-    defineNative("abs", absNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineNative("min", minNative, 2, 2, ((ParamInfo[]){{copyString("a", 1), true}, {copyString("b", 1), true}}));
-    defineNative("max", maxNative, 2, 2, ((ParamInfo[]){{copyString("a", 1), true}, {copyString("b", 1), true}}));
+    defineNative("abs", absNative, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineNative("min", minNative, 2, 2, PARAMS({copyString("a", 1), true}, {copyString("b", 1), true}));
+    defineNative("max", maxNative, 2, 2, PARAMS({copyString("a", 1), true}, {copyString("b", 1), true}));
 }
 
 /**

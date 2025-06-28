@@ -34,20 +34,20 @@ Value strIndex(int argCount, Value* args);
  * @param cls The ObjClass representing the string type.
  */
 void registerStringMethods(ObjClass* cls) {
-    defineBuiltIn(&cls->methods, "upper", upper, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "lower", lower, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "title", title, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "split", split, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("delimiter", 9), true}}));
-    defineBuiltIn(&cls->methods, "strip", strip, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "startswith", startsWith, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("prefix", 6), true}}));
-    defineBuiltIn(&cls->methods, "endswith", endsWith, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("suffix", 6), true}}));
-    defineBuiltIn(&cls->methods, "isalpha", isAlpha, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "isdigit", isDigit, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "isalphanum", isAlphaNumeric, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "find", find, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("substring", 9), true}}));
-    defineBuiltIn(&cls->methods, "replace", replace, 3, 3, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("old", 3), true}, {copyString("new", 3), true}}));
-    defineBuiltIn(&cls->methods, "count", count, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("substring", 9), true}}));
-    defineBuiltIn(&cls->methods, "index", strIndex, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("substring", 9), true}}));
+    defineBuiltIn(&cls->methods, "upper", upper, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "lower", lower, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "title", title, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "split", split, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("delimiter", 9), true}));
+    defineBuiltIn(&cls->methods, "strip", strip, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "startswith", startsWith, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("prefix", 6), true}));
+    defineBuiltIn(&cls->methods, "endswith", endsWith, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("suffix", 6), true}));
+    defineBuiltIn(&cls->methods, "isalpha", isAlpha, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "isdigit", isDigit, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "isalphanum", isAlphaNumeric, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "find", find, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("substring", 9), true}));
+    defineBuiltIn(&cls->methods, "replace", replace, 3, 3, PARAMS({copyString("self", 4), true}, {copyString("old", 3), true}, {copyString("new", 3), true}));
+    defineBuiltIn(&cls->methods, "count", count, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("substring", 9), true}));
+    defineBuiltIn(&cls->methods, "index", strIndex, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("substring", 9), true}));
 }
 
 /**

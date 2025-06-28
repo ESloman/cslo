@@ -26,14 +26,14 @@ Value sortNative(int argCount, Value* args);
  * @param cls The ObjClass representing the string type.
  */
 void registerListMethods(ObjClass* cls) {
-    defineBuiltIn(&cls->methods, "append", appendNative, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("value", 5), true}}));
-    defineBuiltIn(&cls->methods, "insert", insertNative, 3, 3, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("index", 5), true}, {copyString("value", 5), true}}));
-    defineBuiltIn(&cls->methods, "remove", removeNative, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("index", 5), true}}));
-    defineBuiltIn(&cls->methods, "reverse", reverseNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "index", indexNative, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("value", 5), true}}));
-    defineBuiltIn(&cls->methods, "count", countNative, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("value", 5), true}}));
-    defineBuiltIn(&cls->methods, "extend", extendNative, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("other", 5), true}}));
-    defineBuiltIn(&cls->methods, "sort", sortNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
+    defineBuiltIn(&cls->methods, "append", appendNative, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("value", 5), true}));
+    defineBuiltIn(&cls->methods, "insert", insertNative, 3, 3, PARAMS({copyString("self", 4), true}, {copyString("index", 5), true}, {copyString("value", 5), true}));
+    defineBuiltIn(&cls->methods, "remove", removeNative, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("index", 5), true}));
+    defineBuiltIn(&cls->methods, "reverse", reverseNative, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "index", indexNative, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("value", 5), true}));
+    defineBuiltIn(&cls->methods, "count", countNative, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("value", 5), true}));
+    defineBuiltIn(&cls->methods, "extend", extendNative, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("other", 5), true}));
+    defineBuiltIn(&cls->methods, "sort", sortNative, 1, 1, PARAMS({copyString("self", 4), true}));
 }
 
 /**

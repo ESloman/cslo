@@ -43,17 +43,17 @@ static Value propertyName(Value arg);
  * @param cls The ObjClass representing the file type.
  */
 void registerFileMethods(ObjClass* cls) {
-    defineBuiltIn(&cls->methods, "read", fileRead, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "readline", fileReadline, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "readlines", fileReadLines, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "close", fileClose, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "write", fileWrite, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("data", 4), true}}));
-    defineBuiltIn(&cls->methods, "writeline", fileWriteLine, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("line", 4), true}}));
-    defineBuiltIn(&cls->methods, "writelines", fileWriteLines, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "seek", fileSeek, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("offset", 6), true}}));
-    defineBuiltIn(&cls->methods, "flush", fileFlush, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "tell", fileTell, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "truncate", fileTruncate, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
+    defineBuiltIn(&cls->methods, "read", fileRead, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "readline", fileReadline, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "readlines", fileReadLines, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "close", fileClose, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "write", fileWrite, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("data", 4), true}));
+    defineBuiltIn(&cls->methods, "writeline", fileWriteLine, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("line", 4), true}));
+    defineBuiltIn(&cls->methods, "writelines", fileWriteLines, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "seek", fileSeek, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("offset", 6), true}));
+    defineBuiltIn(&cls->methods, "flush", fileFlush, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "tell", fileTell, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "truncate", fileTruncate, 1, 1, PARAMS({copyString("self", 4), true}));
 
     registerNativeProperties(cls);
 }

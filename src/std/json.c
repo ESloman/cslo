@@ -25,10 +25,10 @@ static Value dumpJsonNative(int argCount, Value* args);
  */
 ObjModule* getJsonModule() {
     ObjModule* module = newModule();
-    defineBuiltIn(&module->methods, "load", loadJsonNative, 1, 1, ((ParamInfo[]){{copyString("file", 4), true}}));
-    defineBuiltIn(&module->methods, "loads", loadsJsonNative, 1, 1, ((ParamInfo[]){{copyString("json_string", 11), true}}));
-    defineBuiltIn(&module->methods, "dumps", dumpsJsonNative, 1, 2, ((ParamInfo[]){{copyString("obj", 3), true}, {copyString("indent", 6), false}}));
-    defineBuiltIn(&module->methods, "dump", dumpJsonNative, 1, 2, ((ParamInfo[]){{copyString("obj", 3), true}, {copyString("file", 4), false}}));
+    defineBuiltIn(&module->methods, "load", loadJsonNative, 1, 1, PARAMS({copyString("file", 4), true}));
+    defineBuiltIn(&module->methods, "loads", loadsJsonNative, 1, 1, PARAMS({copyString("json_string", 11), true}));
+    defineBuiltIn(&module->methods, "dumps", dumpsJsonNative, 1, 2, PARAMS({copyString("obj", 3), true}, {copyString("indent", 6), false}));
+    defineBuiltIn(&module->methods, "dump", dumpJsonNative, 1, 2, PARAMS({copyString("obj", 3), true}, {copyString("file", 4), false}));
     return module;
 }
 

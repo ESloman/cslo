@@ -358,6 +358,11 @@ ObjFunction* newFunction();
 ObjNative* newNative(NativeFn function, int arityMin, int arityMax, ParamInfo* params);
 
 /**
+ *
+ */
+ParamInfo* createParamInfoArray(ParamInfo* src, int count);
+
+/**
  * Method for creating a new ObjNativeProperty.
  */
 ObjNativeProperty* newNativeProperty(NativeProperty getter);
@@ -418,5 +423,8 @@ void printObject(Value value);
 static inline bool isObjType(Value value, ObjType type) {
   return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }
+
+// helper macro for defining inline params
+#define PARAMS(...)  createParamInfoArray(((ParamInfo[]){__VA_ARGS__}), sizeof((ParamInfo[]){__VA_ARGS__})/sizeof(ParamInfo))
 
 #endif

@@ -25,12 +25,12 @@ static Value tanNative(int argCount, Value* args);
  */
 ObjModule* getMathModule() {
     ObjModule* module = newModule();
-    defineBuiltIn(&module->methods, "ceil", ceilNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineBuiltIn(&module->methods, "floor", floorNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineBuiltIn(&module->methods, "sqrt", sqrtNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineBuiltIn(&module->methods, "sin", sinNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineBuiltIn(&module->methods, "cos", cosNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
-    defineBuiltIn(&module->methods, "tan", tanNative, 1, 1, ((ParamInfo[]){{copyString("value", 5), true}}));
+    defineBuiltIn(&module->methods, "ceil", ceilNative, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineBuiltIn(&module->methods, "floor", floorNative, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineBuiltIn(&module->methods, "sqrt", sqrtNative, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineBuiltIn(&module->methods, "sin", sinNative, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineBuiltIn(&module->methods, "cos", cosNative, 1, 1, PARAMS({copyString("value", 5), true}));
+    defineBuiltIn(&module->methods, "tan", tanNative, 1, 1, PARAMS({copyString("value", 5), true}));
     return module;
 }
 

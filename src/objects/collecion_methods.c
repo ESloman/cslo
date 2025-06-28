@@ -26,10 +26,10 @@ Value cloneNative(int argCount, Value* args);
  * @param cls The ObjClass representing the string type.
  */
 void registerContainerMethods(ObjClass* cls) {
-    defineBuiltIn(&cls->methods, "__index__", internalIndexNative, 2, 2, ((ParamInfo[]){{copyString("self", 4), true}, {copyString("index", 5), true}}));
-    defineBuiltIn(&cls->methods, "clear", clearNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "pop", popNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
-    defineBuiltIn(&cls->methods, "clone", cloneNative, 1, 1, ((ParamInfo[]){{copyString("self", 4), true}}));
+    defineBuiltIn(&cls->methods, "__index__", internalIndexNative, 2, 2, PARAMS({copyString("self", 4), true}, {copyString("index", 5), true}));
+    defineBuiltIn(&cls->methods, "clear", clearNative, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "pop", popNative, 1, 1, PARAMS({copyString("self", 4), true}));
+    defineBuiltIn(&cls->methods, "clone", cloneNative, 1, 1, PARAMS({copyString("self", 4), true}));
 }
 
 

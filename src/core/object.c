@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "core/memory.h"
@@ -103,6 +104,16 @@ ObjNative* newNative(NativeFn function, int arityMin, int arityMax, ParamInfo* p
     native->arityMax = arityMax;
     native->params = params;
     return native;
+}
+
+ParamInfo* createParamInfoArray(ParamInfo* src, int count) {
+    if (!src || count == 0) return NULL;
+    ParamInfo* dest = malloc(sizeof(ParamInfo) * count);
+    for (int i = 0; i < count; i++) {
+        dest[i].name = src[i].name;
+        dest[i].required = src[i].required;
+    }
+    return dest;
 }
 
 /**
