@@ -251,10 +251,6 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
                     const char* paramName = NULL;
                     if (nativeObj->params && argCount < nativeObj->arityMin) {
                         paramName = nativeObj->params[argCount].name->chars;
-                        // print all the paraminfos
-                        for (int i = 0; i < nativeObj->arityMax; i++) {
-                            printf("Param %d: %s (required: %s)\n", i, nativeObj->params[i].name->chars, nativeObj->params[i].required ? "true" : "false");
-                        }
                         runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d. Missing parameter: %s", nativeObj->arityMin, nativeObj->arityMax, argCount, paramName);
                     } else {
                         runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, argCount);
