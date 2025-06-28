@@ -217,6 +217,24 @@ static bool call(ObjClosure* closure, int argCount) {
 }
 
 /**
+ * Method for validating native args before a native call.
+ * Checks the number of given args matches our expectations.
+ */
+static bool validateNativeArgs(ObjNative* nativeObj, int argCount) {
+    if (argCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && argCount > nativeObj->arityMax)) {
+        const char* paramName = NULL;
+        if (nativeObj->params && argCount < nativeObj->arityMin) {
+            paramName = nativeObj->params[argCount].name->chars;
+            runtimeError(ERROR_TYPE, "Expected %d arguments but got %d. Missing parameter: '%s'", nativeObj->arityMin, argCount, paramName);
+        } else {
+            runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, argCount);
+        }
+        return false;
+    }
+    return true;
+}
+
+/**
  * Method for executing a call.
  */
 static bool callValue(Value callee, int argCount, uint8_t* _ip) {
@@ -246,15 +264,7 @@ static bool callValue(Value callee, int argCount, uint8_t* _ip) {
             }
             case OBJ_NATIVE: {
                 ObjNative* nativeObj = (ObjNative*)AS_OBJ(callee);
-                if (argCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && argCount > nativeObj->arityMax)) {
-                    // get the name of the param that's missing
-                    const char* paramName = NULL;
-                    if (nativeObj->params && argCount < nativeObj->arityMin) {
-                        paramName = nativeObj->params[argCount].name->chars;
-                        runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d. Missing parameter: %s", nativeObj->arityMin, nativeObj->arityMax, argCount, paramName);
-                    } else {
-                        runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, argCount);
-                    }
+                if (!validateNativeArgs(nativeObj, argCount)) {
                     return false;
                 }
                 NativeFn native = nativeObj->function;
@@ -358,15 +368,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             if (IS_NATIVE(method)) {
                 ObjNative* nativeObj = (ObjNative*)AS_OBJ(method);
                 int actualArgCount = argCount + 1;
-                if (actualArgCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && actualArgCount > nativeObj->arityMax)) {
-                    // get the name of the param that's missing
-                    const char* paramName = NULL;
-                    if (actualArgCount < nativeObj->arityMin) {
-                        paramName = nativeObj->params[actualArgCount].name->chars;
-                        runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d. Missing parameter: %s", nativeObj->arityMin, nativeObj->arityMax, actualArgCount, paramName);
-                    } else {
-                        runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, actualArgCount);
-                    }
+                if (!validateNativeArgs(nativeObj, actualArgCount)) {
                     return false;
                 }
                 NativeFn native = nativeObj->function;
@@ -400,15 +402,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
         if (IS_NATIVE(method)) {
             ObjNative* nativeObj = (ObjNative*)AS_OBJ(method);
             int actualArgCount = argCount + 1;
-            if (actualArgCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && actualArgCount > nativeObj->arityMax)) {
-                // get the name of the param that's missing
-                const char* paramName = NULL;
-                if (actualArgCount < nativeObj->arityMin) {
-                    paramName = nativeObj->params[actualArgCount].name->chars;
-                    runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d. Missing parameter: %s", nativeObj->arityMin, nativeObj->arityMax, actualArgCount, paramName);
-                } else {
-                    runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, actualArgCount);
-                }
+            if (!validateNativeArgs(nativeObj, actualArgCount)) {
                 return false;
             }
             NativeFn native = nativeObj->function;
@@ -444,15 +438,7 @@ static bool invoke(ObjString* name, int argCount, uint8_t* ip) {
             if (IS_NATIVE(method)) {
                 ObjNative* nativeObj = (ObjNative*)AS_OBJ(method);
                 int actualArgCount = argCount + 1;
-                if (actualArgCount < nativeObj->arityMin || (nativeObj->arityMax != -1 && actualArgCount > nativeObj->arityMax)) {
-                    // get the name of the param that's missing
-                    const char* paramName = NULL;
-                    if (actualArgCount < nativeObj->arityMin) {
-                        paramName = nativeObj->params[actualArgCount].name->chars;
-                        runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d. Missing parameter: %s", nativeObj->arityMin, nativeObj->arityMax, actualArgCount, paramName);
-                    } else {
-                        runtimeError(ERROR_TYPE, "Expected %d to %d arguments but got %d.", nativeObj->arityMin, nativeObj->arityMax, actualArgCount);
-                    }
+                if (!validateNativeArgs(nativeObj, actualArgCount)) {
                     return false;
                 }
                 NativeFn native = nativeObj->function;
