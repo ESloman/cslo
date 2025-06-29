@@ -82,6 +82,8 @@ static void initCompiler(Compiler* compiler, FunctionType type, const char* file
     compiler->function = newFunction();
     if (file != NULL) {
         compiler->function->file = copyString(file, (int)strlen(file));
+    } else {
+        compiler->function->file = copyString("<repl>", 6);
     }
     current = compiler;
 
