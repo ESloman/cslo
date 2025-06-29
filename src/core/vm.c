@@ -1067,7 +1067,7 @@ static InterpretResult run() {
                 break;
             }
             case OP_GET_PROPERTY: {
-                if (!IS_INSTANCE(peek(0)) && !IS_ENUM(peek(0)) && !IS_FILE(peek(0))) {
+                if (!IS_INSTANCE(peek(0)) && !IS_ENUM(peek(0)) && !IS_FILE(peek(0)) && !IS_MODULE(peek(0))) {
                     frame->ip = ip;
                     runtimeError(ERROR_ATTRIBUTE, "Object doesn't have properties.");
                     return INTERPRET_RUNTIME_ERROR;
@@ -1123,6 +1123,23 @@ static InterpretResult run() {
 
                     frame->ip = ip;
                     runtimeError(ERROR_ATTRIBUTE, "Undefined property '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                } else if (IS_MODULE(peek(0))) {
+                    ObjModule* module = AS_MODULE(peek(0));
+                    ObjString* name = READ_STRING();
+                    Value value;
+                    if (tableGet(&module->methods, OBJ_VAL(name), &value)) {
+                        pop();
+                        push(value);
+                        break;
+                    }
+
+                    frame->ip = ip;
+                    runtimeError(ERROR_ATTRIBUTE, "Undefined property '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                } else {
+                    frame->ip = ip;
+                    runtimeError(ERROR_TYPE, "Object doesn't have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;

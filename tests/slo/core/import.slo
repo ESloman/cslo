@@ -1,0 +1,11 @@
+# testing the import system
+
+import math as m;
+import math;
+
+println(math.sqrt(4) == 2);
+println(m.sqrt(4) == 2);
+println(math.sqrt);
+println(m.sqrt);
+
+println(math.sqrt == m.sqrt);

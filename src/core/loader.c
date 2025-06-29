@@ -21,24 +21,30 @@
  * @brief Loads a module by its name.
  */
 bool loadModule(const char* moduleName, const char* nickName) {
+    Value moduleVal;
+    ObjString* canonicalName = copyString(moduleName, strlen(moduleName));
+
+    if (tableGet(&vm.globals, OBJ_VAL(canonicalName), &moduleVal)) {
+        tableSet(&vm.globals, OBJ_VAL(copyString(nickName, strlen(nickName))), moduleVal);
+        return true;
+    }
     if (strcmp(moduleName, "math") == 0) {
         ObjModule* mathModule = getMathModule();
-        tableSet(&vm.globals, OBJ_VAL(copyString(nickName, strlen(nickName))), OBJ_VAL(mathModule));
-        return true;
+        moduleVal = OBJ_VAL(mathModule);
     } else if (strcmp(moduleName, "random") == 0) {
         ObjModule* randomModule = getRandomModule();
-        tableSet(&vm.globals, OBJ_VAL(copyString(nickName, strlen(nickName))), OBJ_VAL(randomModule));
-        return true;
+        moduleVal = OBJ_VAL(randomModule);
     } else if (strcmp(moduleName, "os") == 0) {
         ObjModule* osModule = getOSModule();
-        tableSet(&vm.globals, OBJ_VAL(copyString(nickName, strlen(nickName))), OBJ_VAL(osModule));
-        return true;
+        moduleVal = OBJ_VAL(osModule);
     } else if (strcmp(moduleName, "json") == 0) {
         ObjModule* jsonModule = getJsonModule();
-        tableSet(&vm.globals, OBJ_VAL(copyString(nickName, strlen(nickName))), OBJ_VAL(jsonModule));
-        return true;
+        moduleVal = OBJ_VAL(jsonModule);
     } else {
         printf("Error: Module '%s' not found.\n", moduleName);
     }
-    return false;
+
+    tableSet(&vm.globals, OBJ_VAL(canonicalName), moduleVal);
+    tableSet(&vm.globals, OBJ_VAL(copyString(nickName, strlen(nickName))), moduleVal);
+    return true;
 }
