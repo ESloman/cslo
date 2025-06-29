@@ -67,6 +67,7 @@ typedef enum OpCode {
     OP_DICT,
     OP_ENUM,
     OP_IMPORT,
+    OP_IMPORT_AS,
 } OpCode;
 
 /**

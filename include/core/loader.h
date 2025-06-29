@@ -8,6 +8,6 @@
 
 #include <stdbool.h>
 
-bool loadModule(const char* moduleName);
+bool loadModule(const char* moduleName, const char* nickName);
 
 #endif  // cslo_loader_h

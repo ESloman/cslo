@@ -350,6 +350,16 @@ void returnStatement() {
 void parseImportStatement() {
     consumeToken(TOKEN_IDENTIFIER, "Expected module name after 'import'.");
     ObjString* moduleName = copyString(parser.previous.start, parser.previous.length);
-    emitBytes(OP_IMPORT, makeConstant(OBJ_VAL(moduleName)));
+
+
+    if (matchToken(TOKEN_AS)) {
+        consumeToken(TOKEN_IDENTIFIER, "Expected name after 'as'.");
+        ObjString* moduleNickName = copyString(parser.previous.start, parser.previous.length);
+        emitByte(OP_IMPORT_AS, parser.previous.line);
+        emitByte(makeConstant(OBJ_VAL(moduleName)), parser.previous.line);
+        emitByte(makeConstant(OBJ_VAL(moduleNickName)), parser.previous.line);
+    } else {
+        emitBytes(OP_IMPORT, makeConstant(OBJ_VAL(moduleName)));
+    }
     consumeToken(TOKEN_SEMICOLON, "Expected ';' after import statement.");
 }

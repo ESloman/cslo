@@ -43,6 +43,14 @@ void parserAdvance() {
         parser.lookahead[i] = parser.lookahead[i + 1];
     }
 
+    // If we've already hit EOF, fill all lookahead slots with EOF and return
+    if (parser.current.type == TOKEN_EOF) {
+        for (int i = 0; i < MAX_LOOKAHEAD; i++) {
+            parser.lookahead[i] = parser.current;
+        }
+        return;
+    }
+
     for (;;) {
         parser.lookahead[MAX_LOOKAHEAD - 1] = scanToken();
         if (parser.lookahead[MAX_LOOKAHEAD - 1].type != TOKEN_ERROR) {

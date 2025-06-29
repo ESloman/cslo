@@ -17,16 +17,10 @@ My primary goal is to one day be able to complete challenges like **Advent of Co
 This is a list of some additional features and functionality I would like to change/add. They're not listed in
 any particular order and are subject to change.
 
-- ~~additional operands like `+=`, `++`, `--`~~
-- ~~adding a `list` type~~
-- ~~adding a `dict` type for maps~~
-- ~~adding `enums`~~
-- ~~better error reporting~~
 - everything as an object á la Python
-- more builtin methods like ~~`len`~~, ~~`str`~~, ~~`max`~~, ~~`min`~~, etc
 - string formatting
-- standard library (~~and some `namespace`, `import`, `include` system~~)
-  - things like a ~~`math`~~, `io`, ~~`os`~~, ~~`random`~~, etc
+- expand standard library
+- list/dict comprehensions
 
 I would like to eventually add type hints or some kind of type system but that's very much a stretch goal.
 
@@ -49,11 +43,12 @@ This is a non-exhaustive list of things that have been added / are different to 
 - `time()` to get current now
 - `exit()` to exit with optional status code
 - methods for some type conversions: `str()`, `bool()`, `number()`
-- beginnings of an import system with `import math;` syntax
+- beginnings of an import system with `import math;` syntax or `import math as m;`
 - stdlib modules:
   - `math` module for things like `sin`, `cos`, `tan`, `ceil`, `floor`, `abs`, `sqrt`, etc
   - `random` module for things like `random`, `randint`, `randrange`, `choice`, `shuffle`, `gauss`, `sample`, etc
   - `json` module for interacting with json strings / files with `load`, `loads`, `dump`, `dumps`
+  - `os` module for interacting with files / directories, environment variables, etc
 
 ### Strings
 

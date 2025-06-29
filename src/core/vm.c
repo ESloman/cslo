@@ -1467,7 +1467,18 @@ static InterpretResult run() {
             }
             case OP_IMPORT: {
                 ObjString* moduleName = READ_STRING();
-                bool result = loadModule(moduleName->chars);
+                bool result = loadModule(moduleName->chars, moduleName->chars);
+                if (!result) {
+                    frame->ip = ip;
+                    runtimeError(ERROR_IMPORT, "Failed to import module '%s'.", moduleName->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+            case OP_IMPORT_AS: {
+                ObjString* moduleName = READ_STRING();
+                ObjString* moduleNickName = READ_STRING();
+                bool result = loadModule(moduleName->chars, moduleNickName->chars);
                 if (!result) {
                     frame->ip = ip;
                     runtimeError(ERROR_IMPORT, "Failed to import module '%s'.", moduleName->chars);
