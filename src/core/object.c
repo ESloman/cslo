@@ -269,9 +269,10 @@ void printObject(Value value) {
             printFunction(AS_CLOSURE(value)->function);
             break;
         }
-        case OBJ_INSTANCE:
-        printf("%s instance", AS_INSTANCE(value)->sClass->name->chars);
-        break;
+        case OBJ_INSTANCE: {
+            printf("%s instance", AS_INSTANCE(value)->sClass->name->chars);
+            break;
+        }
         case OBJ_FUNCTION: {
             printFunction(AS_FUNCTION(value));
             break;
@@ -286,6 +287,10 @@ void printObject(Value value) {
         }
         case OBJ_UPVALUE: {
             printf("upvalue");
+            break;
+        }
+        case OBJ_MODULE: {
+            printf("<module>");
             break;
         }
         case OBJ_LIST: {
