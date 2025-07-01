@@ -1,0 +1,4 @@
+
+func imported() {
+    print("I've been imported!");
+}
