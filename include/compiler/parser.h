@@ -25,6 +25,7 @@ typedef struct Parser {
     Token previous;
     Token lookahead[MAX_LOOKAHEAD];
     int lookaheadCount;
+    bool interpolating;
     bool hadError;
     bool panicMode;
 } Parser;
@@ -91,6 +92,11 @@ bool matchToken(TokenType type);
  * Method for parsing an expression.
  */
 void parseExpression();
+
+/**
+ * Method for parsing an embedded expression.
+ */
+void parseEmbeddedExpression(const char* expressionStart, int expressionLength);
 
 /**
  * Method for parsing a declaration.

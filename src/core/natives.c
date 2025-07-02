@@ -27,8 +27,8 @@ void defineNatives() {
     defineNative("exit", exitNative, 0, 1, PARAMS({copyString("code", 4), false}));
     defineNative("sleep", sleepNative, 1, 1, PARAMS({copyString("seconds", 7), true}));
     defineNative("time", timeNative, 0, 0, NULL);
-    defineNative("print", printNative, 1, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
-    defineNative("println", printLNNative, 1, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
+    defineNative("print", printNative, 0, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
+    defineNative("println", printLNNative, 0, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
     defineNative("len", lenNative, 1, 1, PARAMS({copyString("sequence", 9), true}));
 
     // math functions

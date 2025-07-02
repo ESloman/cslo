@@ -1,0 +1,5 @@
+var name = "Elliot";
+var age = 30;
+println("${name}");
+println("Your name is ${name}!");
+println("Your name is ${name}, and you are ${age} years old!");

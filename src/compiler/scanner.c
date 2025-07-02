@@ -10,12 +10,6 @@
 #include "core/common.h"
 #include "compiler/scanner.h"
 
-typedef struct Scanner {
-  const char* start;
-  const char* current;
-  int line;
-} Scanner;
-
 Scanner scanner;
 
 /**

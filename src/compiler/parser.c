@@ -22,6 +22,7 @@ void initParser() {
     parser.panicMode = false;
     parser.previous = (Token){0};
     parser.current = (Token){0};
+    parser.interpolating = false;
     // Initialize lookahead buffer if you add one
     for (int i = 0; i < MAX_LOOKAHEAD; i++) {
         parser.lookahead[i] = scanToken();
@@ -163,6 +164,44 @@ void parseExpression() {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+void parseEmbeddedExpression(const char* expressionStart, int expressionLength) {
+    Scanner savedScanner = scanner;
+    Parser savedParser = parser;
+
+    // Create a null-terminated copy of the embedded expression
+    char* expr = (char*)malloc(expressionLength + 1);
+    memcpy(expr, expressionStart, expressionLength);
+    expr[expressionLength] = '\0';
+
+    // Initialize a new scanner for the embedded expression
+    initScanner(expr);
+
+    // Reset parser state for the embedded expression
+    parser.hadError = false;
+    parser.panicMode = false;
+    parser.previous = (Token){0};
+    parser.current = (Token){0};
+    parser.interpolating = true;
+    for (int i = 0; i < MAX_LOOKAHEAD; i++) {
+        parser.lookahead[i] = scanToken();
+    }
+
+    // Parse the expression (this emits bytecode for the embedded expression)
+    parseExpression();
+
+    parserAdvance();
+    if (parser.current.type != TOKEN_EOF) {
+        errorAtCurrent("Unexpected token in string interpolation.");
+    }
+
+    // Free the temporary string
+    free(expr);
+
+    // Restore the previous parser state
+    scanner = savedScanner;
+    parser = savedParser;
+}
+
 /**
  * Method for compiling a declaration.
  */
@@ -207,7 +246,9 @@ void parseBlock() {
  */
 void parseGrouping(bool canAssign) {
     parseExpression();
-    consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+    if (!parser.interpolating) {
+        consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+    }
 }
 
 /**

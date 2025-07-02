@@ -79,16 +79,9 @@ Value numberCvrt(int argCount, Value* args, ParamInfo* params) {
 Value strCvrt(int argCount, Value* args, ParamInfo* params) {
     Value value = args[0];
 
-    if (IS_NIL(value)) {
-        return OBJ_VAL(copyString("nil", 3));
-    } else if (IS_BOOL(value)) {
-        return OBJ_VAL(copyString(AS_BOOL(value) ? "true" : "false", AS_BOOL(value) ? 4 : 5));
-    } else if (IS_NUMBER(value)) {
-        char buffer[32];
-        int len = snprintf(buffer, sizeof(buffer), "%.14g", AS_NUMBER(value));
-        return OBJ_VAL(copyString(buffer, len));
-    } else if (IS_STRING(value)) {
-        return value;
+    Value result = valueToString(value);
+    if (IS_STRING(result)) {
+        return result;
     }
     return ERROR_VAL_PTR("str() could not convert value to string.");
 }

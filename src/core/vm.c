@@ -870,7 +870,8 @@ static InterpretResult run() {
                 }
                 printf("\n");
                 #endif
-                if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
+                if (IS_STRING(peek(0)) || IS_STRING(peek(1))) {
+
                     concatenate();
                 } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
                     double b = AS_NUMBER(pop());
@@ -1501,6 +1502,22 @@ static InterpretResult run() {
                     runtimeError(ERROR_IMPORT, "Failed to import module '%s'.", moduleName->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                break;
+            }
+            case OP_INTERPOLATE: {
+                #ifdef DEBUG_LOGGING
+                printf("DEBUG: Stack before OP_INTERPOLATE: ");
+                for (int i = 0; i < vm.stackTop - vm.stack; i++) {
+                    printValue(vm.stack[i]);
+                    printf(" ");
+                }
+                printf("\n");
+                #endif
+                Value b = valueToString(pop());
+                Value a = valueToString(pop());
+                push(a);
+                push(b);
+                concatenate();
                 break;
             }
             case OP_RETURN: {

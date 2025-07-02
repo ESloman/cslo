@@ -1,3 +1,4 @@
 println("Hello world!");
 println("Hello", "world", "!");
-println("Hello, world!\n");
+println("Hello, world!");
+println("");

@@ -78,4 +78,12 @@ void initScanner(const char* source);
  */
 Token scanToken();
 
+typedef struct Scanner {
+  const char* start;
+  const char* current;
+  int line;
+} Scanner;
+
+extern Scanner scanner;
+
 #endif

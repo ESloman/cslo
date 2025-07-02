@@ -236,3 +236,42 @@ char* valueTypeToString(Value value) {
         default: return "unknown";
     }
 }
+
+/**
+ * @brief converts a given value to a string.
+ */
+Value valueToString(Value value) {
+    if (IS_STRING(value)) {
+        return value;
+    } else if (IS_NIL(value)) {
+        return OBJ_VAL(copyString("nil", 3));
+    } else if (IS_BOOL(value)) {
+        return OBJ_VAL(copyString(AS_BOOL(value) ? "true" : "false", AS_BOOL(value) ? 4 : 5));
+    } else if (IS_NUMBER(value)) {
+        char buffer[32];
+        int len = snprintf(buffer, sizeof(buffer), "%.14g", AS_NUMBER(value));
+        return OBJ_VAL(copyString(buffer, len));
+    } else if (IS_LIST(value)) {
+        // convert list of items to a string
+        for (int i = 0; i < AS_LIST(value)->count; i++) {
+            Value item = AS_LIST(value)->values.values[i];
+            Value itemStr = valueToString(item);
+            if (IS_ERROR(itemStr)) {
+                return itemStr;
+            }
+            if (i > 0) {
+                // add a comma and space between items
+                char* commaSpace = ", ";
+                int len = strlen(commaSpace);
+                char* combined = ALLOCATE(char, AS_STRING(itemStr)->length + len + 1);
+                snprintf(combined, AS_STRING(itemStr)->length + len + 1, "%s%s", AS_STRING(itemStr)->chars, commaSpace);
+                return OBJ_VAL(copyString(combined, AS_STRING(itemStr)->length + len));
+            }
+        }
+        return OBJ_VAL(copyString("[]", 2));
+    } else {
+        char buffer[64];
+        snprintf(buffer, sizeof(buffer), "<%s>", valueTypeToString(value));
+        return OBJ_VAL(copyString(buffer, strlen(buffer)));
+    }
+}

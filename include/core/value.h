@@ -165,4 +165,6 @@ uint32_t hashValue(Value value);
  */
 char* valueTypeToString(Value value);
 
+Value valueToString(Value value);
+
 #endif

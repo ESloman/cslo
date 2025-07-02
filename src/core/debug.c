@@ -233,6 +233,9 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         case OP_IMPORT_AS: {
             return constantInstruction("OP_IMPORT_AS", chunk, offset);
         }
+        case OP_INTERPOLATE: {
+            return simpleInstruction("OP_INTERPOLATE", offset);
+        }
         case OP_RETURN: {
             return simpleInstruction("OP_RETURN", offset);
         }
