@@ -18,7 +18,6 @@ This is a list of some additional features and functionality I would like to cha
 any particular order and are subject to change.
 
 - everything as an object á la Python
-- string formatting
 - expand standard library
 - list/dict comprehensions
 
@@ -44,6 +43,7 @@ This is a non-exhaustive list of things that have been added / are different to 
 - `exit()` to exit with optional status code
 - methods for some type conversions: `str()`, `bool()`, `number()`
 - beginnings of an import system with `import math;` syntax or `import math as m;`
+- string formatting via `"Hello ${name}!"`. Supports parsing expressions.
 - stdlib modules:
   - `math` module for things like `sin`, `cos`, `tan`, `ceil`, `floor`, `abs`, `sqrt`, etc
   - `random` module for things like `random`, `randint`, `randrange`, `choice`, `shuffle`, `gauss`, `sample`, etc
@@ -67,6 +67,14 @@ Added support for standard string methods:
 "Hello, world!".count("l");               # 3
 "Hello, world!".find("o");                # 4
 "Hello, world!".index("w");               # 7
+```
+
+Formatting:
+
+```slo
+var name = "Elliot";
+println("Your name is ${name}");
+println("Calc: ${5 * 5}");
 ```
 
 ### Lists
