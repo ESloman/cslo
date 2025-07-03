@@ -1,0 +1,2 @@
+# requirements for tests, etc
+sloman-logging @ git+https://github.com/esloman/sloman-logging

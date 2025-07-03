@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Runs all the slo example files."""
+"""Runs all the slo test files."""
 
 import os
 from pathlib import Path
@@ -12,16 +12,24 @@ try:
 except ImportError:
     import util
 
-expected_errors = []
+expected_errors: list[str] = [
+    "exit.slo",
+    "mismatched.slo",
+    "for_in_iterating.slo",
+    "locals.slo",
+    "errors.slo",
+    "pop.slo",
+]
+
 LOGGER: SlomanLogger = SlomanLogger(__name__)
 
 if __name__ == "__main__":
     # Get the current working directory
     current_dir = Path(os.getcwd())
-    example_dir = Path(current_dir, "examples")
-    LOGGER.info("Running examples in: %s", example_dir)
+    test_dir = Path(current_dir, "tests", "slo")
+    LOGGER.info("Running tests in: %s", test_dir)
 
-    passed, failed = util.runner(example_dir, expected_errors=expected_errors, logger=LOGGER)
+    passed, failed = util.runner(test_dir, expected_errors=expected_errors, logger=LOGGER)
 
     if failed:
         LOGGER.error("\nSome files failed to execute:")
