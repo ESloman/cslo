@@ -12,6 +12,37 @@ I will endeavour to keep the documentation up to date.
 
 My primary goal is to one day be able to complete challenges like **Advent of Code** in my own language.
 
+## Installing
+
+Clone the repo.
+
+```bash
+git clone https://github.com/ESloman/cslo.git
+```
+
+Run the install script.
+
+```bash
+./util/install.sh
+```
+
+This should copy the latest `./build/cslo` file to `/usr/bin/slo` and create a symlink to `/usr/bin/cslo`.
+It currently uses `sudo` for the `cp` commands.
+
+## Running
+
+After installing, simply do:
+
+```bash
+slo
+```
+
+to run the REPL. Or:
+
+```bash
+slo path/to/file.slo
+```
+
 ## Implementation goals
 
 This is a list of some additional features and functionality I would like to change/add. They're not listed in

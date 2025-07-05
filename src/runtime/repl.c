@@ -40,7 +40,7 @@ void repl() {
     linenoiseHistoryLoad(historyPath);
 
     /** TODO: print out environment, version, etc here. */
-    printf("Welcome to cslo!\n");
+    printf("Welcome to slo!\n");
 #if defined(_WIN32)
     printf("Running on: Windows\n");
 #else
