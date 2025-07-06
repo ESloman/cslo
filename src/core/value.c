@@ -238,6 +238,37 @@ char* valueTypeToString(Value value) {
 }
 
 /**
+ * @brief Works out if a given value is falsey.
+ * @param Value value
+ *
+ * A value is false if:
+ *   - it is nil
+ *   - it's a boolean 'false'
+ *   - it's a number that's 0
+ *   - an empty list or dict
+ *   - an empty string
+ */
+bool isFalsey(Value value) {
+    if (IS_BOOL(value)) {
+        return !AS_BOOL(value);
+    } else if (IS_NIL(value)) {
+        return true;
+    } else if (IS_NUMBER(value)) {
+        double num = AS_NUMBER(value);
+        return num == 0 || num == 0.0;
+    } else if (IS_STRING(value)) {
+        return AS_STRING(value)->length == 0;
+    } else if (IS_LIST(value)) {
+        return AS_LIST(value)->count == 0;
+    } else if (IS_DICT(value)) {
+        return AS_DICT(value)->data.count == 0;
+    } else {
+        // everything else is truthy by default for now
+        return false;
+    }
+}
+
+/**
  * @brief converts a given value to a string.
  */
 Value valueToString(Value value) {
@@ -252,23 +283,100 @@ Value valueToString(Value value) {
         int len = snprintf(buffer, sizeof(buffer), "%.14g", AS_NUMBER(value));
         return OBJ_VAL(copyString(buffer, len));
     } else if (IS_LIST(value)) {
-        // convert list of items to a string
-        for (int i = 0; i < AS_LIST(value)->count; i++) {
-            Value item = AS_LIST(value)->values.values[i];
-            Value itemStr = valueToString(item);
+        ObjList* list = AS_LIST(value);
+        if (list->count == 0) {
+            return OBJ_VAL(copyString("[]", 2));
+        }
+        // Estimate buffer size: assume each element is up to 32 chars, plus commas and brackets
+        int bufSize = 2 + (list->count - 1) * 2 + list->count * 32;
+        char* buffer = ALLOCATE(char, bufSize);
+        int offset = 0;
+        buffer[offset++] = '[';
+        for (int i = 0; i < list->count; i++) {
+            Value itemStr = valueToString(list->values.values[i]);
             if (IS_ERROR(itemStr)) {
+                FREE_ARRAY(char, buffer, bufSize);
                 return itemStr;
             }
-            if (i > 0) {
-                // add a comma and space between items
-                char* commaSpace = ", ";
-                int len = strlen(commaSpace);
-                char* combined = ALLOCATE(char, AS_STRING(itemStr)->length + len + 1);
-                snprintf(combined, AS_STRING(itemStr)->length + len + 1, "%s%s", AS_STRING(itemStr)->chars, commaSpace);
-                return OBJ_VAL(copyString(combined, AS_STRING(itemStr)->length + len));
+            int len = AS_STRING(itemStr)->length;
+            if (offset + len + 3 > bufSize) {
+                // Grow buffer if needed
+                int newBufSize = bufSize * 2 + len + 3;
+                char* newBuffer = ALLOCATE(char, newBufSize);
+                memcpy(newBuffer, buffer, offset);
+                FREE_ARRAY(char, buffer, bufSize);
+                buffer = newBuffer;
+                bufSize = newBufSize;
+            }
+            memcpy(buffer + offset, AS_STRING(itemStr)->chars, len);
+            offset += len;
+            if (i < list->count - 1) {
+                buffer[offset++] = ',';
+                buffer[offset++] = ' ';
             }
         }
-        return OBJ_VAL(copyString("[]", 2));
+        buffer[offset++] = ']';
+        buffer[offset] = '\0';
+        Value result = OBJ_VAL(copyString(buffer, offset));
+        FREE_ARRAY(char, buffer, bufSize);
+        return result;
+    } else if (IS_DICT(value)) {
+        ObjDict* dict = AS_DICT(value);
+        Table* table = &dict->data;
+        int count = 0;
+        // Count actual entries (non-empty)
+        for (int i = 0; i < table->capacity; i++) {
+            if (table->entries[i].key.type != VAL_EMPTY &&
+                table->entries[i].key.type != VAL_NIL) {
+                count++;
+            }
+        }
+        if (count == 0) {
+            return OBJ_VAL(copyString("{}", 2));
+        }
+        int bufSize = 2 + (count - 1) * 4 + count * 64;
+        char* buffer = ALLOCATE(char, bufSize);
+        int offset = 0;
+        buffer[offset++] = '{';
+        int seen = 0;
+        for (int i = 0; i < table->capacity; i++) {
+            Value key = table->entries[i].key;
+            Value val = table->entries[i].value;
+            if (key.type == VAL_EMPTY || key.type == VAL_NIL) continue;
+
+            Value keyStr = valueToString(key);
+            Value valStr = valueToString(val);
+            if (IS_ERROR(keyStr) || IS_ERROR(valStr)) {
+                FREE_ARRAY(char, buffer, bufSize);
+                return IS_ERROR(keyStr) ? keyStr : valStr;
+            }
+            int keyLen = AS_STRING(keyStr)->length;
+            int valLen = AS_STRING(valStr)->length;
+            if (offset + keyLen + valLen + 5 > bufSize) {
+                int newBufSize = bufSize * 2 + keyLen + valLen + 5;
+                char* newBuffer = ALLOCATE(char, newBufSize);
+                memcpy(newBuffer, buffer, offset);
+                FREE_ARRAY(char, buffer, bufSize);
+                buffer = newBuffer;
+                bufSize = newBufSize;
+            }
+            memcpy(buffer + offset, AS_STRING(keyStr)->chars, keyLen);
+            offset += keyLen;
+            buffer[offset++] = ':';
+            buffer[offset++] = ' ';
+            memcpy(buffer + offset, AS_STRING(valStr)->chars, valLen);
+            offset += valLen;
+            seen++;
+            if (seen < count) {
+                buffer[offset++] = ',';
+                buffer[offset++] = ' ';
+            }
+        }
+        buffer[offset++] = '}';
+        buffer[offset] = '\0';
+        Value result = OBJ_VAL(copyString(buffer, offset));
+        FREE_ARRAY(char, buffer, bufSize);
+        return result;
     } else {
         char buffer[64];
         snprintf(buffer, sizeof(buffer), "<%s>", valueTypeToString(value));

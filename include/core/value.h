@@ -161,10 +161,18 @@ void printValue(Value value);
 uint32_t hashValue(Value value);
 
 /**
+ * @brief Works out if a given value is falsey.
+ */
+bool isFalsey(Value value);
+
+/**
  * Method for getting a ValueType as a string.
  */
 char* valueTypeToString(Value value);
 
+/**
+ * Method for converting a value to string representation.
+ */
 Value valueToString(Value value);
 
 #endif

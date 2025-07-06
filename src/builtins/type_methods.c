@@ -35,11 +35,7 @@ void registerBuiltInTypeMethods(Table* tbl) {
  * @return The boolean representation of the value.
  */
 Value boolCvrt(int argCount, Value* args, ParamInfo* params) {
-    Value value = args[0];
-    if (IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value)) || (IS_NUMBER(value) && AS_NUMBER(value) == 0) || (IS_STRING(value) && AS_STRING(value)->length == 0) || (IS_LIST(value) && AS_LIST(value)->count == 0) || (IS_DICT(value) && AS_DICT(value)->data.count == 0)) {
-        return BOOL_VAL(false);
-    }
-    return BOOL_VAL(true);
+    return BOOL_VAL(!isFalsey(args[0]));
 }
 
 /**

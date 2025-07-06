@@ -529,27 +529,6 @@ static void defineMethod(ObjString* name) {
     pop();
 }
 
-/**
- * Works out if a given value is falsey.
- *
- * A value is false if:
- *   - it is nil
- *   - it's a boolean 'false'
- *   - it's a number that's 0
- */
-static bool isFalsey(Value value) {
-    if (IS_BOOL(value)) {
-        return !AS_BOOL(value);
-    } else if (IS_NIL(value)) {
-        return true;
-    } else if (IS_NUMBER(value)) {
-        double num = AS_NUMBER(value);
-        return num == 0 || num == 0.0;
-    } else {
-        // should be unreachable
-        return false;
-    }
-}
 
 /**
  *  Method for concatenating two strings.
