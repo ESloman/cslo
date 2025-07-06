@@ -19,6 +19,6 @@ any particular order and are subject to change.
 - user defined natives/C libraries
 - networking
 - threading
-- syntax highlighing and _eventually_ a language server
+- ~~syntax highlighing~~ and _eventually_ a language server ([basic extension here](https://github.com/ESloman/slo-vscode))
 
 I would like to eventually add type hints or some kind of type system but that's very much a stretch goal.

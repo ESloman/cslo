@@ -51,3 +51,25 @@ This is a non-exhaustive list of major things that are different to `lox`. This 
 - `extends` rather than `<`
 
 Besides from these differences, I _think_ that `lox` should be runnable in `slo`.
+
+## VS Code Extension
+
+A [VS Code extension](https://github.com/ESloman/slo-vscode) is available to provide syntax highlighting and basic language support for Slo files (`.slo`).
+This extension highlights keywords, constants, operators, function definitions and calls, built-in functions, and more.
+
+### Installing the Extension
+
+If you want to use the extension:
+
+1. Clone the [slo-vscode](https://github.com/ESloman/slo-vscode) repository.
+2. Run the install script:
+
+   ```sh
+   ./install.sh
+   ```
+
+   This will install dependencies, package the extension, and install it into your local VS Code.
+
+3. Open a `.slo` file in VS Code to activate syntax highlighting and language features.
+
+For more details, see the [slo-vscode README](https://github.com/ESloman/slo-vscode/blob/main/README.md).

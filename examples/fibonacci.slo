@@ -1,4 +1,4 @@
-#!/usr/bin/slo
+#!/usr/local/bin/slo
 
 func fib(n) {
     if (n <= 1) {
@@ -8,5 +8,5 @@ func fib(n) {
 }
 
 for (var i = 0; i < 30; i++) {
-    print("fib(", i, ") = ", fib(i));
+    print("fib(${i}) = ${fib(i)}");
 }
