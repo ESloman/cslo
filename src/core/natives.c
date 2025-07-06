@@ -96,7 +96,7 @@ Value printNative(int argCount, Value* args, ParamInfo* params) {
             printValue(args[i]);
         }
     }
-    // printf("\n");
+    printf("\n");
     return NIL_VAL;
 }
 
@@ -105,7 +105,6 @@ Value printNative(int argCount, Value* args, ParamInfo* params) {
  */
 Value printLNNative(int argCount, Value* args, ParamInfo* params) {
     printNative(argCount, args, params);
-    printf("\n");
     return NIL_VAL;
 }
 
