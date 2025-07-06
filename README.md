@@ -5,12 +5,9 @@ This is primarily based off of [Lox](https://craftinginterpreters.com/the-lox-la
 and this C implementation was created whilst reading
 [Crafting Interpreters](https://craftinginterpreters.com).
 
-Whilst I have made changes to the language as I went through (and since) it is still
-primarily the same at the moment. The purpose of `slo` is a hobby and learning project and the
-language will continue to see development and features as time goes on.
-I will endeavour to keep the documentation up to date.
+The language has undergone quite a few changes that differentiates it from `lox`. Nothing major and most `lox` code should be runnable in `slo`, but there are a few changes. Most of the changes are additional functionality and support for new types, etc.
 
-My primary goal is to one day be able to complete challenges like **Advent of Code** in my own language.
+My primary goal is to one day be able to complete challenges like **Advent of Code** in my own language. You can read more about the [project goals here](./GOALS.md).
 
 ## Installing
 
@@ -43,208 +40,14 @@ to run the REPL. Or:
 slo path/to/file.slo
 ```
 
-## Implementation goals
+## Major differences with lox
 
-This is a list of some additional features and functionality I would like to change/add. They're not listed in
-any particular order and are subject to change.
+This is a non-exhaustive list of major things that are different to `lox`. This is mostly things that could cause `lox` code to in compatible with `slo`. A slightly more complete list can be found in [docs/differences_to_lox.md](docs/differences_to_lox.md).
 
-- everything as an object á la Python
-- expand standard library
-- list/dict comprehensions
+- `print` is now a function (`print()` or `println()` with newlines) and supports multiple arguments
+- `func` instead of `fun`
+- `__init__` instead of `init`
+- `self` instead of `this`
+- `extends` rather than `<`
 
-I would like to eventually add type hints or some kind of type system but that's very much a stretch goal.
-
-## Differences to lox
-
-This is a non-exhaustive list of things that have been added / are different to `lox`.
-
-- print is a function (`print()`) and supports multiple arguments
-- dedicated `println()` for printing with automatic newlines
-- `func` instead of `fun` for function declarations
-- support for `elif`
-- `self` rather than `this` in classes
-- `__init__` rather than `init` in classes
-- `extends` for inheritance rather than `<`
-- prefix and postfix increment / decrement (`--`, `++`)
-- compound assignment operators (`+=`, `-=`, `*=`, `/=`)
-- `len` native function for length of strings/lists/dicts
-- native functions like: `min`, `max`, `abs`, etc
-- environment variable handling with `setenv` and `getenv`
-- `time()` to get current now
-- `exit()` to exit with optional status code
-- methods for some type conversions: `str()`, `bool()`, `number()`
-- beginnings of an import system with `import math;` syntax or `import math as m;`
-- string formatting via `"Hello ${name}!"`. Supports parsing expressions.
-- stdlib modules:
-  - `math` module for things like `sin`, `cos`, `tan`, `ceil`, `floor`, `abs`, `sqrt`, etc
-  - `random` module for things like `random`, `randint`, `randrange`, `choice`, `shuffle`, `gauss`, `sample`, etc
-  - `json` module for interacting with json strings / files with `load`, `loads`, `dump`, `dumps`
-  - `os` module for interacting with files / directories, environment variables, etc
-
-### Strings
-
-Added support for standard string methods:
-
-```slo
-"hello world!".upper()             # HELLO WORLD!
-"HELLO WORLD!".lower()             # hello world!
-"hello world!".title()             # Hello World!
-"hello, world!".split(",")         # list [2]: ['hello', ' world!']
-" hello, world!   ".strip()        # hello, world!
-"Hello world".startswith("Hello")  # true
-"Hello world".endswith("Hello")    # false
-
-"Hello, world!".replace("world", "mum");  # Hello, mum!
-"Hello, world!".count("l");               # 3
-"Hello, world!".find("o");                # 4
-"Hello, world!".index("w");               # 7
-```
-
-Formatting:
-
-```slo
-var name = "Elliot";
-println("Your name is ${name}");
-println("Calc: ${5 * 5}");
-```
-
-### Lists
-
-Support for lists:
-
-```slo
-var mylist = [1, 2, 3, 4, 5];
-for (var item in mylist) {
-  print(item);
-}
-```
-
-With slicing and negative indexing:
-
-```slo
-var x = [10, 20, 30, 40, 50];
-print(x[1:4]);
-print(x[:3]);
-print(x[2:]);
-print(x[-3:-1]);
-```
-
-List methods:
-
-```slo
-var x = [1, 2, 3, 4, 5];
-x.append(6);
-x.pop();
-x.insert(0, 0);
-x.remove(0);
-x.reverse();
-x.count(1);
-var y = x.clone();
-y.clear();
-x.extend(y);
-x.sort();
-```
-
-Membership checks:
-
-```slo
-var x = [1, 2, 3, 4, 6];
-x has 6  # true
-x has not 5  # true
-```
-
-### Dicts
-
-Support for dictionaries:
-
-```slo
-var map = {
-    "key": "value",
-    "key1": "value1",
-    "key2": "value2",
-    "key": 1
-};
-print(map);
-
-map["foo"] = "bar";
-print(map["foo"]);
-
-for (var key in map) {
-  print(key, map[key]);
-}
-```
-
-Dict methods:
-
-```slo
-var map = {"a": 1, "b": 2, "c": 3};
-print(map.keys());
-print(map.values());
-
-for (var val in map.values()) {
-  print(val);
-}
-
-map.clear();
-map.pop("a");  # 1
-var new_map = map.clone();
-
-var new = {"e": 5, "f": 6};
-map.update(new);
-```
-
-Membership checks:
-
-```slo
-var map = {
-    "key": "value",
-    "key1": "value1",
-    "key2": "value2",
-    "key": 1
-};
-
-map has "key";  # true
-map has "foo";  # false
-map has not "bar";  # true
-
-
-map.get("foo");  # nil
-map.get("foo", "bar");  # bar
-```
-
-### enums
-
-Support for enums:
-
-```slo
-enum Colours {
-  RED,     # 0
-  ORANGE,  # 1
-  BLUE,    # 2
-  BLACK    # 3
-}
-
-print(Colours);
-print(Colours.RED);
-print(Colours.BLUE == 2);
-```
-
-### files
-
-Support for basic file operations:
-
-```slo
-var path = "/some/path/to/file";
-
-var f = open(path);
-print(f);  # should show file is open
-var contents = f.read();
-print(contents);
-f.close();
-print(f);  # should show file is closed
-
-var lines = ["Line 1", "Line 2", "Line 3"];
-var f = open("/tmp/text.txt", "w");
-f.writelines(lines);
-f.close();
-```
+Besides from these differences, I _think_ that `lox` should be runnable in `slo`.
