@@ -5,7 +5,7 @@
 #ifndef cslo_compiler_h
 #define cslo_compiler_h
 
-#include "compiler/parser.h"
+#include "parser/parser.h"
 #include "core/object.h"
 #include "scanner.h"
 #include "core/vm.h"

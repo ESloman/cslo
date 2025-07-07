@@ -7,7 +7,7 @@
 
 #include "compiler/codegen.h"
 #include "compiler/scanner.h"
-#include "compiler/parser.h"
+#include "parser/parser.h"
 #include "core/chunk.h"
 #include "core/common.h"
 #include "parser/statements.h"

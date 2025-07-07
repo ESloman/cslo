@@ -10,6 +10,7 @@
 #include <time.h>
 
 #include "builtins/file_methods.h"
+#include "builtins/print_methods.h"
 #include "builtins/type_methods.h"
 
 #include "core/common.h"
@@ -109,6 +110,7 @@ void initVM() {
     vm.initString = copyString("__init__", 8);
 
     registerBuiltInFileMethods(&vm.globals);
+    registerBuiltInPrintMethods(&vm.globals);
     registerBuiltInTypeMethods(&vm.globals);
 
     ObjString* containerName = copyString("container", 8);

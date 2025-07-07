@@ -27,8 +27,6 @@ void defineNatives() {
     defineNative("exit", exitNative, 0, 1, PARAMS({copyString("code", 4), false}));
     defineNative("sleep", sleepNative, 1, 1, PARAMS({copyString("seconds", 7), true}));
     defineNative("time", timeNative, 0, 0, NULL);
-    defineNative("print", printNative, 0, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
-    defineNative("println", printLNNative, 0, -1, PARAMS({copyString("message", 7), true}, {copyString("...args", 7), false}));
     defineNative("len", lenNative, 1, 1, PARAMS({copyString("sequence", 9), true}));
 
     // math functions
@@ -78,33 +76,6 @@ Value sleepNative(int argCount, Value* args, ParamInfo* params) {
     }
     double t = AS_NUMBER(args[0]);
     sleep(t);
-    return NIL_VAL;
-}
-
-/**
- * Print native function.
- */
-Value printNative(int argCount, Value* args, ParamInfo* params) {
-    for (int i = 0; i < argCount; i++) {
-        if (IS_STRING(args[i])) {
-            ObjString* str = AS_STRING(args[i]);
-            size_t unescLen;
-            char* unesc = unescapeString(str->chars, str->length, &unescLen);
-            printf("%s", unesc);
-            free(unesc);
-        } else {
-            printValue(args[i]);
-        }
-    }
-    printf("\n");
-    return NIL_VAL;
-}
-
-/**
- * Println native function.
- */
-Value printLNNative(int argCount, Value* args, ParamInfo* params) {
-    printNative(argCount, args, params);
     return NIL_VAL;
 }
 

@@ -112,12 +112,12 @@
             "-O3",
             "-flto",
             "-o",
-            "build/release/cslo/compiler/parser.o",
-            "src/compiler/parser.c"
+            "build/release/cslo/parser/parser.o",
+            "src/parser/parser.c"
         ],
         "directory": "/home/esloman/gitwork/cslo",
-        "file": "/home/esloman/gitwork/cslo/src/compiler/parser.c",
-        "output": "/home/esloman/gitwork/cslo/build/release/cslo/compiler/parser.o"
+        "file": "/home/esloman/gitwork/cslo/src/parser/parser.c",
+        "output": "/home/esloman/gitwork/cslo/build/release/cslo/parser/parser.o"
     },
     {
         "arguments": [

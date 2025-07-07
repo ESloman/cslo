@@ -11,7 +11,7 @@
 #include "compiler/compiler.h"
 #include "core/debug.h"
 #include "compiler/codegen.h"
-#include "compiler/parser.h"
+#include "parser/parser.h"
 #include "compiler/scanner.h"
 #include "parser/statements.h"
 

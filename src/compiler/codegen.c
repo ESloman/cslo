@@ -8,7 +8,7 @@
 
 #include "compiler/codegen.h"
 #include "compiler/compiler.h"
-#include "compiler/parser.h"
+#include "parser/parser.h"
 #include "compiler/scanner.h"
 #include "core/chunk.h"
 #include "core/value.h"

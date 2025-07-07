@@ -3,7 +3,7 @@
  * This file contains the rules for parsing tokens in the CSLO language.
  */
 
-#include "compiler/parser.h"
+#include "parser/parser.h"
 #include "compiler/scanner.h"
 #include "parser/expressions.h"
 #include "parser/rules.h"

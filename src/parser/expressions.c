@@ -10,7 +10,7 @@
 
 #include "core/chunk.h"
 #include "compiler/codegen.h"
-#include "compiler/parser.h"
+#include "parser/parser.h"
 #include "compiler/scanner.h"
 #include "parser/expressions.h"
 
