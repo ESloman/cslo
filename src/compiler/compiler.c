@@ -71,6 +71,21 @@ void patchJump(int offset) {
 }
 
 /**
+ * Method for patching a previous jump instruction to somewhere specific.
+ */
+void patchJumpTo(int offset, int target) {
+    // -2 to adjust for the bytecode for the jump offset itself
+    int jump = target - offset - 2;
+
+    if (jump > UINT16_MAX) {
+        error("Too much code to jump over.");
+    }
+
+    currentChunk()->code[offset] = (jump >> 8) & 0xff;
+    currentChunk()->code[offset + 1] = jump & 0xff;
+}
+
+/**
  * Method for initialising our compiler.
  */
 static void initCompiler(Compiler* compiler, FunctionType type, const char* file) {
@@ -81,6 +96,8 @@ static void initCompiler(Compiler* compiler, FunctionType type, const char* file
     compiler->scopeDepth = 0;
     compiler->innermostLoopStart = -1;
     compiler->innermostLoopScopeDepth = 0;
+    compiler->continueCount = 0;
+    compiler->breakCount = 0;
     compiler->function = newFunction();
     if (file != NULL) {
         compiler->function->file = copyString(file, (int)strlen(file));

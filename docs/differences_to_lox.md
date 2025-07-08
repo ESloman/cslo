@@ -19,6 +19,7 @@ and
 - prefix and postfix increment / decrement (`--`, `++`)
 - compound assignment operators (`+=`, `-=`, `*=`, `/=`)
 - string formatting with `"Hello ${name}!"` syntax
+- `continue` and `break` statements in `for` / `while` loops
 
 ### More native functions
 

@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "compiler/codegen.h"
 #include "compiler/scanner.h"
@@ -46,14 +47,30 @@ void parseExpressionStatement() {
     emitByte(OP_POP, parser.previous.line);
 }
 
+/**
+ * Method for parsing a break statement.
+ */
 void breakStatement() {
     if (current->innermostLoopStart == -1) {
         error("Can't use 'break' outside of a loop.");
     }
 
     consumeToken(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
+
+    // Discard any locals created inside the loop.
+    for (
+        int i = current->localCount - 1;
+        i >= 0 && current->locals[i].depth > current->innermostLoopScopeDepth;
+        i--
+    ) {
+        emitByte(OP_POP, parser.previous.line);
+    }
+    current->breakJumps[current->breakCount++] = emitJump(OP_JUMP);
 }
 
+/**
+ * Method for parsing a continue statement.
+ */
 void continueStatement() {
     if (current->innermostLoopStart == -1) {
         error("Can't use 'continue' outside of a loop.");
@@ -71,7 +88,12 @@ void continueStatement() {
     }
 
     // Jump to top of current innermost loop.
-    emitLoop(current->innermostLoopStart);
+    // In continueStatement:
+    if (current->innermostLoopStart == -6) {
+        current->continueJumps[current->continueCount++] = emitJump(OP_JUMP);
+    } else {
+        emitLoop(current->innermostLoopStart);    // for/while
+    }
 }
 
 /**
@@ -111,7 +133,7 @@ void forStatement() {
         // store iterable locally
         addLocal(syntheticToken("__iterable"));
         markInitialized();
-        uint8_t iterableSlot = current->localCount - 1;
+        uint8_t iterableSlot = (uint8_t)current->localCount - 1;
         emitBytes(OP_SET_LOCAL, iterableSlot);
         // this is the initial value of the iterable variable
         // do not pop it!
@@ -119,7 +141,7 @@ void forStatement() {
         // create index variable
         addLocal(syntheticToken("__idx"));
         markInitialized();
-        uint8_t indexSlot = current->localCount - 1;
+        uint8_t indexSlot = (uint8_t)current->localCount - 1;
         emitConstant(NUMBER_VAL(0));
         emitBytes(OP_SET_LOCAL, indexSlot);
         // this is the initial value of the index variable
@@ -127,7 +149,7 @@ void forStatement() {
 
         addLocal(varName);
         markInitialized();
-        uint8_t varSlot = current->localCount - 1;
+        uint8_t varSlot = (uint8_t)current->localCount - 1;
         // set the loop variable to a random initial value on the stack for now
         // this value will be overwritten on each loop
         emitConstant(NUMBER_VAL(-1));
@@ -137,8 +159,16 @@ void forStatement() {
 
         int surroundingLoopStart = current->innermostLoopStart;
         int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+        int surroundingContinueJumps[256];
+        memcpy(surroundingContinueJumps, current->continueJumps, sizeof(current->continueJumps));
+        int surroundingContinueCount = current->continueCount;
+        int surroundingBreaksJumps[256];
+        memcpy(surroundingBreaksJumps, current->breakJumps, sizeof(current->breakJumps));
+        int surroundingBreakCount = current->breakCount;
+
         current->innermostLoopStart = currentChunk()->count;
         current->innermostLoopScopeDepth = current->scopeDepth;
+        current->continueCount = 0;
 
         // check we're still in range
         emitBytes(OP_GET_LOCAL, indexSlot);  // push index
@@ -163,10 +193,19 @@ void forStatement() {
         emitBytes(OP_SET_LOCAL, varSlot);
         emitByte(OP_POP, parser.previous.line);
 
+        int prevStart = current->innermostLoopStart;
+        current->innermostLoopStart = -6;
         parseStatement();
+        current->innermostLoopStart = prevStart;
 
         // increment index
         int incrementStart = currentChunk()->count;
+
+        // patch all the jumps
+        for (int i = 0; i < current->continueCount; i++) {
+            patchJumpTo(current->continueJumps[i], incrementStart);
+        }
+
         emitBytes(OP_GET_LOCAL, indexSlot);
         emitConstant(NUMBER_VAL(1));
         emitByte(OP_ADD, parser.previous.line);
@@ -177,6 +216,10 @@ void forStatement() {
         current->innermostLoopStart = incrementStart;
         patchJump(exitJump);
         emitByte(OP_POP, parser.previous.line); // pop the condition only
+        // patch all the breaks
+        for (int i = 0; i < current->breakCount; i++) {
+            patchJump(current->breakJumps[i]);
+        }
         // No OP_POP here! endScope() will clean up all locals and stack values for the for-in loop.
         #ifdef DEBUG_LOGGING
         printf("== Locals at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
@@ -187,8 +230,13 @@ void forStatement() {
 
         current->innermostLoopStart = surroundingLoopStart;
         current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
+        current->continueCount = surroundingContinueCount;
+        memcpy(current->continueJumps, surroundingContinueJumps, sizeof(current->continueJumps));
+        current->breakCount = surroundingBreakCount;
+        memcpy(current->breakJumps, surroundingBreaksJumps, sizeof(current->breakJumps));
 
         endScope();
+
         #ifdef DEBUG_LOGGING
         printf("== Locals after endscope at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
         for (int i = 0; i < current->localCount; i++) {
@@ -212,6 +260,13 @@ void forStatement() {
 
     int surroundingLoopStart = current->innermostLoopStart;
     int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+    int surroundingContinueJumps[256];
+    memcpy(surroundingContinueJumps, current->continueJumps, sizeof(current->continueJumps));
+    int surroundingContinueCount = current->continueCount;
+    int surroundingBreaksJumps[256];
+    memcpy(surroundingBreaksJumps, current->breakJumps, sizeof(current->breakJumps));
+    int surroundingBreakCount = current->breakCount;
+
     current->innermostLoopStart = currentChunk()->count;
     current->innermostLoopScopeDepth = current->scopeDepth;
     int exitJump = -1;
@@ -251,10 +306,17 @@ void forStatement() {
     if (exitJump != -1) {
         patchJump(exitJump);
         emitByte(OP_POP, parser.previous.line); // pop the condition only
+        for (int i = 0; i < current->breakCount; i++) {
+            patchJump(current->breakJumps[i]);
+        }
     }
 
     current->innermostLoopStart = surroundingLoopStart;
     current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
+    current->continueCount = surroundingContinueCount;
+    memcpy(current->continueJumps, surroundingContinueJumps, sizeof(current->continueJumps));
+    current->breakCount = surroundingBreakCount;
+    memcpy(current->breakJumps, surroundingBreaksJumps, sizeof(current->breakJumps));
 
     endScope();
     #ifdef DEBUG_LOGGING
@@ -361,6 +423,13 @@ void whileStatement() {
 
     int surroundingLoopStart = current->innermostLoopStart;
     int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+    int surroundingContinueJumps[256];
+    memcpy(surroundingContinueJumps, current->continueJumps, sizeof(current->continueJumps));
+    int surroundingContinueCount = current->continueCount;
+    int surroundingBreaksJumps[256];
+    memcpy(surroundingBreaksJumps, current->breakJumps, sizeof(current->breakJumps));
+    int surroundingBreakCount = current->breakCount;
+
     current->innermostLoopStart = currentChunk()->count;
     current->innermostLoopScopeDepth = current->scopeDepth;
 
@@ -375,8 +444,16 @@ void whileStatement() {
     patchJump(exitJump);
     emitByte(OP_POP, parser.previous.line);
 
+    for (int i = 0; i < current->breakCount; i++) {
+        patchJump(current->breakJumps[i]);
+    }
+
     current->innermostLoopStart = surroundingLoopStart;
     current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
+    current->continueCount = surroundingContinueCount;
+    memcpy(current->continueJumps, surroundingContinueJumps, sizeof(current->continueJumps));
+    current->breakCount = surroundingBreakCount;
+    memcpy(current->breakJumps, surroundingBreaksJumps, sizeof(current->breakJumps));
 
     endScope();
 }

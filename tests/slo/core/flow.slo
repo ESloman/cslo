@@ -8,16 +8,6 @@ for (var x = 0; x < 10; x++) {
     }
 }
 
-# print("Beginning for loop over list");
-# for (var y in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
-#     if (y == 2) { continue; }
-#     print(y);
-#     if (y == 5) {
-#         print("break...");
-#         break;
-#     }
-# }
-
 print("Beginning while loop");
 var z = 0;
 while(z < 10) {
@@ -27,4 +17,61 @@ while(z < 10) {
         break;
     }
     z++;
+}
+
+print("Beginning for loop over list");
+for (var y in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+    if (y == 2) { continue; }
+    print(y);
+    if (y == 5) {
+        break;
+    }
+}
+
+
+print("Begin nested loops");
+for (var i = 0; i < 3; i++) {
+    for (var j = 0; j < 3; j++) {
+        if (i == 1 and j == 1) {
+            continue;
+        }
+        if (i == 2 and j == 0) {
+            break;
+        }
+        print("i=${i}, j=${j}");
+    }
+    print("end inner for, i=${i}");
+}
+
+print("Begin nested while loops");
+var a = 0;
+while (a < 3) {
+    var b = 0;
+    while (b < 3) {
+        if (a == 1 and b == 2) {
+            b++;
+            continue;
+        }
+        if (a == 2 and b == 1) {
+            break;
+        }
+        print("a=${a}, b=${b}");
+        b++;
+    }
+    print("end inner while, a=${a}");
+    a++;
+}
+
+print("Begin nested for-in loops");
+for (var x in [0,1,2]) {
+    for (var y in [0,1,2]) {
+        if (x == 1 and y == 2) {
+            continue;
+        }
+        if (x == 2 and y == 1) {
+            break;
+        }
+        print("x=${x}, y=${y}");
+    }
+    print("end inner for-in, x=${x}");
 }

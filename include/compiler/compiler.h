@@ -51,6 +51,10 @@ typedef struct Compiler {
     int scopeDepth;
     int innermostLoopStart;
     int innermostLoopScopeDepth;
+    int continueJumps[256];
+    int continueCount;
+    int breakJumps[256];
+    int breakCount;
 } Compiler;
 
 /**
@@ -88,6 +92,11 @@ void errorAtCurrent(const char* message);
  * Method for patching the previous jump instruction.
  */
 void patchJump(int offset);
+
+/**
+ * Method for patching a previous jump instruction to somewhere specific.
+ */
+void patchJumpTo(int offset, int target);
 
 /**
  * Method for compiling an argument list.
