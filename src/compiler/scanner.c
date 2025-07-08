@@ -72,8 +72,14 @@ static TokenType identifierType() {
                 return checkKeyword(1, 2, "nd", TOKEN_AND);
             }
             break;
+        case 'b':
+            return checkKeyword(1, 4, "reak", TOKEN_BREAK);
         case 'c':
-            return checkKeyword(1, 4, "lass", TOKEN_CLASS);
+            if (scanner.current - scanner.start > 1 && scanner.start[1] == 'l') {
+                return checkKeyword(1, 4, "lass", TOKEN_CLASS);
+            } else {
+                return checkKeyword(1, 7, "ontinue", TOKEN_CONTINUE);
+            }
         case 'e': {
             if (scanner.current - scanner.start > 1 && scanner.start[1] == 'l') {
                 switch (scanner.start[2]) {

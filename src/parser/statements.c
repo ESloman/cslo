@@ -24,6 +24,10 @@ void parseStatement() {
         returnStatement();
     } else if (matchToken(TOKEN_WHILE)) {
         whileStatement();
+    } else if (matchToken(TOKEN_BREAK)) {
+        breakStatement();
+    } else if (matchToken(TOKEN_CONTINUE)) {
+        continueStatement();
     } else if (matchToken(TOKEN_LEFT_BRACE)) {
         beginScope();
         parseBlock();
@@ -40,6 +44,34 @@ void parseExpressionStatement() {
     parseExpression();
     consumeToken(TOKEN_SEMICOLON, "Expect ';' after expression.");
     emitByte(OP_POP, parser.previous.line);
+}
+
+void breakStatement() {
+    if (current->innermostLoopStart == -1) {
+        error("Can't use 'break' outside of a loop.");
+    }
+
+    consumeToken(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
+}
+
+void continueStatement() {
+    if (current->innermostLoopStart == -1) {
+        error("Can't use 'continue' outside of a loop.");
+    }
+
+    consumeToken(TOKEN_SEMICOLON, "Expect ';' after 'continue'.");
+
+    // Discard any locals created inside the loop.
+    for (
+        int i = current->localCount - 1;
+        i >= 0 && current->locals[i].depth > current->innermostLoopScopeDepth;
+        i--
+    ) {
+        emitByte(OP_POP, parser.previous.line);
+    }
+
+    // Jump to top of current innermost loop.
+    emitLoop(current->innermostLoopStart);
 }
 
 /**
@@ -103,7 +135,10 @@ void forStatement() {
         // this is the initial value of the loop variable
         // do not pop it!
 
-        int loopStart = currentChunk()->count;
+        int surroundingLoopStart = current->innermostLoopStart;
+        int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+        current->innermostLoopStart = currentChunk()->count;
+        current->innermostLoopScopeDepth = current->scopeDepth;
 
         // check we're still in range
         emitBytes(OP_GET_LOCAL, indexSlot);  // push index
@@ -124,7 +159,6 @@ void forStatement() {
 
         emitBytes(OP_INVOKE, makeConstant(OBJ_VAL(copyString("__index__", 9))));
         emitByte(1, parser.previous.line);
-        // emitByte(OP_GET_INDEX, parser.previous.line);
 
         emitBytes(OP_SET_LOCAL, varSlot);
         emitByte(OP_POP, parser.previous.line);
@@ -132,13 +166,15 @@ void forStatement() {
         parseStatement();
 
         // increment index
+        int incrementStart = currentChunk()->count;
         emitBytes(OP_GET_LOCAL, indexSlot);
         emitConstant(NUMBER_VAL(1));
         emitByte(OP_ADD, parser.previous.line);
         emitBytes(OP_SET_LOCAL, indexSlot);
         emitByte(OP_POP, parser.previous.line); // Pop the value after assignment
 
-        emitLoop(loopStart);
+        emitLoop(current->innermostLoopStart);
+        current->innermostLoopStart = incrementStart;
         patchJump(exitJump);
         emitByte(OP_POP, parser.previous.line); // pop the condition only
         // No OP_POP here! endScope() will clean up all locals and stack values for the for-in loop.
@@ -148,6 +184,10 @@ void forStatement() {
             printf("  [%d] %.*s (depth=%d)\n", i, current->locals[i].name.length, current->locals[i].name.start, current->locals[i].depth);
         }
         #endif
+
+        current->innermostLoopStart = surroundingLoopStart;
+        current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
+
         endScope();
         #ifdef DEBUG_LOGGING
         printf("== Locals after endscope at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
@@ -170,7 +210,10 @@ void forStatement() {
         parseExpressionStatement();
     }
 
-    int loopStart = currentChunk()->count;
+    int surroundingLoopStart = current->innermostLoopStart;
+    int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+    current->innermostLoopStart = currentChunk()->count;
+    current->innermostLoopScopeDepth = current->scopeDepth;
     int exitJump = -1;
     if(!matchToken(TOKEN_SEMICOLON)) {
         #ifdef DEBUG_LOGGING
@@ -197,18 +240,22 @@ void forStatement() {
         emitByte(OP_POP, parser.previous.line);
         consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
-        emitLoop(loopStart);
-        loopStart = incrementStart;
+        emitLoop(current->innermostLoopStart);
+        current->innermostLoopStart = incrementStart;
         patchJump(bodyJump);
     }
 
     parseStatement();
-    emitLoop(loopStart);
+    emitLoop(current->innermostLoopStart);
 
     if (exitJump != -1) {
         patchJump(exitJump);
         emitByte(OP_POP, parser.previous.line); // pop the condition only
     }
+
+    current->innermostLoopStart = surroundingLoopStart;
+    current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
+
     endScope();
     #ifdef DEBUG_LOGGING
     printf("== Locals at line %d (scopeDepth=%d, localCount=%d) ==\n", parser.previous.line, current->scopeDepth, current->localCount);
@@ -309,7 +356,14 @@ void ifStatement() {
  * Method for compiling while statements.
  */
 void whileStatement() {
-    int loopStart = currentChunk()->count;
+
+    beginScope();
+
+    int surroundingLoopStart = current->innermostLoopStart;
+    int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+    current->innermostLoopStart = currentChunk()->count;
+    current->innermostLoopScopeDepth = current->scopeDepth;
+
     consumeToken(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
     parseExpression();
     consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
@@ -317,10 +371,14 @@ void whileStatement() {
     int exitJump = emitJump(OP_JUMP_IF_FALSE);
     emitByte(OP_POP, parser.previous.line);
     parseStatement();
-    emitLoop(loopStart);
-
+    emitLoop(current->innermostLoopStart);
     patchJump(exitJump);
     emitByte(OP_POP, parser.previous.line);
+
+    current->innermostLoopStart = surroundingLoopStart;
+    current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
+
+    endScope();
 }
 
 /**

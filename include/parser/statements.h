@@ -16,6 +16,17 @@ void parseStatement();
  */
 void parseExpressionStatement();
 
+
+/**
+ * Method for compiling a break statement.
+ */
+void breakStatement();
+
+/**
+ * Method for compiling a continue statement.
+ */
+void continueStatement();
+
 /**
  * Method for compiling if statements.
  *

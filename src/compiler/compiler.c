@@ -79,6 +79,8 @@ static void initCompiler(Compiler* compiler, FunctionType type, const char* file
     compiler->type = type;
     compiler->localCount = 0;
     compiler->scopeDepth = 0;
+    compiler->innermostLoopStart = -1;
+    compiler->innermostLoopScopeDepth = 0;
     compiler->function = newFunction();
     if (file != NULL) {
         compiler->function->file = copyString(file, (int)strlen(file));

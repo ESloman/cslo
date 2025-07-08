@@ -49,6 +49,8 @@ typedef struct Compiler {
     int localCount;
     Upvalue upvalues[UINT8_COUNT];
     int scopeDepth;
+    int innermostLoopStart;
+    int innermostLoopScopeDepth;
 } Compiler;
 
 /**
