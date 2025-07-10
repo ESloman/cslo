@@ -115,7 +115,6 @@ jobs:
           github_token: ${{ secrets.GH_ADMIN_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
-          config_file: .releaserc.toml
 
       - name: Build cslo (with updated version)
         run: make && make debug
