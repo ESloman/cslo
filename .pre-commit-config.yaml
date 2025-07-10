@@ -26,6 +26,7 @@ repos:
     hooks:
       - id: markdownlint
         files: \.md$
+        exclude: LICENSE.md
         args: [--fix]
         language_version: lts
 
