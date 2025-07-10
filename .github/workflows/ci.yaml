@@ -115,7 +115,7 @@ jobs:
           github_token: ${{ secrets.GH_ADMIN_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
-          args: version --no-push
+          args: version --no-push --no-changelog --no-tag --no-commit
 
       - name: Build cslo (with updated version)
         run: make && make debug
@@ -126,7 +126,7 @@ jobs:
           github_token: ${{ secrets.GH_ADMIN_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
-          args: publish
+          args: version
 
       - name: Upload | Distribution Artifacts
         uses: actions/upload-artifact@v4
