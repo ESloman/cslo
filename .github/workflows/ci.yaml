@@ -115,6 +115,7 @@ jobs:
           github_token: ${{ secrets.GH_ADMIN_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
+          config_file: .releaserc.toml
 
       - name: Build cslo (with updated version)
         run: make && make debug
@@ -130,5 +131,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: distribution-artifacts
-          path: dist
+          path: |
+            build/cslo
+            build/cslod
           if-no-files-found: warn
