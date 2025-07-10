@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.4 (2025-07-10)
+
+### Bug Fixes
+
+- Change order of things
+  ([`dc39d48`](https://github.com/ESloman/cslo/commit/dc39d489f29ab207abc678fbbbf5cd60572600de))
+
+
 ## v1.0.3 (2025-07-10)
 
 
