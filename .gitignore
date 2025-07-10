@@ -51,6 +51,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# entire build folder
+build/*
+
 ## python
 # Byte-compiled / optimized / DLL files
 __pycache__/
