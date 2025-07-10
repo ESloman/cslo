@@ -41,7 +41,7 @@ jobs:
 
   release:
     if: github.actor != 'github-actions'
-    depends-on: build-and-test
+    needs: build-and-test
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
