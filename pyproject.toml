@@ -7,7 +7,6 @@ build_command = ""
 commit_parser = "conventional"
 changelog_file = "CHANGELOG.md"
 tag_format = "v{version}"
-dist_path = ["build/cslo", "build/cslod"]
 
 [tool.semantic_release.branches.main]
 match = "main"
@@ -26,3 +25,6 @@ allowed_tags = [
 major_tags = ["refactor"]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf", "ci", "test", "chore", "docs", "style", "test"]
+
+[tool.semantic_release.publish]
+dist_glob_patterns = ["build/cslo", "build/cslod"]
