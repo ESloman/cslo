@@ -14,6 +14,8 @@
 #include "runtime/repl.h"
 #include "core/vm.h"
 
+#include "version.h"
+
 /**
  * Method for reading a slo file.
  */
@@ -74,9 +76,13 @@ int main(int argc, const char* argv[]) {
     if (argc == 1) {
         repl();
     } else if (argc == 2) {
+        if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
+            printf("slo version %s\n", SLO_VERSION);
+            return 0;
+        }
         runFile(argv[1]);
     } else {
-        fprintf(stderr, "Usage: cslo [path]\n");
+        fprintf(stderr, "Usage: cslo [path] [--version]\n");
         exit(64);
     }
 
