@@ -7,7 +7,7 @@
 
 .DEFAULT_GOAL := all
 
-all: build/$(NAME)
+all: include/version.h build/$(NAME)
 
 ifeq ($(CPP),true)
 # Ideally, we'd add -pedantic-errors, but the use of designated initializers
@@ -41,7 +41,6 @@ endif
 
 # Recursive wildcard function
 rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-
 
 # # Version header generation
 VERSION_FILE := $(SOURCE_DIR)/VERSION
