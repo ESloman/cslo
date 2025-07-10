@@ -115,6 +115,7 @@ jobs:
           github_token: ${{ secrets.GH_ADMIN_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
+          args: version
 
       - name: Build cslo (with updated version)
         run: make && make debug
@@ -125,6 +126,14 @@ jobs:
         with:
           github_token: ${{ secrets.GH_ADMIN_TOKEN }}
           tag: ${{ steps.release.outputs.tag }}
+
+      - name: Create Release and Upload Assets
+        uses: python-semantic-release/python-semantic-release@v10.2.0
+        with:
+          github_token: ${{ secrets.GH_ADMIN_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
+          args: publish
 
       - name: Upload | Distribution Artifacts
         uses: actions/upload-artifact@v4
