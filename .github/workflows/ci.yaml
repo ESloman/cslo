@@ -115,21 +115,16 @@ jobs:
           github_token: ${{ secrets.GH_ADMIN_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
-          commit: false
-          push: false
-          changelog: false
-          tag: false
 
       - name: Build cslo (with updated version)
         run: make && make debug
 
-      - name: Create Release and Upload Assets
-        uses: python-semantic-release/python-semantic-release@v10.2.0
+      - name: Publish | Upload to GitHub Release Assets
+        uses: python-semantic-release/publish-action@v10.2.0
+        if: steps.release.outputs.released == 'true'
         with:
-          github_token: ${{ secrets.GH_ADMIN_TOKEN }}
-          git_committer_name: "github-actions"
-          git_committer_email: "actions@users.noreply.github.com"
-          args: version
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
 
       - name: Upload | Distribution Artifacts
         uses: actions/upload-artifact@v4
