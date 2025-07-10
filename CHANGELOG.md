@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.7 (2025-07-10)
+
+### Bug Fixes
+
+- Fix publish assets
+  ([`093911f`](https://github.com/ESloman/cslo/commit/093911fca027e4a5d32df03a4ae5ea08cdd6e6c2))
+
+
 ## v1.0.6 (2025-07-10)
 
 ### Continuous Integration
