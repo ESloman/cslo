@@ -105,6 +105,7 @@ void initVM() {
     vm.grayStack = NULL;
     vm.markValue = true;
     initTable(&vm.globals);
+    initTable(&vm.globalFinals);
     initTable(&vm.strings);
     vm.initString = NULL;
     vm.initString = copyString("__init__", 8);
@@ -746,6 +747,12 @@ static InterpretResult run() {
             }
             case OP_SET_GLOBAL: {
                 ObjString* name = READ_STRING();
+                Value temp;
+                if (tableGet(&vm.globalFinals, OBJ_VAL(name), &temp)) {
+                    frame->ip = ip;
+                    runtimeError(ERROR_TYPE, "Cannot assign to a 'final' variable.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 if (tableSet(&vm.globals, OBJ_VAL(name), peek(0))) {
                     tableDelete(&vm.globals, OBJ_VAL(name));
                     frame->ip = ip;
@@ -756,7 +763,20 @@ static InterpretResult run() {
             }
             case OP_DEFINE_GLOBAL: {
                 ObjString* name = READ_STRING();
+                Value temp;
+                if (tableGet(&vm.globalFinals, OBJ_VAL(name), &temp)) {
+                    frame->ip = ip;
+                    runtimeError(ERROR_TYPE, "Cannot redfine a 'final' variable.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 tableSet(&vm.globals, OBJ_VAL(name), peek(0));
+                pop();
+                break;
+            }
+            case OP_DEFINE_FINAL_GLOBAL: {
+                ObjString* name = READ_STRING();
+                tableSet(&vm.globals, OBJ_VAL(name), peek(0));
+                tableSet(&vm.globalFinals, OBJ_VAL(name), NIL_VAL);
                 pop();
                 break;
             }

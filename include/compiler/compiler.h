@@ -17,6 +17,7 @@ typedef struct Local {
     Token name;
     int depth;
     bool isCaptured;
+    bool isFinal;
 } Local;
 
 /**
@@ -25,6 +26,7 @@ typedef struct Local {
 typedef struct Upvalue {
     uint8_t index;
     bool isLocal;
+    bool isFinal;
 } Upvalue;
 
 /**
@@ -106,7 +108,7 @@ uint8_t argumentList();
 /**
  * Method for parsing a variable.
  */
-uint8_t parseVariable(const char* errorMessage);
+uint8_t parseVariable(bool isFinal, const char* errorMessage);
 
 /**
  * Method for marking a local variable initialised.
@@ -116,7 +118,7 @@ void markInitialized();
 /**
  * Method for defining a variale.
  */
-void defineVariable(uint8_t global);
+void defineVariable(uint8_t global, bool isFinal);
 
 /**
  * Method for resolving an upvalue variable.
@@ -126,12 +128,12 @@ int resolveUpvalue(Compiler* compiler, Token* name);
 /**
  * Method for adding a local.
  */
-void addLocal(Token name);
+void addLocal(Token name, bool isFinal);
 
 /**
  * Method for declaring a variable.
  */
-void declareVariable();
+void declareVariable(bool isFinal);
 
 /**
  * Method for identifying a constant.
@@ -151,7 +153,7 @@ int resolveLocal(Compiler* compiler, Token* name);
 /**
  * Method for adding an upvalue to the current compiler.
  */
-int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal);
+int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal, bool isFinal);
 
 /**
  * Method for beginning a block's scope.
@@ -166,7 +168,7 @@ void endScope();
 /**
  * Method for compiling a variable declaration.
  */
-void varDeclaration();
+void varDeclaration(bool isFinal);
 
 /**
  * Method for compiling classes.

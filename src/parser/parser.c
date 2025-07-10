@@ -214,7 +214,9 @@ void parseDeclaration() {
     } else if (matchToken(TOKEN_FUN)) {
         funDeclaration();
     } else if (matchToken(TOKEN_VAR)) {
-        varDeclaration();
+        varDeclaration(false);
+    } else if (matchToken(TOKEN_FINAL)) {
+        varDeclaration(true);
     } else if (matchToken(TOKEN_ENUM)) {
         enumDeclaration();
     } else {

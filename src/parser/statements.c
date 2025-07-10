@@ -131,7 +131,7 @@ void forStatement() {
         consumeToken(TOKEN_RIGHT_PAREN, "Expect ')' after 'for' clauses.");
 
         // store iterable locally
-        addLocal(syntheticToken("__iterable"));
+        addLocal(syntheticToken("__iterable"), false);
         markInitialized();
         uint8_t iterableSlot = (uint8_t)current->localCount - 1;
         emitBytes(OP_SET_LOCAL, iterableSlot);
@@ -139,7 +139,7 @@ void forStatement() {
         // do not pop it!
 
         // create index variable
-        addLocal(syntheticToken("__idx"));
+        addLocal(syntheticToken("__idx"), false);
         markInitialized();
         uint8_t indexSlot = (uint8_t)current->localCount - 1;
         emitConstant(NUMBER_VAL(0));
@@ -147,7 +147,7 @@ void forStatement() {
         // this is the initial value of the index variable
         // do not pop it!
 
-        addLocal(varName);
+        addLocal(varName, false);
         markInitialized();
         uint8_t varSlot = (uint8_t)current->localCount - 1;
         // set the loop variable to a random initial value on the stack for now
@@ -253,7 +253,7 @@ void forStatement() {
         #ifdef DEBUG_LOGGING
         printf("For loop with variable declaration.\n");
         #endif
-        varDeclaration();
+        varDeclaration(false);
     } else {
         parseExpressionStatement();
     }

@@ -19,6 +19,10 @@ Compiler* current;
 ClassCompiler* currentClass = NULL;
 Token lastVariableToken;
 
+static Token globalFinals[UINT8_MAX];
+static int globalFinalCount = 0;
+Token lastVariableToken;
+
 /**
  * Method for reporting an error.
  */
@@ -213,14 +217,16 @@ int resolveLocal(Compiler* compiler, Token* name) {
 }
 
 /**
- * Method for adding an upvalue to the current compiler.
- */
-int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal) {
+ * Method for adding an upvalue to the current compiler
+*/
+int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal, bool isFinal) {
     int upvalueCount = compiler->function->upvalueCount;
 
     for (int i = 0; i < upvalueCount; i++) {
         Upvalue* upvalue = &compiler->upvalues[i];
         if (upvalue->index == index && upvalue->isLocal == isLocal) {
+            // If any upvalue is final, always treat as final
+            if (isFinal) upvalue->isFinal = true;
             return i;
         }
     }
@@ -232,12 +238,13 @@ int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal) {
 
     compiler->upvalues[upvalueCount].isLocal = isLocal;
     compiler->upvalues[upvalueCount].index = index;
+    compiler->upvalues[upvalueCount].isFinal = isFinal;
     return compiler->function->upvalueCount++;
 }
 
 /**
  * Method for resolving an upvalue variable.
- */
+ * */
 int resolveUpvalue(Compiler* compiler, Token* name) {
     if (compiler->enclosing == NULL) {
         return -1;
@@ -246,12 +253,15 @@ int resolveUpvalue(Compiler* compiler, Token* name) {
     int local = resolveLocal(compiler->enclosing, name);
     if (local != -1) {
         compiler->enclosing->locals[local].isCaptured = true;
-        return addUpvalue(compiler, (uint8_t)local, true);
+        bool isFinal = compiler->enclosing->locals[local].isFinal;
+        return addUpvalue(compiler, (uint8_t)local, true, isFinal);
     }
 
     int upvalue = resolveUpvalue(compiler->enclosing, name);
     if (upvalue != -1) {
-        return addUpvalue(compiler, (uint8_t)upvalue, false);
+        // Propagate isFinal from enclosing upvalue
+        bool isFinal = compiler->enclosing->upvalues[upvalue].isFinal;
+        return addUpvalue(compiler, (uint8_t)upvalue, false, isFinal);
     }
 
     return -1;
@@ -260,7 +270,7 @@ int resolveUpvalue(Compiler* compiler, Token* name) {
 /**
  * Method for adding a local.
  */
-void addLocal(Token name) {
+void addLocal(Token name, bool isFinal) {
     #ifdef DEBUG_LOGGING
     printf("addLocal: %.*s (localCount=%d, scopeDepth=%d)\n", name.length, name.start, current->localCount, current->scopeDepth);
     #endif
@@ -273,12 +283,13 @@ void addLocal(Token name) {
     local->name = name;
     local->depth = -1;
     local->isCaptured = false;
+    local->isFinal = isFinal;
 }
 
 /**
  * Method for declaring a variable.
  */
-void declareVariable() {
+void declareVariable(bool isFinal) {
     if (current->scopeDepth == 0) {
         return;
     }
@@ -295,16 +306,25 @@ void declareVariable() {
             error("Already a variable with this name in this scope.");
         }
     }
-    addLocal(*name);
+
+    for (int i = 0; i < globalFinalCount; i++) {
+        if (identifiersEqual(name, &globalFinals[i])) {
+            error("Cannot shadow a final global variable.");
+        }
+    }
+
+    addLocal(*name, isFinal);
 }
 
 /**
  * Method for parsing a variable.
  */
-uint8_t parseVariable(const char* errorMessage) {
+uint8_t parseVariable(bool isFinal, const char* errorMessage) {
     consumeToken(TOKEN_IDENTIFIER, errorMessage);
 
-    declareVariable();
+    lastVariableToken = parser.previous;
+
+    declareVariable(isFinal);
     if (current->scopeDepth > 0) {
         return 0;
     }
@@ -331,12 +351,19 @@ void markInitialized() {
 /**
  * Method for defining a variale.
  */
-void defineVariable(uint8_t global) {
+void defineVariable(uint8_t global, bool isFinal) {
     if (current->scopeDepth > 0) {
         markInitialized();
         return;
     }
-    emitBytes(OP_DEFINE_GLOBAL, global);
+    if (isFinal) {
+        if (globalFinalCount == UINT8_MAX) {
+            error("Can't have more than 255 final globals.");
+        }
+        globalFinals[globalFinalCount++] = lastVariableToken;
+    }
+    OpCode op = isFinal ? OP_DEFINE_FINAL_GLOBAL : OP_DEFINE_GLOBAL;
+    emitBytes((uint8_t)op, global);
 }
 
 /**
@@ -372,8 +399,8 @@ void function(FunctionType type) {
             if (current->function->arity > 255) {
                 errorAtCurrent("Can't have more than 255 parameters.");
             }
-            uint8_t constant = parseVariable("Expected parameter name.");
-            defineVariable(constant);
+            uint8_t constant = parseVariable(false, "Expected parameter name.");
+            defineVariable(constant, false);
         } while (matchToken(TOKEN_COMMA));
     }
     consumeToken(TOKEN_RIGHT_PAREN, "Expected ')' after parameters.");
@@ -412,10 +439,10 @@ void classDeclaration() {
     consumeToken(TOKEN_IDENTIFIER, "Expected class name.");
     Token className = parser.previous;
     uint8_t nameConstant = identifierConstant(&parser.previous);
-    declareVariable();
+    declareVariable(false);
 
     emitBytes(OP_CLASS, nameConstant);
-    defineVariable(nameConstant);
+    defineVariable(nameConstant, false);
 
     ClassCompiler classCompiler;
     classCompiler.hasSuperClass = false;
@@ -431,8 +458,8 @@ void classDeclaration() {
         }
 
         beginScope();
-        addLocal(syntheticToken("super"));
-        defineVariable(0);
+        addLocal(syntheticToken("super"), false);
+        defineVariable(0, false);
         namedVariable(className, false);
         emitByte(OP_INHERIT, parser.previous.line);
         classCompiler.hasSuperClass = true;
@@ -458,33 +485,43 @@ void classDeclaration() {
  * Method for compiling functions.
  */
 void funDeclaration() {
-    uint8_t global = parseVariable("Expected function name.");
+    uint8_t global = parseVariable(false, "Expected function name.");
     markInitialized();
     function(TYPE_FUNCTION);
-    defineVariable(global);
+    defineVariable(global, false);
 }
 
 /**
  *
  */
-void varDeclaration() {
-    uint8_t global = parseVariable("Expected a variable name.");
+void varDeclaration(bool isFinal) {
+    if (isFinal) {
+        // consume the var
+        consumeToken(TOKEN_VAR, "Expected 'var' after 'final'.");
+    }
+    uint8_t global = parseVariable(isFinal, "Expected a variable name.");
 
-    if (matchToken(TOKEN_EQUAL)) {
+    if (isFinal) {
+        // we have to define the variable value here for final
+        consumeToken(TOKEN_EQUAL, "Expect '=' after variable name for final variables.");
         parseExpression();
     } else {
-        emitByte(OP_NIL, parser.previous.line);
+        if (matchToken(TOKEN_EQUAL)) {
+            parseExpression();
+        } else {
+            emitByte(OP_NIL, parser.previous.line);
+        }
     }
 
     consumeToken(TOKEN_SEMICOLON, "Expected ';' after variable declaration.");
-    defineVariable(global);
+    defineVariable(global, isFinal);
 }
 
 /**
  * Method for compiling an enum declaration.
  */
 void enumDeclaration() {
-    uint8_t global = parseVariable("Expected enum name.");
+    uint8_t global = parseVariable(false, "Expected enum name.");
     markInitialized();
 
     uint8_t count = 0;
@@ -508,7 +545,7 @@ void enumDeclaration() {
 
     emitByte(global, parser.previous.line);
 
-    defineVariable(global);
+    defineVariable(global, false);
 }
 
 /**
@@ -544,15 +581,20 @@ void synchronize() {
  * Method for compiling a named variable.
  */
 void namedVariable(Token name, bool canAssign) {
-    uint8_t getOp, setOp;
+    uint8_t getOp;
+    uint8_t setOp;
+
     int arg = resolveLocal(current, &name);
 
+    bool isFinal = false;
     if (arg != -1) {
         getOp = OP_GET_LOCAL;
         setOp = OP_SET_LOCAL;
+        isFinal = current->locals[arg].isFinal;
     } else if ((arg = resolveUpvalue(current, &name)) != -1) {
         getOp = OP_GET_UPVALUE;
         setOp = OP_SET_UPVALUE;
+        isFinal = current->upvalues[arg].isFinal;
     } else {
         arg = identifierConstant(&name);
         getOp = OP_GET_GLOBAL;
@@ -560,6 +602,9 @@ void namedVariable(Token name, bool canAssign) {
     }
 
     if (canAssign && matchToken(TOKEN_EQUAL)) {
+        if (isFinal) {
+            errorAt(&name, "Cannot assign to final variable.");
+        }
         parseExpression();
         emitBytes(setOp, (uint8_t)arg);
     } else {

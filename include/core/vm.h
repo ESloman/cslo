@@ -32,6 +32,7 @@ typedef struct VM {
     Value stack[STACK_MAX];
     Value* stackTop;
     Table globals;
+    Table globalFinals;
     Table strings;
     ObjString* initString;
 

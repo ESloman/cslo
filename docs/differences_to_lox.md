@@ -20,6 +20,7 @@ and
 - compound assignment operators (`+=`, `-=`, `*=`, `/=`)
 - string formatting with `"Hello ${name}!"` syntax
 - `continue` and `break` statements in `for` / `while` loops
+- constant variables defined with `final var x = 1`
 
 ### More native functions
 
