@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.6 (2025-07-10)
+
+### Continuous Integration
+
+- Go back to publish step
+  ([`c46aace`](https://github.com/ESloman/cslo/commit/c46aaced50a757e9f2a06c7bc965e8c4190e3f35))
+
+
 ## v1.0.5 (2025-07-10)
 
 ### Bug Fixes
