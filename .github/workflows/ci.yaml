@@ -33,6 +33,16 @@ jobs:
       - name: Build cslo
         run: make && make debug
 
+      - name: List build directory
+        run: pwd && ls -la . && ls -la build
+
+      - name: Check cslo binary exists
+        run: |
+          if [ ! -x build/cslo ]; then
+            echo "::error::build/cslo does not exist or is not executable"
+            exit 1
+          fi
+
       - name: Run all tests
         run: python3 util/run_all_tests.py
 
@@ -119,13 +129,6 @@ jobs:
 
       - name: Build cslo (with updated version)
         run: make && make debug
-
-      - name: Publish | Upload to GitHub Release Assets
-        uses: python-semantic-release/publish-action@v10.2.0
-        if: steps.release.outputs.released == 'true'
-        with:
-          github_token: ${{ secrets.GH_ADMIN_TOKEN }}
-          tag: ${{ steps.release.outputs.tag }}
 
       - name: Create Release and Upload Assets
         uses: python-semantic-release/python-semantic-release@v10.2.0

@@ -1,5 +1,6 @@
 """Utility methods for cslo."""
 
+import os
 import subprocess  # noqa: S404
 from pathlib import Path
 
@@ -17,6 +18,15 @@ def run_slo_file(file: Path) -> str:
     Returns:
         str: the output of the file
     """
+    binary_path = Path("./build/cslo")
+    _DEFAULT_LOGGER.debug("Binary path is: %s", binary_path)
+    if not binary_path.is_file():
+        _DEFAULT_LOGGER.error("cslo binary not found at %s", binary_path)
+        raise FileNotFoundError(f"cslo binary not found at {binary_path}")
+    if not os.access(binary_path, os.X_OK):
+        _DEFAULT_LOGGER.error("cslo binary at %s is not executable", binary_path)
+        raise PermissionError(f"cslo binary at {binary_path} is not executable")
+
     return subprocess.check_output(["./build/cslo", str(file)], stderr=subprocess.DEVNULL)  # noqa: S603
 
 
