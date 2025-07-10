@@ -31,7 +31,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y bear
 
       - name: Build cslo
-        run: ./util/install.sh
+        run: make && make debug
 
       - name: Run all tests
         run: python3 util/run_all_tests.py
@@ -41,6 +41,7 @@ jobs:
 
   release:
     if: github.actor != 'github-actions'
+    depends-on: build-and-test
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
@@ -115,7 +116,7 @@ jobs:
           git_committer_email: "actions@users.noreply.github.com"
 
       - name: Build cslo (with updated version)
-        run: ./util/install.sh
+        run: make && make debug
 
       - name: Publish | Upload to GitHub Release Assets
         uses: python-semantic-release/publish-action@v10.2.0
