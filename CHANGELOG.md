@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.5 (2025-07-10)
+
+### Bug Fixes
+
+- Correct action args
+  ([`c9e7987`](https://github.com/ESloman/cslo/commit/c9e79877dfe3bbb5864ecf50489b455067884557))
+
+
 ## v1.0.4 (2025-07-10)
 
 ### Bug Fixes
