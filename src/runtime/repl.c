@@ -19,8 +19,7 @@
 #include "core/vm.h"
 #include "linenoise.h"
 
-#define SLO_VERSION "0.1.0"  // todo: have this update dynamically and versioned by the build system
-
+#include "version.h"
 
 static const char* get_history_path() {
     const char* home = getenv("HOME");

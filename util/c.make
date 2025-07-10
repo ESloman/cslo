@@ -38,7 +38,15 @@ endif
 # Recursive wildcard function
 rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
-HEADERS := $(call rwildcard,include/,*.h)
+
+# Version header generation
+VERSION_FILE := $(SOURCE_DIR)/VERSION
+VERSION_HEADER := $(SOURCE_DIR)/version.h
+
+$(VERSION_HEADER): $(VERSION_FILE)
+	echo "#define SLO_VERSION \"$$(head -n 1 $(VERSION_FILE))\"" > $(VERSION_HEADER)
+
+HEADERS := $(call rwildcard,include/,*.h) $(VERSION_HEADER)
 SOURCES := $(call rwildcard,$(SOURCE_DIR)/,*.c)
 
 # Files.

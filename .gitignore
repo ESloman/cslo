@@ -113,3 +113,5 @@ dmypy.json
 !tests/**/*.out
 !tests/**/*.json
 tests/slo/stdlib/json_dump.json
+
+src/version.h

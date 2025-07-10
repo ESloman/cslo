@@ -1,0 +1,10 @@
+[semantic_release]
+version_variable = "src/VERSION:0"
+branch = "main"
+upload_to_pypi = false
+upload_to_release = true
+build_command = ""
+commit_parser = "angular"
+changelog_file = "CHANGELOG.md"
+tag_format = "v{version}"
+dist_path = ["build/cslo"]
