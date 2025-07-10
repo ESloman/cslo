@@ -132,7 +132,7 @@ void prefixIncDec(bool canAssign);
 void postfixIncDec(bool canAssign);
 void compoundAssign(bool canAssign);
 void list(bool canAssign);
-void index(bool canAssign);
+void listIndex(bool canAssign);
 void has(bool canAssign);
 void hasNot(bool canAssign);
 

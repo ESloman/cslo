@@ -1,5 +1,5 @@
-[semantic_release]
-version_variable = "src/VERSION:0"
+[tool.semantic_release]
+version_variables = ["src/VERSION:VERSION:nf"]
 branch = "main"
 upload_to_pypi = false
 upload_to_release = true
@@ -9,16 +9,16 @@ changelog_file = "CHANGELOG.md"
 tag_format = "v{version}"
 dist_path = ["build/cslo", "build/cslod"]
 
-[semantic_release.branches.main]
+[tool.semantic_release.branches.main]
 match = "main"
 prerelease = false
 
-[semantic_release.branches.other]
+[tool.semantic_release.branches.other]
 match = ".*"
 prerelease = true
 prerelease_token = "b"
 
-[semantic_release.commit_parser_options]
+[tool.semantic_release.commit_parser_options]
 allowed_tags = [
     "chore", "ci", "docs", "feat", "fix",
     "perf", "style", "refactor", "test"

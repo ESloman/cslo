@@ -15,6 +15,10 @@ def run_slo_file(file: Path) -> str:
     Args:
         file (Path): the file to run.
 
+    Raises:
+        FileNotFoundError: if the cslo binary is not found.
+        PermissionError: if the cslo binary is not executable.
+
     Returns:
         str: the output of the file
     """
@@ -22,10 +26,10 @@ def run_slo_file(file: Path) -> str:
     _DEFAULT_LOGGER.debug("Binary path is: %s", binary_path)
     if not binary_path.is_file():
         _DEFAULT_LOGGER.error("cslo binary not found at %s", binary_path)
-        raise FileNotFoundError(f"cslo binary not found at {binary_path}")
+        raise FileNotFoundError
     if not os.access(binary_path, os.X_OK):
         _DEFAULT_LOGGER.error("cslo binary at %s is not executable", binary_path)
-        raise PermissionError(f"cslo binary at {binary_path} is not executable")
+        raise PermissionError
 
     return subprocess.check_output(["./build/cslo", str(file)], stderr=subprocess.DEVNULL)  # noqa: S603
 

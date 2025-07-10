@@ -398,7 +398,7 @@ void list(bool canAssign) {
 /**
  * Method for compiling list indexing.
  */
-void index(bool canAssign) {
+void listIndex(bool canAssign) {
     if (checkToken(TOKEN_COLON)) {
         emitByte(OP_NIL, parser.previous.line); // default to nil if no start index
     } else {
