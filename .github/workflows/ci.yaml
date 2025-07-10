@@ -33,16 +33,6 @@ jobs:
       - name: Build cslo
         run: make && make debug
 
-      - name: List build directory
-        run: pwd && ls -la . && ls -la build
-
-      - name: Check cslo binary exists
-        run: |
-          if [ ! -x build/cslo ]; then
-            echo "::error::build/cslo does not exist or is not executable"
-            exit 1
-          fi
-
       - name: Run all tests
         run: python3 util/run_all_tests.py
 
