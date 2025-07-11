@@ -2,6 +2,41 @@
 
 <!-- version list -->
 
+## v1.1.0 (2025-07-11)
+
+### Bug Fixes
+
+- Add OP_DEFINE_FINAL_GLOBAL to debug.c
+  ([`efc974d`](https://github.com/ESloman/cslo/commit/efc974d05929a52d9be8589f8f0b46a99c5df746))
+
+### Chores
+
+- Move opcodes into dedicated header file
+  ([`5b90aae`](https://github.com/ESloman/cslo/commit/5b90aae0164adb0483df10edbdb315671c840072))
+
+- Update expected error handling in slo files,add multiprocessing to speed up tests
+  ([`395ac9e`](https://github.com/ESloman/cslo/commit/395ac9ed64e718c992fdeafaa1c849207f4bca13))
+
+### Documentation
+
+- Update goals
+  ([`cd23766`](https://github.com/ESloman/cslo/commit/cd2376620a8463ee98ed2a96423ef1a6599322d1))
+
+### Features
+
+- Add 'assert' keyword
+  ([`18ac973`](https://github.com/ESloman/cslo/commit/18ac973443219cec53dc5fc918dd7c259dc36e59))
+
+- Add --version / -v for printing version
+  ([`33c9b09`](https://github.com/ESloman/cslo/commit/33c9b098e2d9f99acca44bd33130279ba865a9e6))
+
+- Add gcovr for coverage report generation
+  ([`46ccf0c`](https://github.com/ESloman/cslo/commit/46ccf0cad985501be352f2cd818db9952378fab4))
+
+- Update keyword parsing to use a list and linear search for matching
+  ([`fcd5af2`](https://github.com/ESloman/cslo/commit/fcd5af28c6dfcdc719ecb0349b3e9ec9331a84b2))
+
+
 ## v1.0.7 (2025-07-10)
 
 ### Bug Fixes
