@@ -7,6 +7,10 @@ clean:
 	@ rm -rf $(BUILD_DIR)
 	@ rm -rf gen
 
+# used for generating a coverage build
+coverage:
+	@ $(MAKE) -f util/c.make NAME=cslo MODE=coverage SOURCE_DIR=src
+
 # Compile a debug build of cslo.
 debug:
 	@ $(MAKE) -f util/c.make NAME=cslod MODE=debug SOURCE_DIR=src

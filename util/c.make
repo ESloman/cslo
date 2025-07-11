@@ -39,6 +39,11 @@ CFLAGS += -O3 -flto
 BUILD_DIR := build/release
 endif
 
+ifeq ($(MODE),coverage)
+CFLAGS += -O0 -g -fprofile-arcs -ftest-coverage
+BUILD_DIR := build/coverage
+endif
+
 # Recursive wildcard function
 rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 

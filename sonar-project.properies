@@ -1,4 +1,7 @@
-sonar.inclusions=src/**,include/**
+sonar.sources=src,include,util,tests,examples
+sonar.inclusions=src/**,include/**,util/**
 sonar.exclusions=third_party/**
-sonar.test.inclusions=tests/**
+sonar.test.inclusions=tests/**,examples/**
 sonar.python.version=3.13
+sonar.cfamily.gcov.reportsPath=.
+sonar.coverageReportPaths=coverage.xml

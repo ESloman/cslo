@@ -119,3 +119,5 @@ tests/slo/stdlib/json_dump.json
 
 src/version.h
 include/version.h
+
+coverage*

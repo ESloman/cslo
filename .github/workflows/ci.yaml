@@ -31,13 +31,22 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y bear
 
       - name: Build cslo
-        run: make && make debug
+        run: make coverage && make debug
 
       - name: Run all tests
         run: python3 util/run_all_tests.py
 
       - name: Run all examples
         run: python3 util/run_all_examples.py
+
+      - name: Run coverage report
+        run: gcovr -r . --xml -o coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
 
   release:
     if: github.actor != 'github-actions'
