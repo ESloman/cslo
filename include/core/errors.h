@@ -19,6 +19,7 @@ enum ErrorType {
     ERROR_INDEX,
     ERROR_IMPORT,
     ERROR_NAME,
+    ERROR_ASSERTION,
 };
 
 /**

@@ -1521,6 +1521,17 @@ static InterpretResult run() {
                 concatenate();
                 break;
             }
+            case OP_ASSERT: {
+                Value cond = pop();
+                if (isFalsey(cond)) {
+                    // raise an assertion
+                    frame->ip = ip;
+                    runtimeError(ERROR_ASSERTION, "Assertion failed.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                // nothing to do when the value is true
+                break;
+            }
             case OP_RETURN: {
                 Value result = pop();
                 closeUpvalues(frame->slots);

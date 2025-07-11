@@ -67,7 +67,11 @@ static TokenType identifierType() {
     switch (scanner.start[0]) {
         case 'a':
             if (scanner.current - scanner.start > 1 && scanner.start[1] == 's') {
-                return checkKeyword(1, 1, "s", TOKEN_AS);
+                if (checkKeyword(1, 1, "s", TOKEN_AS) == TOKEN_AS) {
+                    return TOKEN_AS;
+                }
+
+                return checkKeyword(1, 5, "ssert", TOKEN_ASSERT);
             } else if (scanner.current - scanner.start > 1 && scanner.start[1] == 'n') {
                 return checkKeyword(1, 2, "nd", TOKEN_AND);
             }

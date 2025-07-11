@@ -21,6 +21,8 @@ and
 - string formatting with `"Hello ${name}!"` syntax
 - `continue` and `break` statements in `for` / `while` loops
 - constant variables defined with `final var x = 1`
+- `assert` for assertions
+- better error handling - different `Exception` types, line and column printing, printing the source, etc
 
 ### More native functions
 

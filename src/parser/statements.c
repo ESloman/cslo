@@ -29,6 +29,8 @@ void parseStatement() {
         breakStatement();
     } else if (matchToken(TOKEN_CONTINUE)) {
         continueStatement();
+    } else if (matchToken(TOKEN_ASSERT)) {
+        assertStatement();
     } else if (matchToken(TOKEN_LEFT_BRACE)) {
         beginScope();
         parseBlock();
@@ -498,3 +500,14 @@ void parseImportStatement() {
     }
     consumeToken(TOKEN_SEMICOLON, "Expected ';' after import statement.");
 }
+
+/**
+ * Method for compiling an assert statement.
+ */
+void assertStatement() {
+    parseExpression();
+    consumeToken(TOKEN_SEMICOLON, "Expected ';' after assert statement.");
+
+    emitByte(OP_ASSERT, parser.previous.line);
+}
+//

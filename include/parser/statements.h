@@ -55,4 +55,9 @@ void returnStatement();
  */
 void parseImportStatement();
 
+/**
+ * Method for compiling an assert statement.
+ */
+void assertStatement();
+
 #endif

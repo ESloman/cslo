@@ -14,6 +14,7 @@ any particular order and are subject to change.
 
 - everything as an object á la Python
 - expand standard library
+- exception handling with `try/except/finally`
 - list/dict comprehensions
 - user defined imports/libraries
 - user defined natives/C libraries
@@ -21,6 +22,8 @@ any particular order and are subject to change.
 - threading
 - op code caching
 - general optimisation / performance improvements
+- improved and more extensible keyword matching in `scanner.c`
+- add optional message error messages for asserts and improved `AssertionExceptions`
 - ~~syntax highlighing~~ and _eventually_ a language server ([basic extension here](https://github.com/ESloman/slo-vscode))
 
 I would like to eventually add type hints or some kind of type system but that's very much a stretch goal.

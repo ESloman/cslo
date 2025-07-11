@@ -18,10 +18,20 @@ static const char* errorTypeToString(enum ErrorType type) {
             return "SyntaxException";
         case ERROR_TYPE:
             return "TypeException";
+        case ERROR_ATTRIBUTE:
+            return "AttributeException";
         case ERROR_IO:
             return "IOException";
         case ERROR_MEMORY:
             return "MemoryException";
+        case ERROR_INDEX:
+            return "IndexException";
+        case ERROR_IMPORT:
+            return "ImportException";
+        case ERROR_NAME:
+            return "NameException";
+        case ERROR_ASSERTION:
+            return "AssertionException";
         default:
             return "UnknownException";
     }

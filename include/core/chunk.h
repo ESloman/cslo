@@ -70,6 +70,7 @@ typedef enum OpCode {
     OP_IMPORT,
     OP_IMPORT_AS,
     OP_INTERPOLATE,
+    OP_ASSERT,
 } OpCode;
 
 /**

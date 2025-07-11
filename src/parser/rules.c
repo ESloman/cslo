@@ -85,6 +85,7 @@ ParseRule rules[] = {
     [TOKEN_BREAK]           = { NULL,                NULL,           PREC_NONE       },
     [TOKEN_CONTINUE]        = { NULL,                NULL,           PREC_NONE       },
     [TOKEN_FINAL]           = { NULL,                NULL,           PREC_NONE       },
+    [TOKEN_ASSERT]          = { NULL,                NULL,           PREC_NONE       },
     [TOKEN_IMPORT]          = { NULL,                NULL,           PREC_NONE       },
     [TOKEN_ERROR]           = { NULL,                NULL,           PREC_NONE       },
     [TOKEN_EOF]             = { NULL,                NULL,           PREC_NONE       },
