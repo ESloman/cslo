@@ -8,7 +8,9 @@
 #include <string.h>
 
 #include "core/common.h"
+#include "compiler/keywords.h"
 #include "compiler/scanner.h"
+#include "compiler/tokens.h"
 
 Scanner scanner;
 
@@ -45,131 +47,31 @@ static bool isAtEnd() {
 }
 
 /**
- * Method for checking an identifier for matching keywords.
- */
-static TokenType checkKeyword(int start, int length, const char* rest, TokenType type) {
-    if (scanner.current - scanner.start == start + length &&
-        memcmp(scanner.start + start, rest, length) == 0) {
-        return type;
-    }
-
-    return TOKEN_IDENTIFIER;
-}
-
-/**
  * Method for working out the identifier type.
  *
- * We check the first letter of the identifier to see if it matches a keyword;
- *  - if it does, we parse the rest of it to see if it matches anything.
- * Otherwise, we just assume we have an identifier and return.
+ * We use an array of keywords to determine if the identifier
+ * is actually a keyword or not. If it is, we return the corresponding
+ * token type. If not, we return TOKEN_IDENTIFIER.
  */
 static TokenType identifierType() {
-    switch (scanner.start[0]) {
-        case 'a':
-            if (scanner.current - scanner.start > 1 && scanner.start[1] == 's') {
-                if (checkKeyword(1, 1, "s", TOKEN_AS) == TOKEN_AS) {
-                    return TOKEN_AS;
-                }
+    int length = (int)(scanner.current - scanner.start);
+    for (size_t i = 0; i < KEYWORD_COUNT; i++) {
+        if ((int)strlen(keywords[i].keyword) == length &&
+            memcmp(scanner.start, keywords[i].keyword, length) == 0) {
 
-                return checkKeyword(1, 5, "ssert", TOKEN_ASSERT);
-            } else if (scanner.current - scanner.start > 1 && scanner.start[1] == 'n') {
-                return checkKeyword(1, 2, "nd", TOKEN_AND);
-            }
-            break;
-        case 'b':
-            return checkKeyword(1, 4, "reak", TOKEN_BREAK);
-        case 'c':
-            if (scanner.current - scanner.start > 1 && scanner.start[1] == 'l') {
-                return checkKeyword(1, 4, "lass", TOKEN_CLASS);
-            } else {
-                return checkKeyword(1, 7, "ontinue", TOKEN_CONTINUE);
-            }
-        case 'e': {
-            if (scanner.current - scanner.start > 1 && scanner.start[1] == 'l') {
-                switch (scanner.start[2]) {
-                    case 's': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
-                    case 'i': return checkKeyword(1, 3, "lif", TOKEN_ELIF);
-                    default:
-                        break;
-                }
-            } else if (scanner.current - scanner.start > 1 && scanner.start[1] == 'n') {
-                return checkKeyword(1, 3, "num", TOKEN_ENUM);
-            } else if (scanner.current - scanner.start > 1 && scanner.start[1] == 'x') {
-                return checkKeyword(1, 6, "xtends", TOKEN_EXTENDS);
-            }
-            break;
-        }
-        case 'f':
-            if (scanner.current - scanner.start > 1) {
-                switch (scanner.start[1]) {
-                    case 'a':
-                        return checkKeyword(2, 3, "lse", TOKEN_FALSE);
-                    case 'i':
-                        return checkKeyword(2, 3, "nal", TOKEN_FINAL);
-                    case 'o':
-                        return checkKeyword(2, 1, "r", TOKEN_FOR);
-                    case 'u':
-                        return checkKeyword(2, 2, "nc", TOKEN_FUN);
-                    default:
-                        break;
-                }
-            }
-            break;
-        case 'h':
-            if(checkKeyword(1, 2, "as", TOKEN_HAS) == TOKEN_HAS) {
+            // special handling for 'has not' 'keyword' as this is actually two keywords
+            if (keywords[i].type == TOKEN_HAS) {
+                // save current position
                 const char* afterHas = scanner.current;
-                while (*afterHas == ' ') {
-                    afterHas++;
-                }
-                if (strncmp(afterHas, "not", 3) == 0 && !isAlpha(afterHas[3])) {
-                    // Advance scanner.current to after "not"
+                while (*afterHas == ' ') afterHas++;
+                if (strncmp(afterHas, "not", 3) == 0 && !isAlpha(afterHas[3]) && !isDigit(afterHas[3])) {
+                    // advance scanner.current to after "not"
                     scanner.current = afterHas + 3;
                     return TOKEN_HAS_NOT;
                 }
-                return TOKEN_HAS;
             }
-            break;
-        case 'i':
-            if (scanner.current - scanner.start > 1) {
-                switch (scanner.start[1]) {
-                    case 'f':
-                        return checkKeyword(1, 1, "f", TOKEN_IF);
-                    case 'm':
-                        return checkKeyword(1, 5, "mport", TOKEN_IMPORT);
-                    case 'n':
-                        return checkKeyword(1, 1, "n", TOKEN_IN);
-                    default:
-                        break;
-                }
-            }
-            break;
-        case 'n':
-            return checkKeyword(1, 2, "il", TOKEN_NIL);
-        case 'o':
-            return checkKeyword(1, 1, "r", TOKEN_OR);
-        case 'r':
-            return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
-        case 's':
-            if (scanner.current - scanner.start > 1) {
-                switch (scanner.start[1]) {
-                    case 'e':
-                        return checkKeyword(2, 2, "lf", TOKEN_SELF);
-                    case 'u':
-                        return checkKeyword(2, 3, "per", TOKEN_SUPER);
-                    default:
-                        break;
-                }
-            }
-            break;
-        case 't': {
-            return checkKeyword(1, 3, "rue", TOKEN_TRUE);
+            return keywords[i].type;
         }
-        case 'v':
-            return checkKeyword(1, 2, "ar", TOKEN_VAR);
-        case 'w':
-            return checkKeyword(1, 4, "hile", TOKEN_WHILE);
-        default:
-            return TOKEN_IDENTIFIER;
     }
     return TOKEN_IDENTIFIER;
 }
