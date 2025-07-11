@@ -1,5 +1,8 @@
+# slo: exp error
+
 var map = {"a": 1, "b": 2, "c": 3};
 println(map.pop("a"));     # 1
 println(map);              # no 'a' key
-println(map.pop("d"));     # nil
 println(map.pop("d", 4));  # 4
+# this will error
+println(map.pop("d"));     # nil

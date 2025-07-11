@@ -1,3 +1,5 @@
+# slo: exp error
+
 var x = 10;
 {
     println(x);
@@ -6,5 +8,5 @@ var x = 10;
     println(x * y);
 }
 
-this will error
+# this will error
 println(y);

@@ -9,14 +9,12 @@
 - Fix publish assets
   ([`093911f`](https://github.com/ESloman/cslo/commit/093911fca027e4a5d32df03a4ae5ea08cdd6e6c2))
 
-
 ## v1.0.6 (2025-07-10)
 
 ### Continuous Integration
 
 - Go back to publish step
   ([`c46aace`](https://github.com/ESloman/cslo/commit/c46aaced50a757e9f2a06c7bc965e8c4190e3f35))
-
 
 ## v1.0.5 (2025-07-10)
 
@@ -25,7 +23,6 @@
 - Correct action args
   ([`c9e7987`](https://github.com/ESloman/cslo/commit/c9e79877dfe3bbb5864ecf50489b455067884557))
 
-
 ## v1.0.4 (2025-07-10)
 
 ### Bug Fixes
@@ -33,9 +30,7 @@
 - Change order of things
   ([`dc39d48`](https://github.com/ESloman/cslo/commit/dc39d489f29ab207abc678fbbbf5cd60572600de))
 
-
 ## v1.0.3 (2025-07-10)
-
 
 ## v1.0.2 (2025-07-10)
 
@@ -66,7 +61,6 @@
 - Update tag stuff
   ([`c47f07f`](https://github.com/ESloman/cslo/commit/c47f07ff921fa200fe1010b8e56f7bb9f6252c4d))
 
-
 ## v1.0.1 (2025-07-10)
 
 ### Bug Fixes
@@ -83,7 +77,6 @@
 
 - Pass in explicit config_file
   ([`e9b892d`](https://github.com/ESloman/cslo/commit/e9b892dcfeb839f1ad1365a8ff30c4177eb3ec5a))
-
 
 ## v1.0.0 (2025-07-10)
 

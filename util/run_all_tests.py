@@ -12,15 +12,6 @@ try:
 except ImportError:
     import util
 
-expected_errors: list[str] = [
-    "exit.slo",
-    "mismatched.slo",
-    "for_in_iterating.slo",
-    "locals.slo",
-    "errors.slo",
-    "pop.slo",
-]
-
 LOGGER: SlomanLogger = SlomanLogger(__name__)
 
 if __name__ == "__main__":
@@ -29,7 +20,7 @@ if __name__ == "__main__":
     test_dir = Path(current_dir, "tests", "slo")
     LOGGER.info("Running tests in: %s", test_dir)
 
-    passed, failed = util.runner(test_dir, expected_errors=expected_errors, logger=LOGGER)
+    passed, failed = util.runner(test_dir, use_multiprocess=True, logger=LOGGER)
 
     if failed:
         LOGGER.error("\nSome files failed to execute:")
